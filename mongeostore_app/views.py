@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-08-27 21:10:49
+LastEditTime: 2020-08-28 15:17:22
 '''
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
@@ -31,7 +31,7 @@ def add_segy(request):
 def show_segys(request):
     response = {}
     try:
-        segys = Mysegy.object.filter()
+        segys = Mysegy.objects.filter()
         response['list'] = json.loads(serializers.serialize("json", segys))
         response['msg'] = 'success'
         response['error_num'] = 0

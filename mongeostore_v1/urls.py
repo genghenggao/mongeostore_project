@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 16:59:36
 LastEditors: henggao
-LastEditTime: 2020-08-27 21:20:40
+LastEditTime: 2020-08-28 22:13:27
 '''
 """mongeostore_v1 URL Configuration
 
@@ -24,9 +24,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 import mongeostore_app.urls
-from django.conf.urls import include
+from django.conf.urls import url,include
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',include(mongeostore_app.urls)),
+    path('$',TemplateView.as_view(template_name="index.html")),
+    # url(r'^$', TemplateView.as_view(template_name="index.html")),
 ]

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-08-27 20:40:23
+LastEditTime: 2020-08-28 14:59:35
 '''
 from djongo import models
 # from django.db import models
@@ -29,10 +29,10 @@ class News(models.Model):
 
 class Mysegy(models.Model):
     num_id = models.CharField(verbose_name="编号", max_length=50)
-    x_line = models.FloatField()
-    y_line = models.FloatField()
-    value = models.FloatField()
-    author = models.CharField(verbose_name="记录人员", max_length=10)
+    x_line = models.FloatField(default=0)
+    y_line = models.FloatField(default=0)
+    value = models.FloatField(default=0)
+    author = models.CharField(verbose_name="记录人员", max_length=10,default="henggao")
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
