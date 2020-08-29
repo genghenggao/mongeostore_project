@@ -62,6 +62,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': ['mongeostore_ui/dist'],
+        # 'DIRS': [os.path.join(BASE_DIR,'mongeostore_ui/dist')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,8 +134,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
 # Add for vuejs
-STATICFILES_DIRS = [  # 添加静态文件
+STATICFILES_DIRS = [  # 添加静态文件路径
     os.path.join(BASE_DIR, "mongeostore_ui/dist/static"),
 ]
