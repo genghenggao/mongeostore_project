@@ -134,6 +134,28 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+####### sms ######
+#  腾讯云短信应用的app_id
+TENCENT_SMS_APP_ID = 2222222222
+
+# 腾讯云短信应用的app_key
+TENCENT_SMS_APP_KEY = '22222222222222222'
+
+# 腾讯云短信签名内容
+TENCENT_SMS_SIGN = 'iDataSharing'
+
+TENCENT_SMS_TEMPLATE = {
+    'register': 611200,
+    'login': 611307
+}
+
+#创建自己的local_settings.py
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
 # Add for vuejs
 STATICFILES_DIRS = [  # 添加静态文件路径
     os.path.join(BASE_DIR, "mongeostore_ui/dist/static"),
