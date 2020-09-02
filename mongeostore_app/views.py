@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-08-31 10:24:23
+LastEditTime: 2020-09-02 16:23:19
 '''
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
@@ -68,3 +68,17 @@ def send_sms(request):
         return HttpResponse('成功')
     else:
         return HttpResponse(res['errmsg'])
+
+
+#####   mongeostore  ######
+from django import forms
+from mongeostore_app import models
+
+class RegisterForm(forms.ModelForm):
+    class Meta:
+        model = models.UserInfo
+        fields = '__all__'
+        
+def register(request):
+    form = RegisterForm()
+    return render(request,'register.html',{'form':form})

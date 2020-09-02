@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-08-28 14:59:35
+LastEditTime: 2020-09-02 16:12:08
 '''
 from djongo import models
 # from django.db import models
@@ -38,3 +38,13 @@ class Mysegy(models.Model):
 
     def __str__(self):
         return self.num_id
+
+
+######## Mongeostore注册#########
+class UserInfo(models.Model):
+    username = models.CharField(verbose_name='用户名', max_length=32)
+    email = models.EmailField(verbose_name='邮箱', max_length=32)
+    mobile_phone = models.CharField(verbose_name='手机号', max_length=32)
+    password = models.CharField(verbose_name='密码', max_length=32)
+
+    

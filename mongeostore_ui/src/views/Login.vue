@@ -4,35 +4,37 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-01 21:59:37
+ * @LastEditTime: 2020-09-02 10:16:16
 -->
 <template>
-<body id="poster">
-  <el-form class="login-container" label-position="left" label-width="0px">
-    <h3 class="login_title">MongeoStore</h3>
-    <el-form-item>
-      <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入账号"></el-input>
-    </el-form-item>
-    <el-form-item>
-      <el-input
-        type="password"
-        v-model="loginForm.password"
-        auto-complete="off"
-        placeholder="请输入密码"
-        show-password
-      ></el-input>
-    </el-form-item>
-    <el-form-item style="width: 100%">
-      <el-button
-        type="primary"
-        style="width: 100%;background: #505458;border: none"
-        v-on:click="login"
-      >登录</el-button>
-      <el-link :underline="false" type="primary" class="fpassword">忘记密码？</el-link>
-      <el-link :underline="false" type="primary" class="register">注册</el-link>
-    </el-form-item>
-  </el-form>
-</body>
+  <div id="poster">
+    <el-form class="login-container" label-position="left" label-width="80px">
+      <h3 class="login_title">MongeoStore</h3>
+      <el-form-item prop="username" label="用户名:">
+        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入账号"></el-input>
+      </el-form-item>
+      <el-form-item prop="password" label="密码:">
+        <el-input
+          type="password"
+          v-model="loginForm.password"
+          auto-complete="off"
+          placeholder="请输入密码"
+          show-password
+        ></el-input>
+      </el-form-item>
+      <el-form-item style="width: 100%">
+        <el-button
+          type="primary"
+          style="width: 100%;background: #505458;border: none"
+          v-on:click="login"
+        >登录</el-button>
+        <div class="register">
+          <el-link :underline="false" type="primary">忘记密码？</el-link>
+          <el-link class="register_id" :underline="false" type="primary" href="/register">注册</el-link>
+        </div>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <script>
@@ -74,16 +76,14 @@ export default {
 
 <style lang="scss" scoped>
 #poster {
-  background: url("../assets/background.jpg") no-repeat;
+  background: url("../assets/images/background.jpg") no-repeat;
   background-position: center;
   height: 100%;
   width: 100%;
   background-size: cover;
   position: fixed;
 }
-body {
-  margin: 0px;
-}
+
 .login-container {
   border-radius: 15px;
   background-clip: padding-box;
@@ -100,10 +100,12 @@ body {
   text-align: center;
   color: #505458;
 }
-.register{
+.register {
   position: relative;
-  right:  -160px;
+  right: 40px;
   // width: 100%;
-
+}
+.register_id {
+  right: -80px;
 }
 </style>

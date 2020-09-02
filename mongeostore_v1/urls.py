@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 16:59:36
 LastEditors: henggao
-LastEditTime: 2020-08-31 10:00:35
+LastEditTime: 2020-09-02 16:17:57
 '''
 """mongeostore_v1 URL Configuration
 
@@ -34,4 +34,6 @@ urlpatterns = [
     path('api/',include(mongeostore_app.urls)),
     path('',TemplateView.as_view(template_name="index.html")),
     path('send/sms/', views.send_sms),
+    # mongeostore #
+    # path('register/', views.register),
 ]
