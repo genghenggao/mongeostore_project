@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-01 20:56:05
+ * @LastEditTime: 2020-09-03 08:13:50
 -->
 <template>
   <div class="home">
@@ -37,6 +37,9 @@ export default {
     },
     testAxios() {
       axios.get("http://localhost:8080").then(res => {
+        alert(res.data);
+      });
+      axios.get("http://localhost:8080/user").then(res => {
         alert(res.data);
       });
     }

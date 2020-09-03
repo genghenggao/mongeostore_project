@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # myapp
+    'rest_framework',
     'mongeostore_app'
 ]
 
@@ -133,7 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
+AUTH_USER_MODEL  = "mongeostore_app.UserInfo"
 
 ####### sms ######
 #  腾讯云短信应用的app_id
