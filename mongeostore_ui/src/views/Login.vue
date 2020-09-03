@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-03 10:47:26
+ * @LastEditTime: 2020-09-02 10:16:16
 -->
 <template>
   <div id="poster">
@@ -38,83 +38,38 @@
 </template>
 
 <script>
-import Cookies from "js-cookie";
 export default {
   name: "login",
   data() {
     return {
-      loading: false,
       loginForm: {
         username: "",
-        password: "",
-        email: "",
-        mobile_phone:"",
-        src: ""
+        password: ""
       },
-      responseResult: [],
-      fieldRules: {
-        name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
-      },
-      checked: true
+      responseResult: []
     };
   },
   methods: {
-    // login() {
-    //   var _this = this;
-    //   console.log(this.$store.state);
-    //   this.$axios
-    //     .post("/login", {
-    //       username: this.loginForm.username,
-    //       password: this.loginForm.password
-    //     })
-    //     .then(successResponse => {
-    //       if (successResponse.data.code === 200) {
-    //         _this.$store.commit("login", _this.loginForm);
-    //         var path = this.$route.query.redirect;
-    //         this.$router.replace({
-    //           path: path === "/" || path === undefined ? "/index" : path
-    //         });
-    //       }
-    //     })
-    //     // eslint-disable-next-line no-unused-vars
-    //     .catch(failResponse => {});
-    // }
-
     login() {
-      this.loading = true;
-      let userInfo = {
-        name: this.loginForm.name,
-        password: this.loginForm.password,
-        captcha: this.loginForm.captcha
-      };
-      this.$api.login
-        .login(userInfo)
-        .then(res => {
-          // 调用登录接口
-          if (res.msg != null) {
-            this.$message({ message: res.msg, type: "error" });
-          } else {
-            Cookies.set("token", res.data.token); // 放置token到Cookie
-            sessionStorage.setItem("user", userInfo.account); // 保存用户到本地会话
-            this.$router.push("/"); // 登录成功，跳转到主页
-          }
-          this.loading = false;
+      var _this = this;
+      console.log(this.$store.state);
+      this.$axios
+        .post("/login", {
+          username: this.loginForm.username,
+          password: this.loginForm.password
         })
-        .catch(res => {
-          this.$message({ message: res.message, type: "error" });
-        });
-    },
-    refreshCaptcha: function() {
-      this.loginForm.src =
-        this.global.baseUrl + "/captcha.jpg?t=" + new Date().getTime();
-    },
-    reset() {
-      this.$refs.loginForm.resetFields();
+        .then(successResponse => {
+          if (successResponse.data.code === 200) {
+            _this.$store.commit("login", _this.loginForm);
+            var path = this.$route.query.redirect;
+            this.$router.replace({
+              path: path === "/" || path === undefined ? "/index" : path
+            });
+          }
+        })
+        // eslint-disable-next-line no-unused-vars
+        .catch(failResponse => {});
     }
-  },
-  mounted() {
-    this.refreshCaptcha();
   }
 };
 </script>
