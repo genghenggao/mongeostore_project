@@ -96,10 +96,11 @@ class RegisterView(View):
         :return: 注册结果
         """
         # 接收前端表单数据,使用Post.get()方法
-        username = request.POST.get('user_name')
-        password = request.POST.get('pwd')
-        password2 = request.POST.get('cpwd')
-        mobile = request.POST.get('phone')
+        username = request.POST.get('ussename')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+        mobile = request.POST.get('mobile')
+        email = request.POST.get('email')
         allow = request.POST.get('allow')
         image_code = request.POST.get('image_code')
         # 判断参数是否齐全

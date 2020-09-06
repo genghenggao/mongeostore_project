@@ -9,7 +9,13 @@ LastEditTime: 2020-09-03 14:56:39
 # 这是新建的urls，用于将接口添加到路由里
 from django.conf.urls import url, include
 from django.urls import path, include
-from . import views
+
+from rest_framework.routers import DefaultRouter
+# from . import views
+from mongeostore_app import views
+
+router = DefaultRouter()
+router.register('mongeostore_app', views.RegisterView, basename='register')
 
 urlpatterns = [
     # 主页MySegy
@@ -17,6 +23,7 @@ urlpatterns = [
     url(r"show_segys$", views.show_segys),
 
     # 注册
+    # url(r'^register', views.RegisterView),
     url(r'^register/$', views.RegisterView.as_view(), name='register'),
     url(r'^usernames/(?P<username>[a-zA-Z0-9_-]{5,20})/count/$',
         views.UsernameCountView.as_view(), ),

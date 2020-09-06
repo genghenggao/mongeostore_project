@@ -21,19 +21,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-import mongeostore_app.urls
-from django.conf.urls import url,include
-from django.views.generic import TemplateView
+
 
 from mongeostore_app import views
-
+from django.views.generic import TemplateView
+from django.contrib import admin
+from django.urls import path, re_path
+import mongeostore_app.urls
+from django.conf.urls import url, include
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/',include(mongeostore_app.urls)),
-    path('',TemplateView.as_view(template_name="index.html")),
     path('send/sms/', views.send_sms),
+    path('api/', include(mongeostore_app.urls)),
+    path('', TemplateView.as_view(template_name="index.html")),
     # mongeostore #
     # path('register/', views.register),
+    re_path(r'.*', TemplateView.as_view(template_name='index.html'))
 ]

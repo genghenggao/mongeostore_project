@@ -39,6 +39,11 @@ export default {
       axios.get("http://localhost:8080").then(res => {
         alert(res.data);
       });
+    },
+    testAxios() {
+      axios.post("http://localhost:8080/register").then(res => {
+        alert(JSON.stringify(res.data));
+      });
     }
   }
 };
