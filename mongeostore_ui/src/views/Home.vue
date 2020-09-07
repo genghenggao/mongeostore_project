@@ -36,11 +36,11 @@ export default {
       this.langVisible = false;
     },
     testAxios() {
-      axios.get("http://localhost:8080").then(res => {
+      this.$http.get("http://localhost:8080").then(res => {
         alert(res.data);
       });
     },
-    testAxios() {
+    testAxios1() {
       axios.post("http://localhost:8080/register").then(res => {
         alert(JSON.stringify(res.data));
       });

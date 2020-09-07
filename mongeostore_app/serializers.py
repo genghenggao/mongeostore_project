@@ -1,15 +1,16 @@
 """
 序列化
 """
+from .models import Mysegy
+from rest_framework.validators import UniqueValidator
+from rest_framework import serializers
 import re
 from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
-User = get_user_model()
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+UserInfo = get_user_model()
 
-from .models import VerifyCode
+# from .models import VerifyCode
 
 class SmsSerializer(serializers.Serializer):
     """
@@ -35,7 +36,8 @@ class SmsSerializer(serializers.Serializer):
             raise serializers.ValidationError("用户已经存在")  # 返回数据出错
 
         # 验证发送频率
-        one_minutes_ago = datetime.now() - timedelta(hours=0, minutes=1, seconds=0)  # 获取一分钟以前的时间
+        one_minutes_ago = datetime.now() - timedelta(hours=0, minutes=1,
+                                                     seconds=0)  # 获取一分钟以前的时间
         if VerifyCode.objects.filter(add_time__gt=one_minutes_ago, mobile=mobile).count() > 0:
             raise serializers.ValidationError("验证码发送频繁，请稍后再试")  # 返回数据出错
 
@@ -49,18 +51,18 @@ class RegisterSerializer(serializers.ModelSerializer):
     """
     # error_messages 表示数据出错时的提示字段
     # write_only 设置了之后 save() 序列化时，就不会调用这个数据，且前端不会返回
-    code = serializers.CharField(max_length=4, min_length=4, required=True, help_text="短信验证码", error_messages={
-        "blank": "验证码不能为空",
-        "required": "请输入验证码",
-        "max_length": "验证码太长了，最多4位",
-        "min_length": "验证码太短了，最少4位",
-    }, label="验证码", write_only=True)
+    # code = serializers.CharField(max_length=4, min_length=4, required=True, help_text="短信验证码", error_messages={
+    #     "blank": "验证码不能为空",
+    #     "required": "请输入验证码",
+    #     "max_length": "验证码太长了，最多4位",
+    #     "min_length": "验证码太短了，最少4位",
+    # }, label="验证码", write_only=True)
 
     # 验证用户名唯一性
     username = serializers.CharField(label="用户名",
                                      required=True,
                                      allow_blank=False,
-                                     validators=[UniqueValidator(queryset=User.objects.all(), message="用户已存在")])
+                                     validators=[UniqueValidator(queryset=UserInfo.objects.all(), message="用户已存在")])
 
     password = serializers.CharField(
         style={'input_type': 'password'},
@@ -76,17 +78,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
-        user = super(RegisterSerializer, self).create(validated_data=validated_data)
-        user.set_password(validated_data["password"])  # django 自带的密码密文
-        user.save()
-        return user
+        userInfo = super(RegisterSerializer, self).create(
+            validated_data=validated_data)
+        userInfo.set_password(validated_data["password"])  # django 自带的密码密文
+        userInfo.save()
+        return userInfo
 
     def validated_code(self, code):
         # 用户前端传过来的值，都会放在 self.initial_data 中
-        verify_record = VerifyCode.objects.filter(mobile=self.initial_data["username"]).order_by("-add_time")
+        verify_record = VerifyCode.objects.filter(
+            mobile=self.initial_data["username"]).order_by("-add_time")
         if verify_record:
             last_record = verify_record[0]
-            five_minutes_ago = datetime.now() - timedelta(hours=0, minutes=5, seconds=0)  # 获取验证码有效期为5分钟
+            five_minutes_ago = datetime.now() - timedelta(hours=0, minutes=5,
+                                                          seconds=0)  # 获取验证码有效期为5分钟
 
             if five_minutes_ago > last_record.add_time:
                 raise serializers.ValidationError("验证码已过期")  # 抛出序列化异常
@@ -106,11 +111,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     class Meta:
-        model = User
-        fields = ("username", "code", "mobile", "password",)
+        model = UserInfo
+        fields = ("username", "code", "mobile", "email", "password",)
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ("username", "name", "birthday", "gender", "mobile", "email",)
+        model = UserInfo
+        fields = ("username", "mobile", "email",)
+
+
+
+## 学生测试序列化
+from .models import StudentsModel
+class StudentsSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    content = serializers.CharField(max_length=200)
+    created = serializers.DateTimeField()
+    port = serializers.IntegerField()
+
+    def create(self, validated_data):
+     return StudentsModel.objects.create(**validated_data)    
+ 
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get('content', instance.content)
+        instance.email = validated_data.get('email', instance.email)
+        instance.created = validated_data.get('created', instance.created)
+        instance.port = validated_data.get('port', instance.port)
+        instance.save()

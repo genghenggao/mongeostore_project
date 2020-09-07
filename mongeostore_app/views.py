@@ -7,7 +7,8 @@ LastEditors: henggao
 LastEditTime: 2020-09-03 17:00:19
 '''
 from django.views.decorators.http import require_http_methods
-from django.core import serializers
+# from django.core import serializers
+from . import serializers
 from django.http import JsonResponse
 import json
 from .models import Mysegy
@@ -23,37 +24,38 @@ from django.urls import reverse
 from django.views import View
 from mongeostore_app.models import UserInfo
 from utils.response_code import RETCODE
+
 # Create your views here.
 
 
-@require_http_methods(['GET'])
-def add_segy(request):
-    response = {}
-    try:
-        segy = Mysegy(num_id=request.GET.get('num_id'))
-        segy.save()
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
+# @require_http_methods(['GET'])
+# def add_segy(request):
+#     response = {}
+#     try:
+#         segy = Mysegy(num_id=request.GET.get('num_id'))
+#         segy.save()
+#         response['msg'] = 'success'
+#         response['error_num'] = 0
+#     except Exception as e:
+#         response['msg'] = str(e)
+#         response['error_num'] = 1
 
-    return JsonResponse(response)
+#     return JsonResponse(response)
 
 
-@require_http_methods(['GET'])
-def show_segys(request):
-    response = {}
-    try:
-        segys = Mysegy.objects.filter()
-        response['list'] = json.loads(serializers.serialize("json", segys))
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
+# @require_http_methods(['GET'])
+# def show_segys(request):
+#     response = {}
+#     try:
+#         segys = Mysegy.objects.filter()
+#         response['list'] = json.loads(serializers.serialize("json", segys))
+#         response['msg'] = 'success'
+#         response['error_num'] = 0
+#     except Exception as e:
+#         response['msg'] = str(e)
+#         response['error_num'] = 1
 
-    return JsonResponse(response)
+#     return JsonResponse(response)
 
 # 发送短信验证
 
@@ -96,7 +98,7 @@ class RegisterView(View):
         :return: 注册结果
         """
         # 接收前端表单数据,使用Post.get()方法
-        username = request.POST.get('ussename')
+        username = request.POST.get('username')
         password = request.POST.get('password')
         password2 = request.POST.get('password2')
         mobile = request.POST.get('mobile')
@@ -126,7 +128,7 @@ class RegisterView(View):
         # 保存注册数据
         try:
             user = UserInfo.objects.create_user(
-                username=username, password=password, mobile=mobile)
+                username=username, password=password, mobile=mobile,email = email)
         except DatabaseError:
             return render(request, 'register.html', {'register_errmsg': '注册失败'})
 
@@ -157,6 +159,12 @@ class MobileCountView(View):
         count = UserInfo.objects.filter(mobile=mobile).count()
         return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
 
+class MobileCountView(View):
+    """检测邮箱是否重复"""
+
+    def get(self, request, email):
+        count = UserInfo.objects.filter(email=email).count()
+        return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
 
 class LoginView(View):
     """用户名登录"""
@@ -198,3 +206,36 @@ class LoginView(View):
         response.set_cookie('username', user.username, max_age=(
             14 * 24 * 3600 if remembered else None))
         return response
+
+
+
+from rest_framework.views import APIView
+from .models import StudentsModel
+from .serializers import StudentsSerializer
+class StudentsView(APIView):
+    
+    def get(self, request):
+        queryset = StudentsModel.objects.all()
+        serializer = StudentsSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        data = request.data
+        serializer = StudentsSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def put(self, request):
+        data = request.data
+        obj_id = data.pop('id')
+        instance = StudentsModel.objects.get(id=obj_id)
+        print("======================", instance.content)
+        serializer = StudentsSerializer(instance, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)

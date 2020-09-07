@@ -50,7 +50,7 @@ class Mysegy(models.Model):
 class UserInfo(AbstractUser):
     # username = models.CharField(verbose_name='用户名', max_length=32)
     # email = models.EmailField(verbose_name='邮箱', max_length=32)
-    mobile = models.CharField(verbose_name='手机号', max_length=32)
+    mobile = models.CharField(verbose_name='手机号', max_length=32, unique=True)
     email_active = models.BooleanField(default=False, verbose_name='邮箱验证状态')
     # password = models.CharField(verbose_name='密码', max_length=32)
 
@@ -76,3 +76,12 @@ class UserInfo(AbstractUser):
 
 #     def __str__(self):
 #         return self.code
+
+
+
+# 学生测试序列化
+class StudentsModel(models.Model):
+    email = models.EmailField()
+    content = models.CharField(max_length=200)
+    created = models.DateTimeField()
+    port = models.IntegerField()

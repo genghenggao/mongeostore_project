@@ -84,15 +84,15 @@ export default {
           return;
         } else {
           // this.$router.push({ path: "/" }); //无需向后台提交数据，方便前台调试
-          this.$http
-            .post("/register/", {
+          axios
+            .post("/api/register/", {
               name: this.user.username,
               mobile: this.user.mobile,
               email: this.user.email,
               password: this.user.password,
             })
             .then(res => {
-              // console.log("输出response.data", res.data);
+              console.log("输出response.data", res.data);
               // console.log("输出response.data.status", res.data.status);
               if (res.data.status === 200) {
                 this.$router.push({

@@ -19,11 +19,14 @@ router.register('mongeostore_app', views.RegisterView, basename='register')
 
 urlpatterns = [
     # 主页MySegy
-    url(r"add_segy$", views.add_segy),
-    url(r"show_segys$", views.show_segys),
+    # url(r"add_segy$", views.add_segy),
+    # url(r"show_segys$", views.show_segys),
+
+    # students测试序列化
+    url(r"students/", views.StudentsView.as_view(),name="students"),
+
 
     # 注册
-    # url(r'^register', views.RegisterView),
     url(r'^register/$', views.RegisterView.as_view(), name='register'),
     url(r'^usernames/(?P<username>[a-zA-Z0-9_-]{5,20})/count/$',
         views.UsernameCountView.as_view(), ),
