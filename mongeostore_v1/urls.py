@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 16:59:36
 LastEditors: henggao
-LastEditTime: 2020-09-03 14:16:44
+LastEditTime: 2020-09-08 20:08:30
 '''
 """mongeostore_v1 URL Configuration
 
@@ -37,5 +37,7 @@ urlpatterns = [
     # mongeostore #
     # path('register/', views.register),
     # re_path(r'.*', TemplateView.as_view(template_name='index.html'))
-    re_path(r'.*', TemplateView.as_view(template_name='index.html'))
+    re_path(r'.*', TemplateView.as_view(template_name='index.html')),
+    
+    path('captcha/', include('captcha.urls'))   # 增加这一行
 ]
