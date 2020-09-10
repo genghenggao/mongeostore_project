@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-03 17:00:19
+LastEditTime: 2020-09-10 09:35:00
 '''
 from django.views.decorators.http import require_http_methods
 # from django.core import serializers
@@ -89,7 +89,7 @@ class RegisterView(View):
         :param request: 请求对象
         :return: 注册界面
         """
-        return render(request, 'register.html', {'register_errmsg': ''})
+        return render(request, 'index.html', {'register_errmsg': ''})
 
     def post(self, request):
         """
@@ -130,7 +130,7 @@ class RegisterView(View):
             user = UserInfo.objects.create_user(
                 username=username, password=password, mobile=mobile,email = email)
         except DatabaseError:
-            return render(request, 'register.html', {'register_errmsg': '注册失败'})
+            return render(request, 'index.html', {'register_errmsg': '注册失败'})
 
         # 登入用户，实现状态保持
         login(request, user)
