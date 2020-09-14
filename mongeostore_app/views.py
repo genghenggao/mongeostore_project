@@ -4,26 +4,26 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-10 09:35:00
+LastEditTime: 2020-09-14 16:16:11
 '''
-from django.views.decorators.http import require_http_methods
-# from django.core import serializers
-from . import serializers
-from django.http import JsonResponse
-import json
-from .models import Mysegy
-import random
-from utils.tencent.sms import send_sms_single
-from mongeostore_v1 import settings
-import re
-from django.contrib.auth import authenticate, login
-from django.db import DatabaseError
-from django.shortcuts import HttpResponse, redirect, render
-from django import http
-from django.urls import reverse
-from django.views import View
-from mongeostore_app.models import UserInfo
-from utils.response_code import RETCODE
+# from django.views.decorators.http import require_http_methods
+# # from django.core import serializers
+# from . import serializers
+# from django.http import JsonResponse
+# import json
+# from .models import Mysegy
+# import random
+# from utils.tencent.sms import send_sms_single
+# from mongeostore_v1 import settings
+# import re
+# from django.contrib.auth import authenticate, login
+# from django.db import DatabaseError
+# from django.shortcuts import HttpResponse, redirect, render
+# from django import http
+# from django.urls import reverse
+# from django.views import View
+# from mongeostore_app.models import UserInfo
+# from utils.response_code import RETCODE
 
 # Create your views here.
 
@@ -60,6 +60,250 @@ from utils.response_code import RETCODE
 # 发送短信验证
 
 
+# def send_sms(request):
+#     '''发送短信
+#         ?tpl=login  -> 611307
+#         ?tpl=register -> 611200
+
+#     '''
+#     tpl = request.GET.get('tpl')
+#     template_id = settings.TENCENT_SMS_TEMPLATE.get(tpl)
+#     if not template_id:
+#         return HttpResponse('模板不存在')
+
+#     code = random.randrange(1000, 9999)
+#     res = send_sms_single('15351818127', template_id, [code, ])
+#     if res['result'] == 0:
+#         return HttpResponse('成功')
+#     else:
+#         return HttpResponse(res['errmsg'])
+
+
+#####   mongeostore 注册 ######
+# class RegisterView(View):
+#     """用户注册"""
+
+#     def get(self, request):
+#         """
+#         提供注册界面
+#         :param request: 请求对象
+#         :return: 注册界面
+#         """
+#         return render(request, 'index.html', {'register_errmsg': ''})
+
+#     def post(self, request):
+#         """
+#         实现用户注册
+#         :param request: 请求对象
+#         :return: 注册结果
+#         """
+#         # 接收前端表单数据,使用Post.get()方法
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         password2 = request.POST.get('password2')
+#         mobile = request.POST.get('mobile')
+#         email = request.POST.get('email')
+#         allow = request.POST.get('allow')
+#         image_code = request.POST.get('image_code')
+#         # 判断参数是否齐全
+#         if not all([username, password, password2, mobile, allow, image_code]):
+#             # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
+#             # 数据不合法返回错误参赛
+#             return http.HttpResponseForbidden("缺少必传参数")
+#         # 判断用户名是否是5-20个字符
+#         if not re.match(r"^[a-zA-Z0-9_-]{5,20}$", username):
+#             return http.HttpResponseForbidden("请输入5-20个字符的用户名")
+#         # 判断密码是否是8 - 20个数字
+#         if not re.match(r"^[a-zA-Z0-9]{8,20}$", password):
+#             return http.HttpResponseForbidden("请输入8-20位的密码")
+#         # 判断两次密码是否一致
+#         if password != password2:
+#             return http.HttpResponseForbidden('两次输入的密码不一致')
+#         # 判断手机号是否合法
+#         if not re.match(r'^1[3-9]\d{9}$', mobile):
+#             return http.HttpResponseForbidden('请输入正确的手机号码')
+#         # 判断是否勾选用户协议
+#         if allow != "on":
+#             return http.HttpResponseForbidden('请勾选用户协议')
+#         # 保存注册数据
+#         try:
+#             user = UserInfo.objects.create_user(
+#                 username=username, password=password, mobile=mobile,email = email)
+#         except DatabaseError:
+#             return render(request, 'index.html', {'register_errmsg': '注册失败'})
+
+#         # 登入用户，实现状态保持
+#         login(request, user)
+
+#         # 响应注册结果
+#         # return http.HttpResponse('注册成功，重定向到首页')
+#         # 正常登录时返回首面,从用户中心退出再登录时返回用户中心页面，关键字参数为?next=/login/
+#         response = redirect('/')  # SESSION_COOKIE_AGE的值为2周
+#         response.set_cookie('username', user.username, max_age=14 * 24 * 3600)
+#         return response
+
+
+# class UsernameCountView(View):
+#     """检测用户名是否重复"""
+
+#     def get(self, request, username):
+#         # 查询数据库中是否有同名的用户，并返回Json数据格式
+#         count = UserInfo.objects.filter(username=username).count()
+#         return http.JsonResponse({'error_message': "ok", "code": RETCODE.OK, "count": count, })
+
+
+# class MobileCountView(View):
+#     """检测手机号码是否重复"""
+
+#     def get(self, request, mobile):
+#         count = UserInfo.objects.filter(mobile=mobile).count()
+#         return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
+
+# class MobileCountView(View):
+#     """检测邮箱是否重复"""
+
+#     def get(self, request, email):
+#         count = UserInfo.objects.filter(email=email).count()
+#         return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
+
+# class LoginView(View):
+#     """用户名登录"""
+
+#     def get(self, request):
+#         """
+#         提供登录界面
+#         :param request: 请求对象
+#         :return: 登录界面
+#         """
+#         return render(request, 'index.html', {'account_errmsg': ''})
+
+#     def post(self, request):
+#         """
+#         实现登录逻辑
+#         """
+#         # 接受参数
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         remembered = request.POST.get('r')
+#         # 认证登录用户
+#         user = authenticate(username=username, password=password)
+#         print(user)
+#         if user is None:
+#             return render(request, 'index.html', {'account_errmsg': '用户名或密码错误'})
+#             # return JsonResponse(data)
+
+#         # 实现状态保持
+#         login(request, user)
+#         # 设置状态保持的周期
+#         if remembered != "1":
+#             request.session.set_expiry(0)
+#         # 没有记住用户：浏览器会话结束就过期, 默认是两周
+#         # request.session.set_expiry(0)
+
+#         # 响应登录结果
+#         # return redirect(reverse('contents:index'))
+#         response = redirect(request.GET.get('next', '/'))
+#         response.set_cookie('username', user.username, max_age=(
+#             14 * 24 * 3600 if remembered else None))
+#         return response
+
+
+# from rest_framework.views import APIView
+# from .models import StudentsModel
+# from .serializers import StudentsSerializer
+# class StudentsView(APIView):
+
+#     def get(self, request):
+#         queryset = StudentsModel.objects.all()
+#         serializer = StudentsSerializer(queryset, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request):
+#         data = request.data
+#         serializer = StudentsSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
+
+#     def put(self, request):
+#         data = request.data
+#         obj_id = data.pop('id')
+#         instance = StudentsModel.objects.get(id=obj_id)
+#         print("======================", instance.content)
+#         serializer = StudentsSerializer(instance, data=data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
+
+## mongeostore ##
+# import viewsets
+from rest_framework import viewsets
+# import local data
+from .serializers import UserInfoSerializer
+from .models import UserInfo
+# create a viewset
+
+
+class UserInfoViewSet(viewsets.ModelViewSet):
+    # define queryset
+    queryset = UserInfo.objects.all()
+
+    # specify serializer to be used
+    serializer_class = UserInfoSerializer
+
+from django.shortcuts import render
+from utils.response_code import RETCODE
+from django import http
+class RegisterView(APIView):
+    """
+    注册视图
+    /users/register
+    """
+
+    # def get(self, request):
+    #     """
+    #     凡是来访问这个视图的请求, 就返回注册页面
+    #     :param request: 请求注册页面
+    #     :return: 注册页面
+    #     """
+    #     return render(request, 'index.html')
+    '添加注册用户'
+
+    def post(self, request):
+            # 1>校验数据
+            form = UserInfoSerializer(request.POST)
+            if form.is_valid():
+                # 2>创建数据
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                mobile = form.cleaned_data.get('mobile')
+                UserInfo.objects.create_user(username=username, password=password, mobile=mobile)
+                # return json_response(errmsg='恭喜你,注册成功!')
+                return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "UserInfo": UserInfo, })
+
+            else:
+                # 引发的错误可能会有多条错误信息,如果出错了,就将表单的报错信息进行拼接,
+                err_msg_list = []
+                for item in form.errors.values():
+                    # 遍历的item也是一个列表, 其中的第一个元素是报错信息
+                    err_msg_list.append(item[0])
+                err_msg_str = '/'.join(err_msg_list)
+                # 由于是参数错误, 所以使用Code.PARAMERR
+                # return json_response(errno=Code.PARAMERR, errmsg=err_msg_str)
+                return http.JsonResponse({'code': RETCODE.OK, "UserInfo": UserInfo, },errmsg=err_msg_str)
+
+
+# 发送短信验证
+from mongeostore_v1 import settings
+import random
+from utils.tencent.sms import send_sms_single
+from django.http.response import HttpResponse
+
+
 def send_sms(request):
     '''发送短信
         ?tpl=login  -> 611307
@@ -77,165 +321,3 @@ def send_sms(request):
         return HttpResponse('成功')
     else:
         return HttpResponse(res['errmsg'])
-
-
-#####   mongeostore 注册 ######
-class RegisterView(View):
-    """用户注册"""
-
-    def get(self, request):
-        """
-        提供注册界面
-        :param request: 请求对象
-        :return: 注册界面
-        """
-        return render(request, 'index.html', {'register_errmsg': ''})
-
-    def post(self, request):
-        """
-        实现用户注册
-        :param request: 请求对象
-        :return: 注册结果
-        """
-        # 接收前端表单数据,使用Post.get()方法
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        password2 = request.POST.get('password2')
-        mobile = request.POST.get('mobile')
-        email = request.POST.get('email')
-        allow = request.POST.get('allow')
-        image_code = request.POST.get('image_code')
-        # 判断参数是否齐全
-        if not all([username, password, password2, mobile, allow, image_code]):
-            # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
-            # 数据不合法返回错误参赛
-            return http.HttpResponseForbidden("缺少必传参数")
-        # 判断用户名是否是5-20个字符
-        if not re.match(r"^[a-zA-Z0-9_-]{5,20}$", username):
-            return http.HttpResponseForbidden("请输入5-20个字符的用户名")
-        # 判断密码是否是8 - 20个数字
-        if not re.match(r"^[a-zA-Z0-9]{8,20}$", password):
-            return http.HttpResponseForbidden("请输入8-20位的密码")
-        # 判断两次密码是否一致
-        if password != password2:
-            return http.HttpResponseForbidden('两次输入的密码不一致')
-        # 判断手机号是否合法
-        if not re.match(r'^1[3-9]\d{9}$', mobile):
-            return http.HttpResponseForbidden('请输入正确的手机号码')
-        # 判断是否勾选用户协议
-        if allow != "on":
-            return http.HttpResponseForbidden('请勾选用户协议')
-        # 保存注册数据
-        try:
-            user = UserInfo.objects.create_user(
-                username=username, password=password, mobile=mobile,email = email)
-        except DatabaseError:
-            return render(request, 'index.html', {'register_errmsg': '注册失败'})
-
-        # 登入用户，实现状态保持
-        login(request, user)
-
-        # 响应注册结果
-        # return http.HttpResponse('注册成功，重定向到首页')
-        # 正常登录时返回首面,从用户中心退出再登录时返回用户中心页面，关键字参数为?next=/login/
-        response = redirect('/')  # SESSION_COOKIE_AGE的值为2周
-        response.set_cookie('username', user.username, max_age=14 * 24 * 3600)
-        return response
-
-
-class UsernameCountView(View):
-    """检测用户名是否重复"""
-
-    def get(self, request, username):
-        # 查询数据库中是否有同名的用户，并返回Json数据格式
-        count = UserInfo.objects.filter(username=username).count()
-        return http.JsonResponse({'error_message': "ok", "code": RETCODE.OK, "count": count, })
-
-
-class MobileCountView(View):
-    """检测手机号码是否重复"""
-
-    def get(self, request, mobile):
-        count = UserInfo.objects.filter(mobile=mobile).count()
-        return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
-
-class MobileCountView(View):
-    """检测邮箱是否重复"""
-
-    def get(self, request, email):
-        count = UserInfo.objects.filter(email=email).count()
-        return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "count": count, })
-
-class LoginView(View):
-    """用户名登录"""
-
-    def get(self, request):
-        """
-        提供登录界面
-        :param request: 请求对象
-        :return: 登录界面
-        """
-        return render(request, 'index.html', {'account_errmsg': ''})
-
-    def post(self, request):
-        """
-        实现登录逻辑
-        """
-        # 接受参数
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        remembered = request.POST.get('r')
-        # 认证登录用户
-        user = authenticate(username=username, password=password)
-        print(user)
-        if user is None:
-            return render(request, 'index.html', {'account_errmsg': '用户名或密码错误'})
-            # return JsonResponse(data)
-
-        # 实现状态保持
-        login(request, user)
-        # 设置状态保持的周期
-        if remembered != "1":
-            request.session.set_expiry(0)
-        # 没有记住用户：浏览器会话结束就过期, 默认是两周
-        # request.session.set_expiry(0)
-
-        # 响应登录结果
-        # return redirect(reverse('contents:index'))
-        response = redirect(request.GET.get('next', '/'))
-        response.set_cookie('username', user.username, max_age=(
-            14 * 24 * 3600 if remembered else None))
-        return response
-
-
-
-from rest_framework.views import APIView
-from .models import StudentsModel
-from .serializers import StudentsSerializer
-class StudentsView(APIView):
-    
-    def get(self, request):
-        queryset = StudentsModel.objects.all()
-        serializer = StudentsSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        data = request.data
-        serializer = StudentsSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-
-    def put(self, request):
-        data = request.data
-        obj_id = data.pop('id')
-        instance = StudentsModel.objects.get(id=obj_id)
-        print("======================", instance.content)
-        serializer = StudentsSerializer(instance, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-02 10:16:16
+ * @LastEditTime: 2020-09-14 20:51:32
 -->
 <template>
   <div id="poster">
@@ -22,6 +22,23 @@
           show-password
         ></el-input>
       </el-form-item>
+
+      <el-row>
+        <el-col :span="18">
+          <el-form-item prop="picture_code" label="验证码:">
+            <el-input
+              type="text"
+              v-model="loginForm.picture_code"
+              auto-complete="off"
+              placeholder="请输入图片验证码"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <div class="grid-content bg-purple-light"></div>
+        </el-col>
+      </el-row>
+
       <el-form-item style="width: 100%">
         <el-button
           type="primary"

@@ -144,7 +144,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-AUTH_USER_MODEL  = "mongeostore_app.UserInfo"
+# AUTH_USER_MODEL  = "mongeostore_app.UserInfo"
 
 ####### sms ######
 #  腾讯云短信应用的app_id
