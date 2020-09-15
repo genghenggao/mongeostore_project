@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-09-14 14:27:52
+LastEditTime: 2020-09-15 18:30:10
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -44,6 +44,7 @@ from rest_framework import routers
 from .views import *
 # 添加RegisterView视图
 from .views import RegisterView
+from . import views
   
 # define the router 
 router = routers.DefaultRouter() 
@@ -55,5 +56,6 @@ router.register(r'userinfo', UserInfoViewSet)
 urlpatterns = [ 
     path('', include(router.urls)), 
     path('api-auth/', include('rest_framework.urls')),
-    path('register/', RegisterView.as_view(), name='register')
+    path('register/', RegisterView.as_view(), name='register'),
+    path('send_sms/', views.send_sms)
 ] 

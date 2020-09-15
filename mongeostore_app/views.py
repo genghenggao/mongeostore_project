@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-14 16:16:11
+LastEditTime: 2020-09-15 21:57:56
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -241,6 +241,10 @@ LastEditTime: 2020-09-14 16:16:11
 
 ## mongeostore ##
 # import viewsets
+from django.shortcuts import redirect, render
+from django.views import View
+from django import http
+from utils.response_code import RETCODE
 from rest_framework import viewsets
 # import local data
 from .serializers import UserInfoSerializer
@@ -255,22 +259,20 @@ class UserInfoViewSet(viewsets.ModelViewSet):
     # specify serializer to be used
     serializer_class = UserInfoSerializer
 
-from django.shortcuts import render
-from utils.response_code import RETCODE
-from django import http
-class RegisterView(APIView):
+
+class RegisterView(View):
     """
     注册视图
     /users/register
     """
 
-    # def get(self, request):
-    #     """
-    #     凡是来访问这个视图的请求, 就返回注册页面
-    #     :param request: 请求注册页面
-    #     :return: 注册页面
-    #     """
-    #     return render(request, 'index.html')
+    def get(self, request):
+        """
+        凡是来访问这个视图的请求, 就返回注册页面
+        :param request: 请求注册页面
+        :return: 注册页面
+        """
+        return render(request, 'index.html')
     '添加注册用户'
 
     def post(self, request):
@@ -278,11 +280,61 @@ class RegisterView(APIView):
             form = UserInfoSerializer(request.POST)
             if form.is_valid():
                 # 2>创建数据
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password')
-                mobile = form.cleaned_data.get('mobile')
-                UserInfo.objects.create_user(username=username, password=password, mobile=mobile)
-                # return json_response(errmsg='恭喜你,注册成功!')
+                # username = form.cleaned_data.get('username')
+                # email = form.cleaned_data.get('email')
+                # password = form.cleaned_data.get('password')
+                # mobile = form.cleaned_data.get('mobile')
+                # UserInfo.objects.create_user(username=username, password=password, email=email,mobile=mobile)
+
+                 # 接收前端表单数据,使用Post.get()方法
+                username = request.POST.get('username')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                password2 = request.POST.get('password2')
+                mobile = request.POST.get('mobile')
+                smscode = request.POST.get('smscode')
+                allow = request.POST.get('allow')
+                # image_code = request.POST.get('image_code')
+
+                 # 判断参数是否齐全
+                if not all([username, email,password, password2, mobile, allow, smscode]):
+                    # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
+                    # 数据不合法返回错误参赛
+                    return http.HttpResponseForbidden("缺少必传参数")
+                # 判断用户名是否是5-20个字符
+                if not re.match(r"^[a-zA-Z0-9_-]{5,20}$", username):
+                    return http.HttpResponseForbidden("请输入5-20个字符的用户名")
+                # 判断邮箱
+                if not re.match(r"^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$", email):
+                    return http.HttpResponseForbidden("请输入有效邮箱")
+                # 判断密码是否是8 - 20个数字
+                if not re.match(r"^[a-zA-Z0-9_-]{6,20}$", password):
+                    return http.HttpResponseForbidden("请输入6-20位的密码")
+                # 判断两次密码是否一致
+                if password != password2:
+                    return http.HttpResponseForbidden('两次输入的密码不一致')
+                # 判断手机号是否合法Info
+                if not re.match(r'^1[3-9]\d{9}$', mobile):
+                    return http.HttpResponseForbidden('请输入正确的手机号码')
+                # 判断是否勾选用户协议
+                if allow != "on":
+                    return http.HttpResponseForbidden('请勾选用户协议')
+                # 保存注册数据
+                try:
+                    userInfo = UserInfo.objects.create_user(username=username,email=email, password=password, mobile=mobile)
+                except DatabaseError:
+                    return render(request, 'register.html', {'register_errmsg': '注册失败'})
+
+                # 登入用户，实现状态保持
+                login(request, userInfo)
+
+                # 响应注册结果
+                # return http.HttpResponse('注册成功，重定向到首页')
+                # 正常登录时返回首面,从用户中心退出再登录时返回用户中心页面，关键字参数为?next=/login/
+                response = redirect('/')  # SESSION_COOKIE_AGE的值为2周
+                response.set_cookie('username', userInfo.username, max_age=14 * 24 * 3600)
+                # return response
+                    # return json_response(errmsg='恭喜你,注册成功!')
                 return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, "UserInfo": UserInfo, })
 
             else:
@@ -296,12 +348,23 @@ class RegisterView(APIView):
                 # return json_response(errno=Code.PARAMERR, errmsg=err_msg_str)
                 return http.JsonResponse({'code': RETCODE.OK, "UserInfo": UserInfo, },errmsg=err_msg_str)
 
+class UsernameCountView(View):
+    """检测用户名是否重复"""
+
+    def get(self, request, username):
+        # 查询数据库中是否有同名的用户，并返回Json数据格式
+        count = UserInfo.objects.filter(username=username).count()
+        return http.JsonResponse({'error_message': "ok", "code": RETCODE.OK, "count": count, })
+
 
 # 发送短信验证
 from mongeostore_v1 import settings
 import random
 from utils.tencent.sms import send_sms_single
 from django.http.response import HttpResponse
+import re
+from django.db import DatabaseError
+from django.contrib.auth import login
 
 
 def send_sms(request):
@@ -312,11 +375,14 @@ def send_sms(request):
     '''
     tpl = request.GET.get('tpl')
     template_id = settings.TENCENT_SMS_TEMPLATE.get(tpl)
+    mobile = request.GET.get("mobile")
+    print(mobile)
+    print(tpl)
     if not template_id:
-        return HttpResponse('模板不存在')
+        return HttpResponse('模板不存在') 
 
     code = random.randrange(1000, 9999)
-    res = send_sms_single('15351818127', template_id, [code, ])
+    res = send_sms_single(mobile, template_id, [code, ])
     if res['result'] == 0:
         return HttpResponse('成功')
     else:

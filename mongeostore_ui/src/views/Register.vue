@@ -3,64 +3,64 @@
     <el-form
       class="login-container"
       label-position="left"
-      ref="loginForm"
+      ref="Register"
       :model="Register"
-      label-width="80px"
+      :rules="rules"
+      label-width="100px"
     >
       <h3 class="login_title">注册</h3>
       <el-form-item prop="username" label="用户名:">
-        <el-input v-model="Register.username" placeholder="请输入用户名" @blur="doRegister"></el-input>
+        <el-input v-model="Register.username" placeholder="请输入用户名"></el-input>
       </el-form-item>
 
       <el-form-item prop="email" label="邮  箱:">
-        <el-input v-model="Register.email" placeholder="请输入邮箱" @blur="doRegister"></el-input>
+        <el-input v-model="Register.email" placeholder="请输入邮箱"></el-input>
       </el-form-item>
       <el-form-item prop="password" label="设置密码:">
-        <el-input v-model="Register.password" show-password placeholder="请输入密码" @blur="doRegister"></el-input>
+        <el-input v-model="Register.password" show-password placeholder="请输入密码"></el-input>
       </el-form-item>
       <el-form-item prop="password2" label="确认密码:">
-        <el-input
-          v-model="Register.password2"
-          show-password
-          placeholder="请再次输入密码"
-          @blur="doRegister"
-        ></el-input>
+        <el-input v-model="Register.password2" show-password placeholder="请再次输入密码"></el-input>
       </el-form-item>
       <el-form-item prop="mobile" label="手机号:">
-        <el-input v-model="Register.mobile" placeholder="请输入手机号" @blur="doRegister"></el-input>
+        <el-input v-model="Register.mobile" placeholder="请输入手机号"></el-input>
       </el-form-item>
 
       <el-row>
         <el-col :span="16">
-          <el-form-item prop="mobile_code" label="验证码:">
-            <el-input v-model="Register.sendcode" placeholder="请输入验证码"></el-input>
+          <el-form-item prop="smscode" label="验证码:">
+            <el-input v-model="Register.smscode" placeholder="短信验证码"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
+          <el-button plain @click="sendCode" :disabled="true" v-if="disabled== 0">{{buttonText}}</el-button>
           <el-button
             type="primary"
-            plain
-            @click="doRegister"
-            :disabled="disabled"
-            v-if="disabled==false"
-          >获取验证码</el-button>
-          <el-button
-            type="button"
-            @click="doRegister"
-            :disabled="disabled"
-            v-if="disabled==true"
-          >{{btntxt}}</el-button>
+            :disabled="isDisabled"
+            @click="sendCode"
+            v-else-if="disabled==1"
+          >{{buttonText}}</el-button>
         </el-col>
       </el-row>
 
-      <el-checkbox class="checkbox" v-model="checked">同意”用户使用协议“</el-checkbox>
+      <el-checkbox class="checkbox" name="allow" id="allow" v-model="allow">同意”用户使用协议“</el-checkbox>
       <el-link class="login" :underline="false" type="primary" href="/login">登录</el-link>
       <el-form-item>
+        <el-button
+          style="width: 100%;background: #505458;border: none"
+          icon
+          :loading="logining"
+          :disabled="true"
+          v-if="!isLogin"
+          @click="submitRegister('Register')"
+        >注册账号</el-button>
         <el-button
           type="primary"
           style="width: 100%;background: #505458;border: none"
           icon
-          @click="submitRegister()"
+          :loading="logining"
+          v-else-if="isLogin"
+          @click="submitRegister('Register')"
         >注册账号</el-button>
       </el-form-item>
     </el-form>
@@ -72,93 +72,297 @@ import axios from "axios";
 export default {
   name: "Register",
   data() {
+    // <!--验证账号-->
+    let checkUsername = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入账号"));
+      } else {
+        callback();
+      }
+    };
+    // <!--验证邮箱-->
+    let checkEmail = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入邮箱"));
+      } else {
+        callback();
+      }
+    };
+    // <!--验证密码-->
+    let checkPassword = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      } else {
+        callback();
+      }
+    };
+    // <!--确定密码-->
+    let checkPassword2 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
+      } else if (value != this.Register.password) {
+        callback(new Error("两次密码不一致，请确认输入密码！"));
+      } else {
+        callback();
+      }
+    };
+    // <!--验证手机号是否合法-->
+    let checkTel = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入手机号码"));
+      } else if (!this.checkMobile(value)) {
+        callback(new Error("请输入正确的11位手机号码"));
+      } else {
+        callback();
+      }
+    };
+    //  <!--验证码是否为空-->
+    let checkSmscode = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入手机验证码"));
+      } else {
+        callback();
+      }
+    };
     return {
-      // 同意用户使用协议
-      checked: true,
       Register: {
         username: "",
-        mobile: "",
         email: "",
+        mobile: "",
         password: "",
-        sendcode: "",
-        // submitRegister: ""
+        password2: "",
+        smscode: ""
       },
-      disabled: false,
-      time: 0,
-      btntxt: "重新发送"
+      rules: {
+        username: [
+          { required: true, message: "请输入账号", trigger: "blur" },
+          {
+            // pattern: /^(?!(\d+)$)[a-zA-Z\d_]{4,20}$/,
+            pattern: /^[a-zA-Z0-9_-]{5,20}$/,
+            message: "账号长度5-20，可包括数字、字母、下划线",
+            trigger: "blur"
+          },
+          { validator: checkUsername, trigger: "blur" }
+        ],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          {
+            pattern: /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+            message: "请输入有效邮箱",
+            trigger: "blur"
+          },
+          { validator: checkEmail, trigger: "blur" }
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          {
+            // pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+            pattern: /^[a-zA-Z0-9_-]{6,20}$/,
+            message: "密码长度为6-20位，可以为数字、字母",
+            trigger: "blur"
+          },
+          { validator: checkPassword, trigger: "blur" }
+        ],
+        password2: [
+          { required: true, message: "请确认输入密码", trigger: "blur" },
+          {
+            // pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+            pattern: /^[a-zA-Z0-9_-]{6,20}$/,
+            message: "密码长度为6-20位，可以为数字、字母",
+            trigger: "blur"
+          },
+          { validator: checkPassword2, trigger: "blur" }
+        ],
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          {
+            pattern: /^[1][3,4,5,6,7,8,9][0-9]{9}$/,
+            message: "请输入正确的11位手机号码",
+            trigger: "blur"
+          },
+          { validator: checkTel, trigger: "blur" }
+        ],
+        smscode: [
+          { required: true, message: "请输入短信验证码", trigger: "blur" },
+          {
+            pattern: /^[0-9]{4}$/,
+            message: "请输入正确的四位数字验证码",
+            trigger: "blur"
+          },
+          { validator: checkSmscode, trigger: "blur" }
+        ]
+      },
+      // activeName: "first",
+      buttonText: "获取验证码",
+      isDisabled: false, // 是否禁止点击发送验证码按钮
+      flag: true,
+      visible: true,
+      allow: true, // 同意用户使用协议
+      disabled: 0,
+      isLog: false,
+      isLogin: false,
+      logining: false
     };
+  },
+  watch: {
+    //账手机验证btn按钮显示高亮
+    "Register.mobile"() {
+      if (this.Register.mobile != "") {
+        this.disabled = 1;
+      } else {
+        this.disabled = 0;
+      }
+    },
+    Register: {
+      // 判断注册按钮状态
+      handler: function(val, oldval) {
+        if (
+          val.username != "" &&
+          val.email != "" &&
+          val.password != "" &&
+          val.password2 != "" &&
+          val.mobile != "" &&
+          val.smscode != ""
+          //&& this.allow !=true
+        ) {
+          this.isLogin = true;
+        } else {
+          this.isLogin = false;
+        }
+      },
+      deep: true //对象内部的属性监听，也叫深度监听
+    }
   },
   created() {
     // console.log($);
     // console.log("1111");
   },
   methods: {
-    doRegister() {
-      var res_name = /^[a-zA-Z0-9_-]{5,20}$/;
-      var res_password = /^[a-zA-Z0-9_-]{6,40}$/;
-      var res_email = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      var res_mobile = /^1[3456789]\d{9}$/;
-      if (!res_name.test(this.Register.username)) {
-        this.$message.error("请输入5-20个字符的用户名！");
-        return;
-      } else if (!res_email.test(this.Register.email)) {
-        this.$message.error("请输入有效邮箱！");
-        return;
-      } else if (!res_password.test(this.Register.password)) {
-        this.$message.error("请输入6位及以上密码！");
-        return;
-      } else if (this.Register.password2 != this.Register.password) {
-        this.$message.error("两次密码不一致，请确认输入密码！");
-        return;
-      } else if (!res_mobile.test(this.Register.mobile)) {
-        this.$message.error("请输入有效手机号！");
-        return;
-      } else {
-        // 手机验证码
-        console.log(this.Register.mobile);
-        this.$message({
-          message: "发送成功",
-          type: "success",
-          center: true
-        });
-        this.time = 60;
-        this.disabled = true;
-        this.timer();
+    //密码判断渲染，true:暗文显示，false:明文显示
+    changePass(value) {
+      this.visible = !(value === "show");
+    },
+
+    // <!--发送验证码-->
+    sendCode() {
+      let tel = this.Register.mobile;
+      if (this.checkMobile(tel)) {
+        console.log(tel);
+        let time = 60;
+        this.buttonText = "已发送";
+        this.isDisabled = true;
+
+        // 向后端接口发送请求，让后端发送短信验证码
+        const url =
+          // this.host + "/smscode/?mobile=" + this.mobile ;
+          "http://127.0.0.1:8000/api/send_sms/?mobile=" + this.Register.mobile;
+        axios
+          .get(url, {
+            params: {
+              tpl: "register"
+            },
+            responseType: "json"
+          })
+          .then(response => {
+            // 表示后端发送短信成功
+            if (this.flag) {
+              // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
+              this.flag = false;
+              // 设置一个计时器
+              const timer = setInterval(() => {
+                time--;
+                this.buttonText = time + " s";
+                if (time === 0) {
+                  // 如果计时器到最后, 清除计时器对象
+                  clearInterval(timer);
+                  // 将点击获取验证码的按钮展示的文本回复成原始文本
+                  // this.sms_code_message = "获取短信验证码";
+                  this.buttonText = "重新获取";
+                  // 将点击按钮的onclick事件函数恢复回去
+                  // this.sending_flag = false;
+                  this.isDisabled = false;
+                  this.flag = true;
+                }
+              }, 1000);
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+            this.sending_flag = false;
+          });
       }
-    }
-  },
-  //60S倒计时
-  timer() {
-    if (this.time > 0) {
-      this.time--;
-      this.btntxt = this.time + "s后重新获取";
-      setTimeout(this.timer, 1000);
-    } else {
-      this.time = 0;
-      this.btntxt = "获取验证码";
-      this.disabled = false;
-    }
-  },
-  submitRegister() {
-    // this.$router.push({ path: "/" }); //无需向后台提交数据，方便前台调试
-    axios
-      .get("http://127.0.0.1:8000/api/register", {
-        name: this.Register.username,
-        mobile: this.Register.mobile,
-        email: this.Register.email,
-        password: this.Register.password
-      })
-      .then(res => {
-        console.log("输出response.data", res.data);
-        // console.log("输出response.data.status", res.data.status);
-        if (res.data.status === 200) {
-          this.$router.push({
-            path: "/"
+    },
+
+    // 验证手机号,判断验证码按钮
+    checkMobile(str) {
+      let reg = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
+      if (reg.test(str)) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    submitRegister(Register) {
+      //点击登录 验证手机& 验证码是否符合条件
+      this.$refs[Register].validate(valid => {
+        // 为表单绑定验证功能
+        if (valid) {
+          let fd = new FormData();
+          fd.append("username", this.Register.username);
+          fd.append("email", this.Register.email);
+          fd.append("password", this.Register.password);
+          fd.append("mobile", this.Register.mobile);
+          fd.append("smscode", this.Register.smscode);
+          axios({
+            method: "POST",
+            data: fd,
+            url: `http://127.0.0.1:8000/api/register`
+          }).then(res => {
+            console.log(res);
+            if (res.data.EID == 0) {
+              var token = res.data.Data[0].token;
+              localStorage.setItem("token", token);
+              this.$message({
+                showClose: true,
+                message: "登录成功",
+                type: "success"
+              });
+              this.$router.push({ path: "/index" });
+            } else {
+              this.$message({
+                showClose: true,
+                message: res.data.Err,
+                type: "warning"
+              });
+            }
           });
         } else {
-          alert("您输入的用户名已存在！");
+          this.dialogVisible = true;
+          return false;
         }
       });
+    }
+
+    //   axios
+    //     .get("http://127.0.0.1:8000/api/register", {
+    //       name: this.Register.username,
+    //       email: this.Register.email,
+    //       mobile: this.Register.mobile,
+    //       password: this.Register.password
+    //     })
+    //     .then(res => {
+    //       console.log("输出response.data", res.data);
+    //       // console.log("输出response.data.status", res.data.status);
+    //       if (res.data.status === 200) {
+    //         this.$router.push({
+    //           path: "/"
+    //         });
+    //       } else {
+    //         alert("您输入的用户名已存在！");
+    //       }
+    //     });
+    // }
   }
 };
 </script>
