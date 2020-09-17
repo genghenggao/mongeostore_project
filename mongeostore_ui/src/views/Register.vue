@@ -69,6 +69,7 @@
 
 <script>
 import axios from "axios";
+import qs from "qs";
 export default {
   name: "Register",
   data() {
@@ -139,7 +140,7 @@ export default {
           {
             // pattern: /^(?!(\d+)$)[a-zA-Z\d_]{4,20}$/,
             pattern: /^[a-zA-Z0-9_-]{5,20}$/,
-            message: "账号长度5-20，可包括数字、字母、下划线",
+            message: "账号长度5-20，可包括数字字母下划线",
             trigger: "blur"
           },
           { validator: checkUsername, trigger: "blur" }
@@ -186,7 +187,7 @@ export default {
           { required: true, message: "请输入短信验证码", trigger: "blur" },
           {
             pattern: /^[0-9]{4}$/,
-            message: "请输入正确的四位数字验证码",
+            message: "输入四位数字验证码",
             trigger: "blur"
           },
           { validator: checkSmscode, trigger: "blur" }
@@ -259,7 +260,7 @@ export default {
         axios
           .get(url, {
             params: {
-              tpl: "register"
+              tpl: "register" //让后端判断是注册还是登录，用来获取短信验证码
             },
             responseType: "json"
           })
@@ -305,38 +306,60 @@ export default {
 
     submitRegister(Register) {
       //点击登录 验证手机& 验证码是否符合条件
+      let postData = qs.stringify({
+        first: 1, //用于解决第一个参数为None设置的无用参数，现在我还不知道为什么，但这样可以解决，以后发现根本再来补充
+        username: this.Register.username,
+        email: this.Register.email,
+        password: this.Register.password,
+        password2: this.Register.password2,
+        mobile: this.Register.mobile,
+        smscode: this.Register.smscode,
+        last: 1 //用于解决后端smscode参数为3019"}多了"}问题
+      });
       this.$refs[Register].validate(valid => {
         // 为表单绑定验证功能
         if (valid) {
-          let fd = new FormData();
-          fd.append("username", this.Register.username);
-          fd.append("email", this.Register.email);
-          fd.append("password", this.Register.password);
-          fd.append("mobile", this.Register.mobile);
-          fd.append("smscode", this.Register.smscode);
-          axios({
-            method: "POST",
-            data: fd,
-            url: `http://127.0.0.1:8000/api/register`
-          }).then(res => {
-            console.log(res);
-            if (res.data.EID == 0) {
-              var token = res.data.Data[0].token;
-              localStorage.setItem("token", token);
-              this.$message({
-                showClose: true,
-                message: "登录成功",
-                type: "success"
-              });
-              this.$router.push({ path: "/index" });
-            } else {
-              this.$message({
-                showClose: true,
-                message: res.data.Err,
-                type: "warning"
-              });
-            }
-          });
+          const url = `http://127.0.0.1:8000/api/register/`;
+          axios
+            .post(
+              url,
+              {
+                // params: this.userInfo,
+                data: postData
+              },
+              // userInfo,
+              // data: fd,
+              {
+                headers: { "Content-Type": "application/x-www-form-urlencoded" } //用于解决axios post 产生的403错误
+              }
+            )
+            .then(res => {
+              console.log(res);
+              if (res.data.EID == 0) {
+                var token = res.data.Data[0].token;
+                localStorage.setItem("token", token);
+                this.$message({
+                  showClose: true,
+                  message: "登录成功",
+                  type: "success"
+                });
+                this.$router.push({ path: "/index" });
+              } else {
+                this.$message({
+                  showClose: true,
+                  message: res.data.Err,
+                  type: "warning"
+                });
+              }
+            })
+            .catch(res => {
+              console.log(res);
+              console.log(res);
+              // this.$message({
+              //   message: res.message,
+              //   type: "error"
+              // });
+            });
         } else {
           this.dialogVisible = true;
           return false;

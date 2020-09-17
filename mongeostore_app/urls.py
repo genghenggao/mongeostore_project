@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-09-15 18:30:10
+LastEditTime: 2020-09-16 10:56:36
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -57,5 +57,6 @@ urlpatterns = [
     path('', include(router.urls)), 
     path('api-auth/', include('rest_framework.urls')),
     path('register/', RegisterView.as_view(), name='register'),
-    path('send_sms/', views.send_sms)
+    # path('send_sms/', views.send_sms)
+    path('send_sms/', MobileCountView.as_view(),name='send_sms')
 ] 
