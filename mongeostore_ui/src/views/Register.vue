@@ -324,13 +324,11 @@ export default {
             .post(
               url,
               {
-                // params: this.userInfo,
-                data: postData
+                // params: this.userInfo, //params用于get请求
+                data: postData  //data用于post请求
               },
-              // userInfo,
-              // data: fd,
               {
-                headers: { "Content-Type": "application/x-www-form-urlencoded" } //用于解决axios post 产生的403错误
+                headers: { "Content-Type": "application/x-www-form-urlencoded" } //用于解决axios post 产生的403错误,这个地方可以考虑一下配置settings.py,在里面配置REST_FARAMEWOTRK={#全局解析} 参考一下：https://dog.wtf/tech/drf-learning-notes-4-the-parsers-module/
               }
             )
             .then(res => {
@@ -352,9 +350,13 @@ export default {
                 });
               }
             })
-            .catch(res => {
-              console.log(res);
-              console.log(res);
+            .catch(error => {
+              console.log(error);
+              console.log(error.message);
+              console.log(error.response);
+              console.log(error.responseType);
+              console.log(error.response.status);
+              console.log(error.config);
               // this.$message({
               //   message: res.message,
               //   type: "error"

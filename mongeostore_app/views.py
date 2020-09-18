@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-17 22:25:18
+LastEditTime: 2020-09-18 09:58:06
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -542,5 +542,5 @@ class RegisterView(View):
         except DatabaseError:
             return render(request, 'index.html', {'register_errmsg': '注册失败'})
 
-        # return HttpResponse('welcome!{}'.format(username))
-        return username
+        return HttpResponse('welcome!{}'.format(username))
+        # return username
