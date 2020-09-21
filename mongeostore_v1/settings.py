@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'mongeostore_app',
     'captcha',
+    "mongeostore_users",
 ]
 
 MIDDLEWARE = [
