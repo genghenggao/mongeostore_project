@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-09-19 06:54:56
 LastEditors: henggao
-LastEditTime: 2020-09-19 07:22:33
+LastEditTime: 2020-09-24 08:37:54
 '''
 # from django.db import models 
 # #使用djongo
@@ -17,7 +17,7 @@ class UserInfo(models.Model):
     username = models.CharField(verbose_name='用户名', max_length=32, unique=True)
     email = models.EmailField(verbose_name='邮箱', max_length=32, unique=True)
     mobile = models.CharField(verbose_name='手机号', max_length=32, unique=True)
-    password = models.CharField(verbose_name='密码', max_length=32)
+    password = models.CharField(verbose_name='密码', max_length=64)
 
     class Meta:
         verbose_name = "用户信息"

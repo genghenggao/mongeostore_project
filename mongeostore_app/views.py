@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-18 09:58:06
+LastEditTime: 2020-09-24 22:49:52
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -398,6 +398,22 @@ class UserInfoViewSet(viewsets.ModelViewSet):
 #     else:
 #         return HttpResponse(res['errmsg'])
 
+class CheckUsername(View):
+    def get(self,request):
+        #1.根据用户名，查询用户数量
+        username = self.request.GET.get('username')  # 字符串类型
+        count = UserInfo.objects.filter(username = username).count()
+
+        #2. 返回响应
+        data = {
+            "count":count
+        }
+        print(data)
+        return http.JsonResponse(data)
+
+
+
+
 class MobileCountView(View):
 
     """检测短信模板是否有问题"""
@@ -417,6 +433,7 @@ class MobileCountView(View):
         if UserInfo.objects.filter(mobile=mobile).count():
             raise ValidationError("手机号已经注册过，请重新输入")
 
+        #生成短信验证码
         code = random.randrange(1000, 9999)
 
         # 发送短信

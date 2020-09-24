@@ -10,41 +10,69 @@
     >
       <h3 class="login_title">注册</h3>
       <el-form-item prop="username" label="用户名:">
-        <el-input v-model="Register.username" placeholder="请输入用户名"></el-input>
+        <el-input
+          v-model="Register.username"
+          placeholder="请输入用户名"
+        ></el-input>
       </el-form-item>
 
       <el-form-item prop="email" label="邮  箱:">
         <el-input v-model="Register.email" placeholder="请输入邮箱"></el-input>
       </el-form-item>
       <el-form-item prop="password" label="设置密码:">
-        <el-input v-model="Register.password" show-password placeholder="请输入密码"></el-input>
+        <el-input
+          v-model="Register.password"
+          show-password
+          placeholder="请输入密码"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="password2" label="确认密码:">
-        <el-input v-model="Register.password2" show-password placeholder="请再次输入密码"></el-input>
+        <el-input
+          v-model="Register.password2"
+          show-password
+          placeholder="请再次输入密码"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="mobile" label="手机号:">
-        <el-input v-model="Register.mobile" placeholder="请输入手机号"></el-input>
+        <el-input
+          v-model="Register.mobile"
+          placeholder="请输入手机号"
+        ></el-input>
       </el-form-item>
 
       <el-row>
         <el-col :span="16">
           <el-form-item prop="smscode" label="验证码:">
-            <el-input v-model="Register.smscode" placeholder="短信验证码"></el-input>
+            <el-input
+              v-model="Register.smscode"
+              placeholder="短信验证码"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-button plain @click="sendCode" :disabled="true" v-if="disabled== 0">{{buttonText}}</el-button>
+          <el-button
+            plain
+            @click="sendCode"
+            :disabled="true"
+            v-if="disabled == 0"
+            >{{ buttonText }}</el-button
+          >
           <el-button
             type="primary"
             :disabled="isDisabled"
             @click="sendCode"
-            v-else-if="disabled==1"
-          >{{buttonText}}</el-button>
+            v-else-if="disabled == 1"
+            >{{ buttonText }}</el-button
+          >
         </el-col>
       </el-row>
 
-      <el-checkbox class="checkbox" name="allow" id="allow" v-model="allow">同意”用户使用协议“</el-checkbox>
-      <el-link class="login" :underline="false" type="primary" href="/login">登录</el-link>
+      <el-checkbox class="checkbox" name="allow" id="allow" v-model="allow"
+        >同意”用户使用协议“</el-checkbox
+      >
+      <el-link class="login" :underline="false" type="primary" href="/login"
+        >登录</el-link
+      >
       <el-form-item>
         <el-button
           style="width: 100%;background: #505458;border: none"
@@ -53,7 +81,8 @@
           :disabled="true"
           v-if="!isLogin"
           @click="submitRegister('Register')"
-        >注册账号</el-button>
+          >注册账号</el-button
+        >
         <el-button
           type="primary"
           style="width: 100%;background: #505458;border: none"
@@ -61,7 +90,8 @@
           :loading="logining"
           v-else-if="isLogin"
           @click="submitRegister('Register')"
-        >注册账号</el-button>
+          >注册账号</el-button
+        >
       </el-form-item>
     </el-form>
   </div>
@@ -80,6 +110,24 @@ export default {
       } else {
         callback();
       }
+      // 检查重名
+      const url =
+        // this.host + "/smscode/?mobile=" + this.mobile ;
+        "http://127.0.0.1:8000/api/test/?username=" + this.Register.username;
+      axios
+        .get(url, {
+          responseType: "json"
+        })
+        .then(response => {
+          // 表示后端发送短信成功
+          if (response.data.count>0) {
+            console.log("用户名已存在")
+            alert("用户名已存在了啊");          
+          }
+        })
+        .catch(error => {
+          console.log(error.response);
+        });
     };
     // <!--验证邮箱-->
     let checkEmail = (rule, value, callback) => {
@@ -325,7 +373,7 @@ export default {
               url,
               {
                 // params: this.userInfo, //params用于get请求
-                data: postData  //data用于post请求
+                data: postData //data用于post请求
               },
               {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" } //用于解决axios post 产生的403错误,这个地方可以考虑一下配置settings.py,在里面配置REST_FARAMEWOTRK={#全局解析} 参考一下：https://dog.wtf/tech/drf-learning-notes-4-the-parsers-module/

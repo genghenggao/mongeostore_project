@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import datetime
 from pathlib import Path
 import os
 
@@ -41,9 +42,11 @@ INSTALLED_APPS = [
 
     # myapp
     'rest_framework',
+    'rest_framework_jwt',
     'mongeostore_app',
     'captcha',
     "mongeostore_users",
+    "verification",
 ]
 
 MIDDLEWARE = [
@@ -162,7 +165,7 @@ TENCENT_SMS_TEMPLATE = {
     'login': 611307
 }
 
-#创建自己的local_settings.py
+# 创建自己的local_settings.py
 try:
     from .local_settings import *
 except ImportError:
@@ -172,3 +175,19 @@ except ImportError:
 STATICFILES_DIRS = [  # 添加静态文件路径
     os.path.join(BASE_DIR, "mongeostore_ui/dist/static"),
 ]
+
+# RESR_FRAMEWORK配置
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # 取出用户信息放入request.user
+    ],
+}
+
+# JWT配置
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),  # token有效期
+    # 'JWT_EXPIRATION_DELTA':datetime.timedelta(days=7),
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',  # 设置header请求时Authorization值的前缀
+}

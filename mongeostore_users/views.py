@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-09-19 06:54:56
 LastEditors: henggao
-LastEditTime: 2020-09-22 15:35:22
+LastEditTime: 2020-09-24 14:16:43
 '''
 from django.shortcuts import render
 
@@ -16,3 +16,8 @@ class UserInfoView(APIView):
 
     def get(self,request,*args,**kwargs):
         return Response("...")
+    
+
+
+
+# class  RegisterView(APIView):
