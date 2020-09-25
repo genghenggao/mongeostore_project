@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-01 20:37:01
+ * @LastEditTime: 2020-09-25 17:23:03
  */
 import Vue from "vue";
 import App from "./App.vue";
@@ -26,12 +26,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap/dist/js/bootstrap.min.js";
 
 // BootStrap—Vue
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
- 
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import SlideVerify from "vue-monoplasty-slide-verify";
+
+
+// 滑动验证码
+Vue.use(SlideVerify)
+
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
+
+
 
 // // 设置反向代理，前端请求默认发送到 http://localhost:8080/api
 // var axios = require("axios");

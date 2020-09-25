@@ -108,33 +108,60 @@ export default {
       if (value === "") {
         callback(new Error("请输入账号"));
       } else {
-        callback();
+        // callback();
+        // 检查重名
+        const url =
+          // this.host + "/smscode/?mobile=" + this.mobile ;
+          "http://127.0.0.1:8000/api/username/?username=" +
+          this.Register.username;
+        axios
+          .get(url, {
+            responseType: "json"
+          })
+          .then(response => {
+            // 表示后端发送短信成功
+            if (response.data.count > 0) {
+              console.log("用户名已存在");
+              // alert("用户名已存在了啊");
+              callback(new Error("用户名已存在，请重新输入"));
+            } else {
+              // element ui 表单验证 this.$refs[formName].validate()里面的内容死活不执行
+              callback();
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
       }
-      // 检查重名
-      const url =
-        // this.host + "/smscode/?mobile=" + this.mobile ;
-        "http://127.0.0.1:8000/api/test/?username=" + this.Register.username;
-      axios
-        .get(url, {
-          responseType: "json"
-        })
-        .then(response => {
-          // 表示后端发送短信成功
-          if (response.data.count>0) {
-            console.log("用户名已存在")
-            alert("用户名已存在了啊");          
-          }
-        })
-        .catch(error => {
-          console.log(error.response);
-        });
     };
     // <!--验证邮箱-->
     let checkEmail = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入邮箱"));
       } else {
-        callback();
+        // callback();
+        // 检查重名
+        const url =
+          // this.host + "/smscode/?mobile=" + this.mobile ;
+          "http://127.0.0.1:8000/api/email/?email=" + this.Register.email;
+        axios
+          .get(url, {
+            responseType: "json"
+          })
+          .then(response => {
+            // 表示后端发送短信成功
+            if (response.data.count > 0) {
+              console.log("邮箱已存在");
+              // alert("邮箱已存在");
+              callback(new Error("邮箱已存在，请重新输入"));
+            } else {
+              // element ui 表单验证 this.$refs[formName].validate()里面的内容死活不执行
+              callback();
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
       }
     };
     // <!--验证密码-->
@@ -159,10 +186,38 @@ export default {
     let checkTel = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入手机号码"));
-      } else if (!this.checkMobile(value)) {
-        callback(new Error("请输入正确的11位手机号码"));
-      } else {
-        callback();
+      }
+      // else if (!this.checkMobile(value)) {
+      //   callback(new Error("请输入正确的11位手机号码！！！！"));
+      //   // callback(new Error("手机号已存在"));
+      // }
+      else {
+        // callback();
+        // 检查重名
+        const url =
+          // this.host + "/smscode/?mobile=" + this.mobile ;
+          "http://127.0.0.1:8000/api/mobile/?mobile=" + this.Register.mobile;
+        axios
+          .get(url, {
+            responseType: "json"
+          })
+          .then(response => {
+            // 表示后端发送短信成功
+            if (response.data.count > 0) {
+              console.log("手机号已存在");
+              // alert("手机号已存在");
+              callback(new Error("手机号已存在，请重新输入"));
+            } else {
+              // let time = 60;
+              // this.buttonText = "已发送";
+              // this.isDisabled = true;
+              // element ui 表单验证 this.$refs[formName].validate()里面的内容死活不执行
+              callback();
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
       }
     };
     //  <!--验证码是否为空-->
@@ -294,52 +349,52 @@ export default {
 
     // <!--发送验证码-->
     sendCode() {
-      let tel = this.Register.mobile;
-      if (this.checkMobile(tel)) {
-        console.log(tel);
-        let time = 60;
-        this.buttonText = "已发送";
-        this.isDisabled = true;
+      // let tel = this.Register.mobile;
+      // if (this.checkMobile(tel)) {
+      //   console.log(tel);
+      let time = 60;
+      // this.buttonText = "已发送";
+      // this.isDisabled = true;
 
-        // 向后端接口发送请求，让后端发送短信验证码
-        const url =
-          // this.host + "/smscode/?mobile=" + this.mobile ;
-          "http://127.0.0.1:8000/api/send_sms/?mobile=" + this.Register.mobile;
-        axios
-          .get(url, {
-            params: {
-              tpl: "register" //让后端判断是注册还是登录，用来获取短信验证码
-            },
-            responseType: "json"
-          })
-          .then(response => {
-            // 表示后端发送短信成功
-            if (this.flag) {
-              // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
-              this.flag = false;
-              // 设置一个计时器
-              const timer = setInterval(() => {
-                time--;
-                this.buttonText = time + " s";
-                if (time === 0) {
-                  // 如果计时器到最后, 清除计时器对象
-                  clearInterval(timer);
-                  // 将点击获取验证码的按钮展示的文本回复成原始文本
-                  // this.sms_code_message = "获取短信验证码";
-                  this.buttonText = "重新获取";
-                  // 将点击按钮的onclick事件函数恢复回去
-                  // this.sending_flag = false;
-                  this.isDisabled = false;
-                  this.flag = true;
-                }
-              }, 1000);
-            }
-          })
-          .catch(error => {
-            console.log(error.response);
-            this.sending_flag = false;
-          });
-      }
+      // 向后端接口发送请求，让后端发送短信验证码
+      const url =
+        // this.host + "/smscode/?mobile=" + this.mobile ;
+        "http://127.0.0.1:8000/api/send_sms/?mobile=" + this.Register.mobile;
+      axios
+        .get(url, {
+          params: {
+            tpl: "register" //让后端判断是注册还是登录，用来获取短信验证码
+          },
+          responseType: "json"
+        })
+        .then(response => {
+          // 表示后端发送短信成功
+          if (this.flag) {
+            // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
+            this.flag = false;
+            // 设置一个计时器
+            const timer = setInterval(() => {
+              time--;
+              this.buttonText = time + " s";
+              if (time === 0) {
+                // 如果计时器到最后, 清除计时器对象
+                clearInterval(timer);
+                // 将点击获取验证码的按钮展示的文本回复成原始文本
+                // this.sms_code_message = "获取短信验证码";
+                this.buttonText = "重新获取";
+                // 将点击按钮的onclick事件函数恢复回去
+                // this.sending_flag = false;
+                this.isDisabled = false;
+                this.flag = true;
+              }
+            }, 1000);
+          }
+        })
+        .catch(error => {
+          console.log(error.response);
+          this.sending_flag = false;
+        });
+      // }
     },
 
     // 验证手机号,判断验证码按钮
@@ -364,6 +419,7 @@ export default {
         smscode: this.Register.smscode,
         last: 1 //用于解决后端smscode参数为3019"}多了"}问题
       });
+      console.log("postData" + postData);
       this.$refs[Register].validate(valid => {
         // 为表单绑定验证功能
         if (valid) {
@@ -381,35 +437,33 @@ export default {
             )
             .then(res => {
               console.log(res);
-              if (res.data.EID == 0) {
-                var token = res.data.Data[0].token;
-                localStorage.setItem("token", token);
-                this.$message({
-                  showClose: true,
-                  message: "登录成功",
-                  type: "success"
-                });
-                this.$router.push({ path: "/index" });
-              } else {
-                this.$message({
-                  showClose: true,
-                  message: res.data.Err,
-                  type: "warning"
-                });
-              }
+              console.log(data);
+              // if (res.data.EID == 0) {
+              //   var token = res.data.Data[0].token;
+              //   localStorage.setItem("token", token);
+              //   this.$message({
+              //     showClose: true,
+              //     message: "登录成功",
+              //     type: "success"
+              //   });
+              //   this.$router.push({ path: "/index" });
+              // } else {
+              //   this.$message({
+              //     showClose: true,
+              //     message: res.data.Err,
+              //     type: "warning"
+              //   });
+              // }
             })
             .catch(error => {
-              console.log(error);
-              console.log(error.message);
-              console.log(error.response);
-              console.log(error.responseType);
-              console.log(error.response.status);
-              console.log(error.config);
+              // console.log(error);
+              console.log("....");
               // this.$message({
               //   message: res.message,
               //   type: "error"
               // });
             });
+          this.$router.push("/login");
         } else {
           this.dialogVisible = true;
           return false;

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-01 22:19:57
+ * @LastEditTime: 2020-09-25 17:25:42
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -54,6 +54,12 @@ const routes = [
     name: "NotFound",
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/404.vue")
+  },
+  {
+    path: "/test",
+    name: "Tset",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/Test.vue")
   },
 ];
 

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-09-24 22:38:33
+LastEditTime: 2020-09-25 22:38:14
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -35,29 +35,38 @@ LastEditTime: 2020-09-24 22:38:33
 #     url(r'^login/$', views.LoginView.as_view()),
 
 #     ####    mongeostore ###########
-# basic URL Configurations 
-from django.urls import include, path 
-# import routers 
-from rest_framework import routers 
-  
-# import everything from views 
+# basic URL Configurations
+from django.urls import include, path
+# import routers
+from rest_framework import routers
+
+# import everything from views
 from .views import *
 # 添加RegisterView视图
-from .views import RegisterView,CheckUsername
+from .views import RegisterView, CheckUsername, CheckEmail, CheckMobile, LoginView
 from . import views
-  
-# define the router 
-router = routers.DefaultRouter() 
-  
-# define the router path and viewset to be used 
-router.register(r'userinfo', UserInfoViewSet) 
-  
-# specify URL Path for rest_framework 
-urlpatterns = [ 
-    path('', include(router.urls)), 
+from rest_framework.compat import re_path
+from django.views.generic import TemplateView
+
+# define the router
+router = routers.DefaultRouter()
+
+# define the router path and viewset to be used
+router.register(r'userinfo', UserInfoViewSet)
+
+# specify URL Path for rest_framework
+urlpatterns = [
+    path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
-    path('register/', RegisterView.as_view(), name='register'),
     # path('send_sms/', views.send_sms)
-    path('send_sms/', MobileCountView.as_view(),name='send_sms'),
-    path('test/', CheckUsername.as_view(),name='test')
-] 
+    path('send_sms/', MobileCountView.as_view(), name='send_sms'),
+    path('username/', CheckUsername.as_view(), name='username'),
+    path('email/', CheckEmail.as_view(), name='email'),
+    path('mobile/', CheckMobile.as_view(), name='mobile'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+
+    path('', TemplateView.as_view(template_name="index.html")),
+
+    re_path(r'.*', TemplateView.as_view(template_name='index.html')),
+]

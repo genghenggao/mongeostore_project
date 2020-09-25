@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-24 22:49:52
+LastEditTime: 2020-09-25 22:41:51
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -399,19 +399,45 @@ class UserInfoViewSet(viewsets.ModelViewSet):
 #         return HttpResponse(res['errmsg'])
 
 class CheckUsername(View):
-    def get(self,request):
-        #1.根据用户名，查询用户数量
+    def get(self, request):
+        # 1.根据用户名，查询用户数量
         username = self.request.GET.get('username')  # 字符串类型
-        count = UserInfo.objects.filter(username = username).count()
+        count = UserInfo.objects.filter(username=username).count()
 
-        #2. 返回响应
+        # 2. 返回响应
         data = {
-            "count":count
+            "count": count
         }
         print(data)
         return http.JsonResponse(data)
 
 
+class CheckEmail(View):
+    def get(self, request):
+        # 1.根据邮箱，查询用户数量
+        email = self.request.GET.get('email')  # 字符串类型
+        count = UserInfo.objects.filter(email=email).count()
+
+        # 2. 返回响应
+        data = {
+            "count": count
+        }
+        print(data)
+        return http.JsonResponse(data)
+
+
+class CheckMobile(View):
+    def get(self, request):
+        # 1.根据手机号，查询用户数量
+        mobile = self.request.GET.get('mobile')  # 字符串类型
+        count = UserInfo.objects.filter(mobile=mobile).count()
+
+        # 2. 返回响应
+        data = {
+            "count": count
+        }
+        print(data)
+        return http.JsonResponse(data)
 
 
 class MobileCountView(View):
@@ -433,7 +459,7 @@ class MobileCountView(View):
         if UserInfo.objects.filter(mobile=mobile).count():
             raise ValidationError("手机号已经注册过，请重新输入")
 
-        #生成短信验证码
+        # 生成短信验证码
         code = random.randrange(1000, 9999)
 
         # 发送短信
@@ -464,7 +490,7 @@ class MobileCountView(View):
 class RegisterView(View):
     """
       注册视图
-      /users/register
+      /api/register
       """
     # @method_decorator(ensure_csrf_cookie)
 
@@ -561,3 +587,43 @@ class RegisterView(View):
 
         return HttpResponse('welcome!{}'.format(username))
         # return username
+
+
+class LoginView(View):
+    def get(self, request):
+        return render(request, "login.html")
+
+    def post(self, request):
+        # 1. 获取参数
+        username = self.request.POST.get('username')
+        password = self.request.POST.get('password')
+
+        # 2. 判断参数是否齐全
+        if not all([username, password, ]):
+            # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
+            return http.HttpResponseForbidden("缺少必传参数")
+
+        # 2.1 用户名格式校验
+        if not re.match(r"^[a-zA-Z0-9_-]{5,20}$", username):
+            return http.HttpResponseForbidden("请输入5-20个字符的用户名")
+
+         # 2.2  判断密码是否是6 - 20个数字
+        if not re.match(r"^[a-zA-Z0-9_-]{6,20}$", password):
+            return http.HttpResponseForbidden("请输入6-20位的密码")
+
+        # 2.3 校验用户名和密码的正确性
+        if not UserInfo.objects.filter(username=username).count():
+            return http.HttpResponseForbidden("不存在该账户,请重新输入")
+
+        username = username.strip()
+        try:
+            user = UserInfo.objecs.get(username=username)
+            if user.password == password:
+                return redirect('/index.html')
+            else:
+                message = "密码不正确！"
+        except:
+            message = "用户名不存在！"
+        return render(request, "index.html")
+
+        # return render(request, "login.html")
