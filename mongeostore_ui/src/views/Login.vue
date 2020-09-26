@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-25 22:29:16
+ * @LastEditTime: 2020-09-26 20:37:32
 -->
 <template>
   <div id="poster">
@@ -100,6 +100,7 @@
 
 <script>
 import axios from "axios";
+import qs from "qs";
 export default {
   name: "login",
   data() {
@@ -116,28 +117,48 @@ export default {
     };
   },
   methods: {
-    onSuccess() {
-      let username = this.Login.username;
-      let password = this.Login.password;
-      console.log(username);
-      console.log(password);
-      let url = `http://127.0.0.1:8000/api/login/`;
+    onSuccess(Login) {
+      // let username = this.Login.username;
+      // let password = this.Login.password;
+      let postData = qs.stringify({
+        first: 1, //用于解决第一个参数为None设置的无用参数，现在我还不知道为什么，但这样可以解决，以后发现根本再来补充
+        username: this.Login.username,
+        // email: this.Login.email,
+        password: this.Login.password,
+        // password2: this.Login.password2,
+        // mobile: this.Login.mobile,
+        // smscode: this.Login.smscode,
+        last: 1 //用于解决后端smscode参数为3019"}多了"}问题
+      });
+      console.log(postData);
+      console.log(postData.username);
+      let url = `http://127.0.0.1:8000/api/userlogin/`;
       axios
         .post(
           url,
           {
             // params: this.userInfo, //params用于get请求
+            data: postData,
             responseType: "json"
           },
           {
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
           }
         )
-        .then(res => {
-          console.log(res.data.username);
-          console.log(res.data.password);
-          console.log(res);
-          console.log(data);
+        .then(response => {
+          console.log("优雅的分割线");
+          // console.log(response.data.username);
+          // console.log(response.data.password);
+          console.log(response.data.status_code);
+          console.log(response);
+          // 登录成功，定向到首页
+          if (response.data.status_code == 200) {
+            // _this.$store.commit("login", _this.loginForm);
+            var path = this.$route.query.redirect;
+            this.$router.replace({
+              path: path === "/" || path === undefined ? "/" : path
+            });
+          }
         })
         .catch(error => {
           console.log("....");
@@ -151,26 +172,26 @@ export default {
     onRefresh() {
       this.msg = "重新生成验证码";
     },
-    login() {
-      var _this = this;
-      console.log(this.$store.state);
-      this.$api
-        .post("/login", {
-          username: this.loginForm.username,
-          password: this.loginForm.password
-        })
-        .then(successResponse => {
-          if (successResponse.data.code === 200) {
-            _this.$store.commit("login", _this.loginForm);
-            var path = this.$route.query.redirect;
-            this.$router.replace({
-              path: path === "/" || path === undefined ? "/index" : path
-            });
-          }
-        })
-        // eslint-disable-next-line no-unused-vars
-        .catch(failResponse => {});
-    }
+    // login() {
+    //   var _this = this;
+    //   console.log(this.$store.state);
+    //   this.$api
+    //     .post("/login", {
+    //       username: this.loginForm.username,
+    //       password: this.loginForm.password
+    //     })
+    //     .then(successResponse => {
+    //       if (successResponse.data.code === 200) {
+    //         _this.$store.commit("login", _this.loginForm);
+    //         var path = this.$route.query.redirect;
+    //         this.$router.replace({
+    //           path: path === "/" || path === undefined ? "/index" : path
+    //         });
+    //       }
+    //     })
+    //     // eslint-disable-next-line no-unused-vars
+    //     .catch(failResponse => {});
+    // }
   }
 };
 </script>

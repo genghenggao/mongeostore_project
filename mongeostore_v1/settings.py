@@ -180,8 +180,12 @@ STATICFILES_DIRS = [  # 添加静态文件路径
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 2,
+    # 用户登录认证方式
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # 取出用户信息放入request.user
+        # 下面两个默认设置，可以不用添加
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ],
 }
 

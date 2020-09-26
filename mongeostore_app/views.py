@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-25 22:41:51
+LastEditTime: 2020-09-26 20:36:09
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -241,6 +241,13 @@ LastEditTime: 2020-09-25 22:41:51
 
 ## mongeostore ##
 # import viewsets
+from . import models
+from rest_framework import status
+from rest_framework.versioning import URLPathVersioning
+from rest_framework.response import Response
+import uuid
+from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
 import datetime
 import pymongo
 from pymongo import MongoClient
@@ -403,10 +410,13 @@ class CheckUsername(View):
         # 1.根据用户名，查询用户数量
         username = self.request.GET.get('username')  # 字符串类型
         count = UserInfo.objects.filter(username=username).count()
-
+        # 这个取值为了方便前端Login登录校验使用
+        # user = UserInfo.objects.get(username=username)
+        # password = user.password
         # 2. 返回响应
         data = {
-            "count": count
+            "count": count,
+            # "password": password,
         }
         print(data)
         return http.JsonResponse(data)
@@ -589,10 +599,12 @@ class RegisterView(View):
         # return username
 
 
-class LoginView(View):
+class LoginViewTest(APIView):
     def get(self, request):
-        return render(request, "login.html")
+        # return render(request, "login.html")
+        return render(request, "https://www.baidu.com/")
 
+    @csrf_exempt
     def post(self, request):
         # 1. 获取参数
         username = self.request.POST.get('username')
@@ -616,14 +628,51 @@ class LoginView(View):
             return http.HttpResponseForbidden("不存在该账户,请重新输入")
 
         username = username.strip()
+        md5_password = encrypt.md5(password)  # 使用MD5密文
+
+        # user = UserInfo.objects.get(username=username)
+        # password2 = user.password
+
         try:
-            user = UserInfo.objecs.get(username=username)
-            if user.password == password:
-                return redirect('/index.html')
+            user = UserInfo.objects.get(username=username)
+            if user.password == md5_password:
+                # return redirect('/index.html')
+                data = {
+                    "status_code": 200
+                }
+                # return HttpResponse("Welcome,{}".format(md5_password), data)
+                return http.JsonResponse(data)
             else:
                 message = "密码不正确！"
+                # return http.JsonResponse(data)
+                return HttpResponse(message)
         except:
             message = "用户名不存在！"
-        return render(request, "index.html")
-
+            return HttpResponse(message)
+        # return render(request, "index.html")
+        # return HttpResponse("Welcome,{}".format(username))
         # return render(request, "login.html")
+        return HttpResponse("优雅的返回")
+
+
+
+class LoginView(APIView):
+    """
+    登录接口
+    """
+
+    def post(self, request, *args, **kwargs):
+
+        # 基于jwt的认证
+        # 1.去数据库获取用户信息
+        from rest_framework_jwt.settings import api_settings
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        user = models.UserInfo.objects.filter(**request.data).first()
+        if not user:
+            return Response({'code': 1000, 'error': '用户名或密码错误'})
+
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        return Response({'code': 1001, 'data': token})
