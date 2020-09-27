@@ -118,7 +118,7 @@
 #         model = UserInfo
 #         fields = ("username", "mobile", "email",)
 
-## 学生测试序列化
+# 学生测试序列化
 # from .models import StudentsModel
 # class StudentsSerializer(serializers.Serializer):
 #     email = serializers.EmailField()
@@ -127,8 +127,8 @@
 #     port = serializers.IntegerField()
 
 #     def create(self, validated_data):
-#      return StudentsModel.objects.create(**validated_data)    
- 
+#      return StudentsModel.objects.create(**validated_data)
+
 #     def update(self, instance, validated_data):
 #         instance.content = validated_data.get('content', instance.content)
 #         instance.email = validated_data.get('email', instance.email)
@@ -138,16 +138,18 @@
 
 from rest_framework import serializers
 from .models import UserInfo
-## mongeostore序列化 ## 
+# from .models import SmsCode
+## mongeostore序列化 ##
+
+
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserInfo     #对应的Model中的类
+        model = UserInfo  # 对应的Model中的类
         # fields = ("username", "mobile", "email",)
-        fields = "__all__"  #字段，如果是__all__,就是表示列出所有的字段
+        fields = "__all__"  # 字段，如果是__all__,就是表示列出所有的字段
         # exclude = ('password',)   # 注意：结尾的 '，' 逗号，去掉会序列化失败。exclude 属性设置为从序列化程序中排除的字段列表。 实例化时将看不到  password 字段，及password 不被序列化，
         # fields = ('username','password','email')  # 序列化指定字段。
         # exclude = ['password']  # 使用list  形式也是可以的，此时可以不要逗号。同理fields 也支持 list 形式，因为官网 就是 list形式。
-
 
         #  本身ModelSerializer  它包含 .create() 和 .update() 的简单默认实现。 所以这里写不写,下面两个方法都行，但是在嵌套序列化 的情况下要重写下面两个方法。
         # def create(self, validated_data):
@@ -163,3 +165,10 @@ class UserInfoSerializer(serializers.ModelSerializer):
         #
         #     instance.save()
         #     return instance
+
+#短信序列化
+# class SmscodeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = SmsCode  # 对应的Model中的类
+#         # fields = ("username", "mobile", "email",)
+#         fields = "__all__"  # 字段，如果是__all__,就是表示列出所有的字段

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-26 20:36:09
+LastEditTime: 2020-09-27 20:31:14
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -248,11 +248,11 @@ from rest_framework.response import Response
 import uuid
 from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
-import datetime
+from _datetime import datetime
 import pymongo
 from pymongo import MongoClient
 from django.core.exceptions import ValidationError
-from django.contrib.auth import login
+from django.contrib.auth import get_user_model, login
 from django.db import DatabaseError
 import re
 from django.http.response import HttpResponse
@@ -266,7 +266,8 @@ from utils.response_code import RETCODE
 from rest_framework import viewsets
 # import local data
 from .serializers import UserInfoSerializer
-from .models import UserInfo
+# from .serializers import UserInfoSerializer,SmscodeSerializer
+from .models import UserInfo, SmsCode
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from utils import encrypt
@@ -436,6 +437,9 @@ class CheckEmail(View):
         return http.JsonResponse(data)
 
 
+User = get_user_model()
+
+
 class CheckMobile(View):
     def get(self, request):
         # 1.根据手机号，查询用户数量
@@ -450,9 +454,85 @@ class CheckMobile(View):
         return http.JsonResponse(data)
 
 
+# class CheckSmscode(View):
+#     """验证码校验"""
+
+#     def get(self, request):
+#             # 1.根据手机号，比对验证码
+#         # return http.JsonResponse(data)
+#         # return render(request, "https://www.baidu.com/")
+#          # 1. 获取参数
+#         mobile = self.request.POST.get('mobile')
+#         smscode = self.request.POST.get('smscode')
+#         # smscode = smscode.strip()
+
+#         # 2. 判断参数是否齐全
+#         if not all([mobile, smscode, ]):
+#             # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
+#             return http.HttpResponseForbidden("缺少必传参数")
+#         # 判断手机号是否合法Info
+#         if not re.match(r'^1[3-9]\d{9}$', mobile):
+#             return http.HttpResponseForbidden('请输入正确的手机号码')
+#         # 判断验证码是否合法
+#         if not re.match(r'^1[3-9]\d{4}$', smscode):
+#             return http.HttpResponseForbidden('请输入四位验证码')
+#         try:
+#             user = UserInfo.objects.get(mobile=mobile)
+#             if user.smscode == smscode:
+#                 # return redirect('/index.html')
+#                 data = {
+#                     "status_code": 200
+#                 }
+#                 # return HttpResponse("Welcome,{}".format(md5_password), data)
+#                 return http.JsonResponse(data)
+#             else:
+#                 message = "验证码"
+#                 # return http.JsonResponse(data)
+#                 return HttpResponse(message)
+#         except:
+#             message = "手机号不存在！"
+#             return HttpResponse(message)
+#         return HttpResponse("优雅的返回")
+
+    # @csrf_exempt
+    # def post(self, request):
+    #     # 1. 获取参数
+    #     mobile = self.request.POST.get('mobile')
+    #     smscode = self.request.POST.get('smscode')
+    #     # smscode = smscode.strip()
+
+    #     # 2. 判断参数是否齐全
+    #     if not all([mobile, smscode, ]):
+    #         # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
+    #         return http.HttpResponseForbidden("缺少必传参数")
+    #     # 判断手机号是否合法Info
+    #     if not re.match(r'^1[3-9]\d{9}$', mobile):
+    #         return http.HttpResponseForbidden('请输入正确的手机号码')
+    #     # 判断验证码是否合法
+    #     if not re.match(r'^1[3-9]\d{4}$', smscode):
+    #         return http.HttpResponseForbidden('请输入四位验证码')
+    #     try:
+    #         user = UserInfo.objects.get(mobile=mobile)
+    #         if user.smscode == smscode:
+    #             # return redirect('/index.html')
+    #             data = {
+    #                 "status_code": 200
+    #             }
+    #             # return HttpResponse("Welcome,{}".format(md5_password), data)
+    #             return http.JsonResponse(data)
+    #         else:
+    #             message = "验证码"
+    #             # return http.JsonResponse(data)
+    #             return HttpResponse(message)
+    #     except:
+    #         message = "手机号不存在！"
+    #         return HttpResponse(message)
+
+
 class MobileCountView(View):
 
     """检测短信模板是否有问题"""
+    # serializer_class = SmscodeSerializer
 
     def get(self, request):
         tpl = self.request.GET.get('tpl')
@@ -487,11 +567,14 @@ class MobileCountView(View):
         '''
         client = MongoClient("192.168.55.110", 27017)
         collection = client.mobilecode.expire
+        # collection = client.django_example.mongeostore_app_smscode
         collection.create_index(
             [("time", pymongo.ASCENDING)], expireAfterSeconds=66)
         data = {
             "mobile": mobile,  # 注意这个存入的类型，这样传入的是字符串str
             "code": code,
+            # "add_time": datetime.now,
+            # "add_time": "11111",
         }
         collection.insert(data)
         return http.JsonResponse({'error_massage': "ok", 'code': RETCODE.OK, })
@@ -572,6 +655,7 @@ class RegisterView(View):
         """检测验证码"""
         client = MongoClient("192.168.55.110", 27017)
         collection = client.mobilecode.expire
+        # collection = client.django_example.mongeostore_app_smscode
         code_mobile = self.request.POST.get("mobile")
         print(type(code_mobile))  # str
         print(code_mobile)
@@ -579,7 +663,12 @@ class RegisterView(View):
         # {'_id': ObjectId('5f6317893f3884e0759155a0'), 'mobile': '15351818127', 'code': 4891}
         print(mongo_code)
         if not mongo_code:
-            raise ValidationError("验证码失效，或未发送，请重新发送！")
+            data = {
+                "status_code": 500,
+            }
+            # return http.JsonResponse("验证码失效，或未发送，请重新发送！", data)
+            return http.JsonResponse(data)
+            # raise ValidationError("验证码失效，或未发送，请重新发送！")
         mongo_str_code = str(mongo_code['code'])
         print(mongo_str_code)  # 4981
         print(type(mongo_str_code))  # <class 'str'>
@@ -587,7 +676,12 @@ class RegisterView(View):
         print(type(smscode))  # <class 'str'>
         # 这个验证码还有点问题，申请的腾讯一天只能10条
         if smscode != mongo_str_code:
-            raise ValidationError("验证码错误，请重新输入")
+            data = {
+                "status_code": 501,
+            }
+
+            return http.JsonResponse(data)
+            # raise ValidationError("验证码错误，请重新输入")
         # 保存注册数据
         try:
             userInfo = UserInfo.objects.create(
@@ -610,22 +704,39 @@ class LoginViewTest(APIView):
         username = self.request.POST.get('username')
         password = self.request.POST.get('password')
 
+        print(username)
         # 2. 判断参数是否齐全
         if not all([username, password, ]):
             # all方法,对于列表或元祖内的任意一个元素为false,则返回false,空            列表或空元祖或任意元素不为false,则返回Ture
-            return http.HttpResponseForbidden("缺少必传参数")
+            # return http.HttpResponseForbidden("缺少必传参数")
+            data = {
+                "status_code": 502
+            }
+            return http.JsonResponse(data)
 
         # 2.1 用户名格式校验
         if not re.match(r"^[a-zA-Z0-9_-]{5,20}$", username):
-            return http.HttpResponseForbidden("请输入5-20个字符的用户名")
+            # return http.HttpResponseForbidden("请输入5-20个字符的用户名")
+            data = {
+                "status_code": 502
+            }
+            return http.JsonResponse(data)
 
          # 2.2  判断密码是否是6 - 20个数字
         if not re.match(r"^[a-zA-Z0-9_-]{6,20}$", password):
-            return http.HttpResponseForbidden("请输入6-20位的密码")
+            # return http.HttpResponseForbidden("请输入6-20位的密码")
+            data = {
+                "status_code": 503
+            }
+            return http.JsonResponse(data)
 
         # 2.3 校验用户名和密码的正确性
         if not UserInfo.objects.filter(username=username).count():
-            return http.HttpResponseForbidden("不存在该账户,请重新输入")
+            data = {
+                "status_code": 502
+            }
+            # return http.HttpResponseForbidden("不存在该账户,请重新输入")
+            return http.JsonResponse(data)
 
         username = username.strip()
         md5_password = encrypt.md5(password)  # 使用MD5密文
@@ -644,8 +755,12 @@ class LoginViewTest(APIView):
                 return http.JsonResponse(data)
             else:
                 message = "密码不正确！"
+                data = {
+                    "status_code": 503
+                }
                 # return http.JsonResponse(data)
-                return HttpResponse(message)
+                # return HttpResponse(message)
+                return http.JsonResponse(data)
         except:
             message = "用户名不存在！"
             return HttpResponse(message)
@@ -653,7 +768,6 @@ class LoginViewTest(APIView):
         # return HttpResponse("Welcome,{}".format(username))
         # return render(request, "login.html")
         return HttpResponse("优雅的返回")
-
 
 
 class LoginView(APIView):

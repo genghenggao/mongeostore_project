@@ -94,6 +94,8 @@
         >
       </el-form-item>
     </el-form>
+
+    <!-- <el-button :plain="true" @click="open4">错误</el-button> -->
   </div>
 </template>
 
@@ -226,6 +228,32 @@ export default {
         callback(new Error("请输入手机验证码"));
       } else {
         callback();
+        // 检查重名
+        // const url =
+        //   // this.host + "/smscode/?mobile=" + this.mobile ;
+        //   "http://127.0.0.1:8000/api/smscode/?smcode=" + this.Register.smscode;
+        // axios
+        //   .get(url, {
+        //     responseType: "json"
+        //   })
+        //   .then(response => {
+        //     // 表示后端发送短信成功
+        //     if (response.data.status_code != 200) {
+        //       console.log("手机验证码错误");
+        //       console.log(response.data.status_code);
+        //       // alert("手机号已存在");
+        //       callback(new Error("手机验证码错误，请重新输入"));
+        //     } else {
+        //       // let time = 60;
+        //       // this.buttonText = "已发送";
+        //       // this.isDisabled = true;
+        //       // element ui 表单验证 this.$refs[formName].validate()里面的内容死活不执行
+        //       callback();
+        //     }
+        //   })
+        //   .catch(error => {
+        //     console.log(error.response);
+        //   });
       }
     };
     return {
@@ -436,8 +464,23 @@ export default {
               }
             )
             .then(res => {
+              console.log("注册成功走这里");
               console.log(res);
-              console.log(data);
+              console.log(res.data);
+              console.log(res.data.status_code);
+              if (res.data.status_code == 500) {
+                // alert("验证码失效，或未发送，请重新发送！");
+                this.$message.error("验证码失效，或未发送，请重新发送！");
+              } else if (res.data.status_code == 501) {
+                this.$message.error("验证码错误，请重新输入");
+              } else {
+                this.$message({
+                  message: "恭喜你，注册成功！",
+                  type: "success"
+                });
+                this.$router.push("/login");
+              }
+
               // if (res.data.EID == 0) {
               //   var token = res.data.Data[0].token;
               //   localStorage.setItem("token", token);
@@ -457,13 +500,24 @@ export default {
             })
             .catch(error => {
               // console.log(error);
+              console.log("走的是catch");
               console.log("....");
+              // console.log(error.data.status_code);
+              // if (error.data.status_code == 500) {
+              //   alert("验证码失效，或未发送，请重新发送！");
+              //   this.$message.error("验证码失效，或未发送，请重新发送！");
+              // } else {
+              //   alert("验证码错误，请重新输入");
+              //   this.$message.error("验证码错误，请重新输入");
+              // }
+              // alert("验证码失效，或未发送，请重新发送！");
               // this.$message({
               //   message: res.message,
               //   type: "error"
               // });
             });
-          this.$router.push("/login");
+          console.log("无论成功与否都走一遍");
+          // this.$router.push("/login");
         } else {
           this.dialogVisible = true;
           return false;

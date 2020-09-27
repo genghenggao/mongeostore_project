@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-09-26 17:34:13
+LastEditTime: 2020-09-27 11:22:46
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -65,6 +65,7 @@ urlpatterns = [
     path('username/', CheckUsername.as_view(), name='username'),
     path('email/', CheckEmail.as_view(), name='email'),
     path('mobile/', CheckMobile.as_view(), name='mobile'),
+    # path('smscode/', CheckSmscode.as_view(), name='smscode'),
     path('register/', RegisterView.as_view(), name='register'),
     path('userlogin/', LoginViewTest.as_view(), name='login'),
     path(r"login", obtain_jwt_token),

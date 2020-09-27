@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-26 20:37:32
+ * @LastEditTime: 2020-09-27 20:45:32
 -->
 <template>
   <div id="poster">
@@ -12,6 +12,7 @@
       class="login-container"
       ref="Login"
       :model="Login"
+      :rules="rules"
       label-position="left"
       label-width="80px"
     >
@@ -71,7 +72,7 @@
                 @refresh="onRefresh"
                 :slider-text="text"
               ></slide-verify>
-              <div>{{ msg }}</div>
+              <!-- <div>{{ msg }}</div> -->
               <!--这个没完成设置文字居中-->
             </div>
           </el-card>
@@ -101,20 +102,63 @@
 <script>
 import axios from "axios";
 import qs from "qs";
+import aa from "@/assets/images/aa.jpg"; //	如果使用网络图片资源就无需引入
 export default {
-  name: "login",
+  name: "Login",
   data() {
+    // <!--验证账号-->
+    let checkUsername = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入用户名"));
+      } else {
+        callback();
+      }
+    };
+    // <!--验证密码-->
+    let checkPassword = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      } else {
+        callback();
+      }
+    };
     return {
       visible: false, //图片验证弹出框
       msg: "",
-      bgimgs: [], //	如果使用网络图片资源就用该值
+      bgimgs: [aa], //	如果使用网络图片资源就用该值
+      // bgimgs: [], //	如果使用网络图片资源就用该值
       text: "向右滑动~",
       Login: {
         username: "",
         password: ""
       },
-      responseResult: []
+      rules: {
+        username: [
+          { required: true, message: "请输入账号", trigger: "blur" },
+          {
+            // pattern: /^(?!(\d+)$)[a-zA-Z\d_]{4,20}$/,
+            pattern: /^[a-zA-Z0-9_-]{5,20}$/,
+            message: "账号长度5-20，可包括数字字母下划线",
+            trigger: "blur"
+          },
+          { validator: checkUsername, trigger: "blur" }
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          {
+            // pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+            pattern: /^[a-zA-Z0-9_-]{6,20}$/,
+            message: "密码长度为6-20位，可以为数字、字母",
+            trigger: "blur"
+          },
+          { validator: checkPassword, trigger: "blur" }
+        ]
+      }
+      // responseResult: []
     };
+  },
+  watch: {
+ 
   },
   methods: {
     onSuccess(Login) {
@@ -158,20 +202,37 @@ export default {
             this.$router.replace({
               path: path === "/" || path === undefined ? "/" : path
             });
+          } else if (response.data.status_code == 502) {
+            // alert("用户不存在")
+            this.$message.error("用户不存在，请重新输入");
+            this.visible = false;
+            // this.$router.push("/");
+          } else {
+            // alert("密码不正确")
+            this.$message.error("密码不正确，请重新输入");
+            this.visible = false;
           }
+          console.log("....");
         })
         .catch(error => {
           console.log("....");
         });
       // this.$router.push("/index");
-      this.msg = "登录成功~";
+      // this.msg = "登录成功~";
+      // this.$message({
+      //   message: "恭喜你，注册成功！",
+      //   type: "success"
+      // });
     },
     onFail() {
-      this.msg = "登录失败！";
+      // this.msg = "登录失败！";
+      this.$message.error("验证码不正确，登录失败");
     },
     onRefresh() {
-      this.msg = "重新生成验证码";
+      // this.msg = "重新生成验证码";
+      this.$message.error("重新生成验证码，请稍后...");
     },
+  
     // login() {
     //   var _this = this;
     //   console.log(this.$store.state);
