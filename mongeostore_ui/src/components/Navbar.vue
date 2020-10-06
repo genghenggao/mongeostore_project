@@ -4,12 +4,12 @@
  * @Author: henggao
  * @Date: 2020-09-28 20:19:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-28 20:21:36
+ * @LastEditTime: 2020-10-05 09:35:24
 -->
 <template>
-  <div>
+  <div class="sticky-top">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <a class="navbar-brand" href="#">MonGeoStore</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -78,8 +78,10 @@
 </template>
 
 <script>
-export default {};
+export default {
+  name: "Navbar"
+};
 </script>
 
-<style>
+<style lang="scss" scoped>
 </style>

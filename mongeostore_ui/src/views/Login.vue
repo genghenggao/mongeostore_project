@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-27 20:45:32
+ * @LastEditTime: 2020-10-04 22:37:35
 -->
 <template>
   <div id="poster">
@@ -103,8 +103,10 @@
 import axios from "axios";
 import qs from "qs";
 import aa from "@/assets/images/aa.jpg"; //	如果使用网络图片资源就无需引入
+
 export default {
   name: "Login",
+  components: {},
   data() {
     // <!--验证账号-->
     let checkUsername = (rule, value, callback) => {
@@ -157,9 +159,7 @@ export default {
       // responseResult: []
     };
   },
-  watch: {
- 
-  },
+  watch: {},
   methods: {
     onSuccess(Login) {
       // let username = this.Login.username;
@@ -231,8 +231,8 @@ export default {
     onRefresh() {
       // this.msg = "重新生成验证码";
       this.$message.error("重新生成验证码，请稍后...");
-    },
-  
+    }
+
     // login() {
     //   var _this = this;
     //   console.log(this.$store.state);

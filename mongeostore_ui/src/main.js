@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-28 22:11:47
+ * @LastEditTime: 2020-10-06 17:30:24
  */
 import Vue from "vue";
 import App from "./App.vue";
@@ -26,10 +26,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap/dist/js/bootstrap.min.js";
 
 // BootStrap—Vue
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import SlideVerify from "vue-monoplasty-slide-verify";
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import SlideVerify from 'vue-monoplasty-slide-verify';
+// Baidui API
+import BaiduMap from 'vue-baidu-map';
 
 
 // 滑动验证码
@@ -37,9 +39,14 @@ Vue.use(SlideVerify)
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
- 
+
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
+
+Vue.use(BaiduMap, {
+  /* Visit http://lbsyun.baidu.com/apiconsole/key for details about app key. */
+  ak: '23jFoXtASNYo6tR1hrrjuVWwM97FGKpH'
+})
 
 // // 设置反向代理，前端请求默认发送到 http://localhost:8080/api
 // var axios = require("axios");

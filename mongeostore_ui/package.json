@@ -19,6 +19,7 @@
     "popper.js": "^1.16.1",
     "qs": "^6.9.4",
     "vue": "^2.6.11",
+    "vue-baidu-map": "^0.21.22",
     "vue-monoplasty-slide-verify": "^1.1.3",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.2.0",
