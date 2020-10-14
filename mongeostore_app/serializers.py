@@ -172,3 +172,9 @@ class UserInfoSerializer(serializers.ModelSerializer):
 #         model = SmsCode  # 对应的Model中的类
 #         # fields = ("username", "mobile", "email",)
 #         fields = "__all__"  # 字段，如果是__all__,就是表示列出所有的字段
+# from .models import UploadFile
+# class UploadSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UploadFile  # 对应的Model中的类
+#         # fields = ("username", "mobile", "email",)
+#         fields = "__all__"  # 字段，如果是__all__,就是表示列出所有的字段

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 17:06:04
+ * @LastEditTime: 2020-10-11 20:35:21
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -84,6 +84,12 @@ const routes = [
     name: "MapView",
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/MapView.vue")
+  },
+  {
+    path: "/uploadfile",
+    name: "Uploadfile",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/Uploadfile.vue")
   },
 ];
 

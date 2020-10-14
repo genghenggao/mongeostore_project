@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-09-27 20:31:14
+LastEditTime: 2020-10-14 22:24:46
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -241,6 +241,13 @@ LastEditTime: 2020-09-27 20:31:14
 
 ## mongeostore ##
 # import viewsets
+from bson import ObjectId
+import os
+from datetime import datetime
+from gridfs import *
+import gridfs
+from django.http import JsonResponse
+# from .models import UploadFile
 from . import models
 from rest_framework import status
 from rest_framework.versioning import URLPathVersioning
@@ -790,3 +797,28 @@ class LoginView(APIView):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         return Response({'code': 1001, 'data': token})
+
+
+#  上传文件到gridfs
+client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+# db = client['segyfile']
+# @require_http_methods(['GET'])
+# from django.views.decorators.http import require_http_methods
+# @require_http_methods(['POST'])
+def upload_file(request, *args, **kwargs):
+  # 上传文件到GridFS集合中
+    # 存储文件到mongo
+    print("走过这里")
+    if request.method =="POST":
+        myFile = request.FILES.get("myfile", None)  # 获取上传的文件，如果没有文件，则默认为None
+        print("经过这里")
+        if not myFile:
+            return HttpResponse("no files for upload!")
+
+        with open(myFile, 'rb') as f:
+            data = f.read()
+            fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
+            fs.put(data)
+            # return fs.put(data)
+            return HttpResponse("upload over!")

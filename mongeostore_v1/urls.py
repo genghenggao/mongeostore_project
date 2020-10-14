@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 16:59:36
 LastEditors: henggao
-LastEditTime: 2020-09-24 22:05:26
+LastEditTime: 2020-10-11 20:54:06
 '''
 """mongeostore_v1 URL Configuration
 
@@ -23,6 +23,7 @@ Including another URLconf
 """
 
 
+# import verifications.urls
 from mongeostore_app import views
 from django.views.generic import TemplateView
 from django.contrib import admin
@@ -30,7 +31,6 @@ from django.urls import path, re_path
 import mongeostore_app.urls
 import mongeostore_users.urls
 import verification.urls
-# import verifications.urls
 from django.conf.urls import url, include
 urlpatterns = [
     path('admin/', admin.site.urls),
