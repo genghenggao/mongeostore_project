@@ -9,5 +9,6 @@ __pycache__/
 local_settings.py
 *.sqlite3
 LX_SEGY2.segy
+mytestLX_SEGY2.segy
 
 
