@@ -1,5 +1,6 @@
 <template>
   <div id="poster">
+    <Navbar />
     <el-form
       class="login-container"
       label-position="left"
@@ -102,8 +103,12 @@
 <script>
 import axios from "axios";
 import qs from "qs";
+import Navbar from "@/components/Navbar.vue";
 export default {
   name: "Register",
+  components: {
+    Navbar
+  },
   data() {
     // <!--验证账号-->
     let checkUsername = (rule, value, callback) => {

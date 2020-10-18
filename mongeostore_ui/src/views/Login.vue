@@ -4,10 +4,11 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-04 22:37:35
+ * @LastEditTime: 2020-10-15 15:17:39
 -->
 <template>
   <div id="poster">
+    <Navbar />
     <el-form
       class="login-container"
       ref="Login"
@@ -104,9 +105,13 @@ import axios from "axios";
 import qs from "qs";
 import aa from "@/assets/images/aa.jpg"; //	如果使用网络图片资源就无需引入
 
+import Navbar from "@/components/Navbar.vue";
+
 export default {
   name: "Login",
-  components: {},
+  components: {
+    Navbar
+  },
   data() {
     // <!--验证账号-->
     let checkUsername = (rule, value, callback) => {
