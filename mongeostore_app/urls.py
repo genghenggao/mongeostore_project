@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-10-14 21:56:12
+LastEditTime: 2020-10-21 16:01:30
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -73,5 +73,6 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="index.html")),
 
     re_path(r'.*', TemplateView.as_view(template_name='index.html')),
-    path('uploadfile/',views.upload_file)
+    path('uploadfile/',views.upload_file),
+    path('test/',views.test)
 ]

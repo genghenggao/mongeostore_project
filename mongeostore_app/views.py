@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-10-14 22:24:46
+LastEditTime: 2020-10-22 22:52:46
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -806,19 +806,28 @@ db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
 # @require_http_methods(['GET'])
 # from django.views.decorators.http import require_http_methods
 # @require_http_methods(['POST'])
-def upload_file(request, *args, **kwargs):
+
+
+def upload_file(request,*args, **kwargs):
   # 上传文件到GridFS集合中
     # 存储文件到mongo
     print("走过这里")
     if request.method =="POST":
-        myFile = request.FILES.get("myfile", None)  # 获取上传的文件，如果没有文件，则默认为None
+        myFile = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
         print("经过这里")
         if not myFile:
             return HttpResponse("no files for upload!")
 
-        with open(myFile, 'rb') as f:
-            data = f.read()
-            fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
-            fs.put(data)
-            # return fs.put(data)
-            return HttpResponse("upload over!")
+        # with open(myFile, 'rb') as f:
+        #     data = f.read()
+        #     fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
+        #     fs.put(data)
+        #     # return fs.put(data)
+        #     return HttpResponse("upload over!")
+
+def test(request):
+    """
+    docstring
+    """
+  
+    return HttpResponse( "success")

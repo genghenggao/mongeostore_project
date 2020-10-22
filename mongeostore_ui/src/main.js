@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 17:30:24
+ * @LastEditTime: 2020-10-21 14:57:37
  */
 import Vue from "vue";
 import App from "./App.vue";
@@ -32,7 +32,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import SlideVerify from 'vue-monoplasty-slide-verify';
 // Baidui API
 import BaiduMap from 'vue-baidu-map';
-
+import uploader from 'vue-simple-uploader';
 
 // 滑动验证码
 Vue.use(SlideVerify)
@@ -47,6 +47,7 @@ Vue.use(BaiduMap, {
   /* Visit http://lbsyun.baidu.com/apiconsole/key for details about app key. */
   ak: '23jFoXtASNYo6tR1hrrjuVWwM97FGKpH'
 })
+Vue.use(uploader)
 
 // // 设置反向代理，前端请求默认发送到 http://localhost:8080/api
 // var axios = require("axios");
