@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-10-11 19:39:26
+LastEditTime: 2020-10-23 15:08:06
 '''
 # from djongo import models
 
@@ -137,3 +137,21 @@ class SmsCode(models.Model):
 
 #     def __str__(self):
 #         return self.filename
+
+class UploadInfo(models.Model):
+    '''
+    上传文件
+    '''
+    name = models.CharField(max_length=255)
+    upload_date = models.DateTimeField()
+    path = models.CharField(max_length=255)
+    md5 = models.CharField(max_length=33, default='')
+    size = models.CharField(max_length=30, default=0)
+
+    
+    class Meta:
+        verbose_name = "上传数据"
+        verbose_name_plural = verbose_name
+
+    def __str__(self): 
+        return self.name

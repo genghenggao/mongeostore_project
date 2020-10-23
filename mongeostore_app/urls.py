@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-27 21:02:36
 LastEditors: henggao
-LastEditTime: 2020-10-21 16:01:30
+LastEditTime: 2020-10-23 21:35:03
 '''
 # # 这是新建的urls，用于将接口添加到路由里
 # from django.conf.urls import url, include
@@ -43,12 +43,15 @@ from rest_framework import routers
 # import everything from views
 from .views import *
 # 添加RegisterView视图
-from .views import RegisterView, CheckUsername, CheckEmail, CheckMobile, LoginViewTest
+from .views import RegisterView, CheckUsername, CheckEmail, CheckMobile, LoginViewTest, UploadInfoView
 from . import views
 from rest_framework.compat import re_path
 from django.views.generic import TemplateView
 # jwt内部实现的登陆视图
 from rest_framework_jwt.views import obtain_jwt_token
+
+
+from django.conf.urls import  url
 
 # define the router
 router = routers.DefaultRouter()
@@ -73,6 +76,8 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="index.html")),
 
     re_path(r'.*', TemplateView.as_view(template_name='index.html')),
-    path('uploadfile/',views.upload_file),
-    path('test/',views.test)
+    path('uploadfile/', views.upload_file),
+    # path('test/', views.test),
+    path('testinfo/', views.test,name="test"),
+    path('uploadinfo/', UploadInfoView.as_view(), name='uploadinfo'),
 ]

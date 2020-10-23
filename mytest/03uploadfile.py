@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-13 21:39:22
 LastEditors: henggao
-LastEditTime: 2020-10-14 11:19:33
+LastEditTime: 2020-10-23 22:20:31
 '''
 #  上传文件到gridfs
 import pymongo
@@ -16,7 +16,7 @@ client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
 db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
 # db = client['segyfile']
 # @require_http_methods(['GET'])
-
+print(db)
 # 上传文件到GridFS集合中
 # 存储文件到mongo
 

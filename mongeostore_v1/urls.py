@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 16:59:36
 LastEditors: henggao
-LastEditTime: 2020-10-11 20:54:06
+LastEditTime: 2020-10-23 21:55:05
 '''
 """mongeostore_v1 URL Configuration
 
@@ -29,6 +29,7 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 from django.urls import path, re_path
 import mongeostore_app.urls
+import mongeostore_load.urls
 import mongeostore_users.urls
 import verification.urls
 from django.conf.urls import url, include
@@ -36,6 +37,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('send/sms/', views.send_sms),
     path('api/', include(mongeostore_app.urls)),
+    path('load/', include(mongeostore_load.urls)),
     path('user/', include(mongeostore_users.urls)),
     path('code/', include(verification.urls)),
     path('', TemplateView.as_view(template_name="index.html")),

@@ -4,49 +4,39 @@
  * @Author: henggao
  * @Date: 2020-10-06 15:35:53
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 20:03:43
+ * @LastEditTime: 2020-10-23 10:53:50
 -->
 <template>
-  <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-    <button
-      class="navbar-toggler navbar-toggler-left"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarTogglerDemo02"
-      aria-controls="navbarTogglerDemo02"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-      <ul class="navbar-nav mr-auto mt-2 mt-md-0">
-        <li class="nav-item active">
-          <a class="nav-link" href="#"
-            >Home <span class="sr-only">(current)</span></a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  <div>
+    <form action="">
+      商品图片：<input type="file" id="img" /><br />
+      <button type="submit" @click.prevent="on_sumit">添加</button>
+    </form>
+  </div>
 </template>
 
 <script>
-export default {};
+import axios from "axios";
+export default {
+  data() {
+    return {};
+  },
+  methods: {
+    on_sumit() {
+      let form_data = new FormData(); // 需要添加其他字段时用这一步，只上传文件则不需要
+      var img = document.getElementById("img").files[0];
+      form_data.append("image", img, img.name); // 这里的image和后台views视图文件里获取时的名字要一样，否则获取不到,详情看下面的views 视图文件
+      axios({
+        url: "http://127.0.0.1:8000/api/uploadfile/",
+        method: "get",
+        data: form_data,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(res => {
+        console.log(res);
+      });
+    }
+  }
+};
 </script>
-
-<style>
-</style>

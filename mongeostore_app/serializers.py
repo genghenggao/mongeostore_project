@@ -137,7 +137,7 @@
 #         instance.save()
 
 from rest_framework import serializers
-from .models import UserInfo
+from .models import UploadInfo, UserInfo
 # from .models import SmsCode
 ## mongeostore序列化 ##
 
@@ -178,3 +178,8 @@ class UserInfoSerializer(serializers.ModelSerializer):
 #         model = UploadFile  # 对应的Model中的类
 #         # fields = ("username", "mobile", "email",)
 #         fields = "__all__"  # 字段，如果是__all__,就是表示列出所有的字段
+
+class UploadInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadInfo
+        files = "__all__"

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'captcha',
     "mongeostore_users",
     "verification",
+    "mongeostore_load",
 ]
 
 MIDDLEWARE = [

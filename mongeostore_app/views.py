@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-10-22 22:52:46
+LastEditTime: 2020-10-23 20:58:53
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -241,9 +241,11 @@ LastEditTime: 2020-10-22 22:52:46
 
 ## mongeostore ##
 # import viewsets
+from inspect import ArgSpec
 from bson import ObjectId
 import os
 from datetime import datetime
+from django.http import request
 from gridfs import *
 import gridfs
 from django.http import JsonResponse
@@ -272,9 +274,9 @@ from django import http
 from utils.response_code import RETCODE
 from rest_framework import viewsets
 # import local data
-from .serializers import UserInfoSerializer
+from .serializers import UploadInfoSerializer, UserInfoSerializer
 # from .serializers import UserInfoSerializer,SmscodeSerializer
-from .models import UserInfo, SmsCode
+from .models import UploadInfo, UserInfo, SmsCode
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from utils import encrypt
@@ -807,16 +809,22 @@ db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
 # from django.views.decorators.http import require_http_methods
 # @require_http_methods(['POST'])
 
+# from django.views.decorators.http import require_http_methods
+# @require_http_methods(["GET", "POST"])
+# @csrf_exempt
 
-def upload_file(request,*args, **kwargs):
+
+def upload_file(request, *args, **kwargs):
   # 上传文件到GridFS集合中
     # 存储文件到mongo
     print("走过这里")
-    if request.method =="POST":
+    if request.method == "GET":
         myFile = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
         print("经过这里")
         if not myFile:
             return HttpResponse("no files for upload!")
+        return HttpResponse("no files for upload!")
+        # return Response("success!")
 
         # with open(myFile, 'rb') as f:
         #     data = f.read()
@@ -825,9 +833,65 @@ def upload_file(request,*args, **kwargs):
         #     # return fs.put(data)
         #     return HttpResponse("upload over!")
 
+
+class UploadInfoView(APIView):
+    def get(self,request,*args,**kwargs):
+        """
+        docstring
+        """
+        # define queryset
+        queryset = UploadInfo.objects.all()
+        # specify serializer to be used
+        serializer_class = UploadInfoSerializer
+    #     name = self.request.GET.get('name')  # 字符串类型
+    #     count = UploadInfo.objects.filter(name=name).count()
+    #     # return http.JsonResponse("Welcome to use get")
+    #     # return HttpResponse("welcome to use get")
+    #     data = {
+    #         "count": count
+    #     }
+    #     print(data)
+    #     return http.JsonResponse(data)
+    def post(self, request):
+            # 1>校验数据
+            # form = UserInfoSerializer(request.POST)
+
+            # 2>创建数据
+            # 接收前端表单数据,使用Post.get()方法
+            name = self.request.POST.get('name') # 字符串类型
+            count = UploadInfo.objects.filter(name=name).count()
+            # return http.JsonResponse("Welcome to use get")
+            # return HttpResponse("welcome to use get")
+            data = {
+                "count": count
+            }
+            print(data)
+            return http.JsonResponse(data)
+
+
+    # def post(self, request, *args, **kwargs):
+    #     # 上传文件到GridFS集合中
+    #     # 存储文件到mongo
+    #     print("走过这里")
+    #     if request.method == "POST":
+    #         myFile = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
+    #         print("经过这里")
+    #         if not myFile:
+    #             return HttpResponse("no files for upload!")
+    #         return HttpResponse("Hello,success!")
+
+            # with open(myFile, 'rb') as f:
+            #     data = f.read()
+            #     fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
+            #     fs.put(data)
+            #     # return fs.put(data)
+            #     return HttpResponse("upload over!")
+
+
 def test(request):
-    """
-    docstring
-    """
-  
-    return HttpResponse( "success")
+    if request.method == 'get':
+        print("Welcome to visit")
+        return Response("You are Welcome")
+    # return http.JsonResponse("You are Welcome")
+    # return http.JsonResponse(data)
+    # http.JsonResponse(data)
