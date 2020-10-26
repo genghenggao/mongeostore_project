@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-21 14:30:16
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-23 10:27:09
+ * @LastEditTime: 2020-10-26 23:00:30
 -->
 <template>
   <uploader :options="options" class="uploader-example">
@@ -26,7 +26,7 @@ export default {
       options: {
         // https://github.com/simple-uploader/Uploader/tree/develop/samples/Node.js
         // target: '//localhost:3000/upload',
-        target: "http://127.0.0.1:8000/api/uploadinfo",
+        get: "http://127.0.0.1:8000/load/fileinfo2",
         testChunks: false,
         // headers: { "Content-Type": "application/x-www-form-urlencoded" }
       },
@@ -34,6 +34,7 @@ export default {
         accept: "image/*"
       }
     };
+    methods:{}
   }
 };
 </script>

@@ -12,6 +12,8 @@
         <el-table-column prop="size" label="文件大小" v-slot="{ row }">
           {{ row.size }}MB
         </el-table-column>
+        <el-table-column prop="upload_date" label="上传时间"></el-table-column>
+        <el-table-column prop="publisher" label="上传人员"></el-table-column>
         <el-table-column label="进度" v-slot="{ row }">
           <el-progress
             :text-inside="true"
@@ -60,14 +62,15 @@
 import plupload from "plupload";
 import axios from "axios";
 export default {
-  name:'Uploadfile',
+  name: "Uploadfile",
   data() {
     return {
       show: false,
       fileList: [],
       fileOptions: {
         browse_button: "VideoChose",
-        url: "http://127.0.0.1:8000/load/uploadfile/",
+        // url: "http://127.0.0.1:8000/load/uploadfile/",
+        url: "http://127.0.0.1:8000/load/fileinfo/",
         flash_swf_url: "script/Moxie.swf",
         silverlight_xap_url: "script/Moxie.xap",
         chunk_size: "10mb",
@@ -83,8 +86,9 @@ export default {
           mime_types: [
             //文件格式
             {
-              title: "movie files",
-              extensions: "mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
+              title: "files",
+              extensions:
+                "mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
             }
           ],
           max_file_size: "10240mb", //最大上传的文件
@@ -109,7 +113,8 @@ export default {
     //上传成功监听
     this.uploader.bind("FileUploaded", this.FileUploaded);
     //获取uuid
-    let url = `http://127.0.0.1:8000/api/uploadinfo/`;
+    // let url = `http://127.0.0.1:8000/api/uploadinfo/`;
+    let url = `http://127.0.0.1:8000/load/fileinfo/`;
     axios.get(url).then(({ data }) => {
       this.fileOptions.multipart_params.uuid = data;
     });
@@ -128,6 +133,8 @@ export default {
         obj.id = val.id;
         obj.name = val.name;
         obj.type = val.type;
+        obj.upload_date = val.upload_date;
+        obj.publiser = val.publiser;
         obj.size = parseInt((val.origSize / 1024 / 1024) * 100) / 100;
         obj.percentage = 0;
         obj.loadType = 0;
@@ -157,7 +164,8 @@ export default {
     FileUploaded(uploader, file, responseObject) {
       this.fileList = this.fileList.map((val, ind) => {
         if (val.id == file.id) {
-          if (JSON.parse(responseObject.response).status == 0) {
+          // if (JSON.parse(responseObject.response).status == 0) {
+          if (status == 0) {
             val.loadType = 2;
           } else {
             val.loadType = 3;
