@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-26 19:58:22
+ * @LastEditTime: 2020-10-28 20:55:15
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -87,9 +87,15 @@ const routes = [
   },
   {
     path: "/uploadfile",
-    name: "Uploadfile",
+    name: "UploadFile",
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/Uploadfile.vue")
+      import(/* webpackChunkName: "about" */ "../views/UploadFile.vue")
+  },
+  {
+    path: "/downloadfile",
+    name: "DownloadFile",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/DownloadFile.vue")
   },
   {
     path: "/uploadfile2",

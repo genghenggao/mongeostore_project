@@ -61,8 +61,9 @@
 <script>
 import plupload from "plupload";
 import axios from "axios";
+import { stringify } from "qs";
 export default {
-  name: "Uploadfile",
+  name: "UploadFile",
   data() {
     return {
       show: false,
@@ -73,7 +74,7 @@ export default {
         url: "http://127.0.0.1:8000/load/fileinfo/",
         flash_swf_url: "script/Moxie.swf",
         silverlight_xap_url: "script/Moxie.xap",
-        chunk_size: "10mb",
+        // chunk_size: "10mb", //分块大小  ,注销掉或者改chunk_size：'0mb'为解决文件大于10M存为blob问题
         max_retries: 3,
         unique_names: true,
         multi_selection: true,
@@ -88,7 +89,7 @@ export default {
             {
               title: "files",
               extensions:
-                "mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
+                "png,jpg,svg,mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
             }
           ],
           max_file_size: "10240mb", //最大上传的文件
@@ -96,6 +97,8 @@ export default {
         },
         multipart_params: {
           uuid: "" //参数
+          // testparams: "Must can see me",
+          // "testparams2": "Must can see me2"
         }
       }
     };
@@ -133,11 +136,14 @@ export default {
         obj.id = val.id;
         obj.name = val.name;
         obj.type = val.type;
-        obj.upload_date = val.upload_date;
-        obj.publiser = val.publiser;
+        // obj.upload_date = val.upload_date;
+        obj.upload_date = new Date().toLocaleString(); //获取日期与时间
+        // obj.publiser = val.publiser;
+        obj.publisher = "publisher"; //获取当前登录用户信息
         obj.size = parseInt((val.origSize / 1024 / 1024) * 100) / 100;
         obj.percentage = 0;
         obj.loadType = 0;
+        console.log(obj);
         return obj;
       });
       this.fileList.push(...objarr);
@@ -148,6 +154,19 @@ export default {
         if (val.id == file.id) {
           val.loadType = 1;
         }
+
+        //设置参数
+        console.log(val.name);
+        uploader.setOption("multipart_params", {
+          filename: val.name,
+          publisher: val.publisher,
+          type: val.type,
+          upload_date: new Date().toLocaleString()
+          // size:val.size
+        });
+
+        uploader.settings.multipart_params.size = val.size;
+        uploader.settings.multipart_params.id = val.id;
         return val;
       });
     },

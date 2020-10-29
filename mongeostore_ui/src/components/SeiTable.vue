@@ -4,17 +4,23 @@
  * @Author: henggao
  * @Date: 2020-10-06 21:09:44
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 21:36:35
+ * @LastEditTime: 2020-10-29 15:52:02
 -->
 <template>
   <div class="seismictable" style="overflow: scroll;max-height: 750px;">
     <table class="table table-hover">
       <thead>
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+          <th scope="col">_id</th>
+          <th scope="col">filename</th>
+          <th scope="col">contentType</th>
+          <th scope="col">length</th>
+          <th scope="col">uploadDate</th>
+          <th scope="col">publisher</th>
+          <th scope="col">aliases</th>
+          <th scope="col">metadata</th>
+          <th scope="col">md5</th>
+          <th scope="col">chunkSize</th>
         </tr>
       </thead>
       <tbody>

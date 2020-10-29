@@ -4,17 +4,23 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-10-26 22:28:22
+LastEditTime: 2020-10-29 22:18:31
 '''
+from django.http.response import JsonResponse
+from django.views.decorators.http import require_http_methods
+from gridfs import GridFS
+import os
 from django.http import response
-from .models import FileInfo, FileInfo2
+from .models import FileInfo
 from rest_framework.views import APIView
-from .serializers import FileInfo2Serializer, FileInfoSerializer
+from .serializers import FileInfoSerializer
 from typing import ClassVar
 from django.http import HttpResponse
 from django.shortcuts import render
-from pymongo import mongo_client
+import pymongo
+import gridfs
 import json
+from pymongo.mongo_client import MongoClient
 
 # Create your views here.
 
@@ -62,7 +68,7 @@ class FileInfoView(APIView):
         """
         docstring
         """
-        print("走的时GET方法")
+        print("走的是GET方法")
         response = {}
         queryset = FileInfo.objects.all()
         serializer_class = FileInfoSerializer
@@ -70,42 +76,105 @@ class FileInfoView(APIView):
         # response["Access-Control-Allow-Methods"] = "POST"
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """
         docstring
         """
-        print("走的时POST方法")
-        file_id = self.request.POST.get('id')
-        filename = self.request.POST.get('name')
-        publiser = self.request.POST.get('publisher')
-        print(file_id)
-        print(filename)
-        data = {
-
-        }
-        return HttpResponse("post success")
-
-
-class FileInfo2View(APIView):
-
-    def get(self, request, *args, **kwargs):
-        """
-        docstring
-        """
-        print("走的时GET方法")
-        response = {}
-        queryset = FileInfo2.objects.all()
-        serializer_class = FileInfo2Serializer
-        response['code'] = 200
-        # response["Access-Control-Allow-Methods"] = "POST"
-        return HttpResponse(json.dumps(response), content_type="application/json")
-
-    def post(self, request, *args, **kwargs):
-        """
-        docstring
-        """
-        print("走的时POST方法")
+        print("走的是POST方法")
+        # file = self.request.POST.get('name',None)  # 获取上传的文件，如果没有文件，则默认为None
+        File = request.FILES.get("file", None)  # 注意比较
+        print(File)
+        # print(File.name)   #同上
+        print(File.chunks)  # 二进制信息
+        _id = self.request.POST.get('id')
         filename = self.request.POST.get('filename')
-
+        type = self.request.POST.get('type')
+        size = self.request.POST.get('size')
+        upload_date = self.request.POST.get('upload_date')
+        publisher = self.request.POST.get('publisher')
         print(filename)
-        return HttpResponse("post success")
+        print(publisher)
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+
+        #  上传文件到MongoDB中gridfs
+        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        # 如果没有数据库，创建数据库
+        db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+        with open("./upload/%s" % File.name, 'rb') as f:
+            _id = self.request.POST.get('id')
+            filename = self.request.POST.get('filename')
+            contentType = self.request.POST.get('type')
+            size = self.request.POST.get('size')
+            upload_date = self.request.POST.get('upload_date')
+            publisher = self.request.POST.get('publisher')
+            print(upload_date)
+            dic = {
+                "_id": _id,
+                "filename": filename,
+                "contentType": contentType,
+                "length": size,
+                "uploadDate": upload_date,
+                "publisher": publisher,
+                "aliases": [publisher],  # 别名
+                "metadata": filename,
+            }
+            data = f.read()
+            fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
+            fs.put(data, **dic)
+            f.close()
+
+        return HttpResponse("Successful")
+
+
+@require_http_methods(['GET'])
+def FileShow(request):
+    """
+    docstring
+    """
+    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为mysegy
+    gf = fs.find_one()
+    print(gf.filename)
+    print(gf.length)
+    print(dir(gf.md5))
+
+    response = {}
+    for grid_out in fs.find({"$where": "this._id.match(/.*o/)"}):
+        # print(grid_out._file)
+        response = {}
+        # response = grid_out._file
+        response = grid_out._file
+        # print(response)
+    # try:
+    #     segys = fs.objects.filter()
+    #     response['list'] = json.loads(serializers.serialize("json", segys))
+    #     response['msg'] = 'success'
+    #     response['error_num'] = 0
+    # except Exception as e:
+    #     response['msg'] = str(e)
+    #     response['error_num'] = 1
+
+    return JsonResponse(response)
+    # return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+# def show_segys(request):
+#     response = {}
+#     try:
+#         segys = Mysegy.objects.filter()
+#         response['list'] = json.loads(serializers.serialize("json", segys))
+#         response['msg'] = 'success'
+#         response['error_num'] = 0
+#     except Exception as e:
+#         response['msg'] = str(e)
+#         response['error_num'] = 1
+
+#     return JsonResponse(response)
