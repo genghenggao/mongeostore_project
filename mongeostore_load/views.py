@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-10-29 22:18:31
+LastEditTime: 2020-11-02 20:51:48
 '''
+from django.core import serializers
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 from gridfs import GridFS
@@ -142,17 +143,27 @@ def FileShow(request):
     db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
     fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为mysegy
     gf = fs.find_one()
-    print(gf.filename)
-    print(gf.length)
-    print(dir(gf.md5))
+    # print(gf.filename)
+    # print(gf.length)
+    # print(dir(gf.md5))
+    # print(dir(gf.md5))
 
     response = {}
+    data = []
     for grid_out in fs.find({"$where": "this._id.match(/.*o/)"}):
         # print(grid_out._file)
-        response = {}
+        # response = {}
         # response = grid_out._file
-        response = grid_out._file
+        response['uploadDate'] = str(grid_out.upload_date)
         # print(response)
+        # print(type(response))
+        # print(json.dumps(response))
+        
+        data.append(grid_out._file)
+        print(data)
+        response['list'] = data
+        response['msg'] = 'success'
+        response['error_num'] = 0
     # try:
     #     segys = fs.objects.filter()
     #     response['list'] = json.loads(serializers.serialize("json", segys))
@@ -161,8 +172,10 @@ def FileShow(request):
     # except Exception as e:
     #     response['msg'] = str(e)
     #     response['error_num'] = 1
+    # return HttpResponse("success")
 
-    return JsonResponse(response)
+    return JsonResponse(response,safe=False) #不加safe=False的话必须返回dict
+    # return JsonResponse(json.loads(response)) #不加safe=False的话必须返回dict
     # return HttpResponse(json.dumps(response), content_type="application/json")
 
 

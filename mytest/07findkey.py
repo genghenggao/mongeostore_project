@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-28 21:26:41
 LastEditors: henggao
-LastEditTime: 2020-10-29 22:27:13
+LastEditTime: 2020-11-02 20:19:24
 '''
 from gridfs import grid_file
 import pymongo
@@ -25,6 +25,7 @@ print(gf.filename)
 print(gf.length)
 print(gf.md5)
 print(gf.metadata)
+print(gf.uploadDate)
 
 print(db.list_collection_names())
 
