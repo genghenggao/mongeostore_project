@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-06 21:09:44
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-02 20:57:26
+ * @LastEditTime: 2020-11-03 21:07:42
 -->
 <template>
   <div class="seismictable" style="overflow: scroll;max-height: 750px;">
@@ -21,6 +21,7 @@
           <th scope="col">metadata</th>
           <th scope="col">md5</th>
           <th scope="col">chunkSize</th>
+          <th scope="col">operate</th>
         </tr>
       </thead>
       <tbody id="list"></tbody>
@@ -75,7 +76,8 @@ export default {
   name: "SeiTable",
   data() {
     return {
-      files: []
+      files: [],
+      _id: ""
     };
   },
   created() {
@@ -94,6 +96,7 @@ export default {
         var result = response.data.list;
         this.files = result;
         $(response.data.list).each(function(i, values) {
+          const url = "http://127.0.0.1:8000/load/filedownload/?_id=";
           $("#list").append(
             "<tr><td>" +
               values._id +
@@ -124,13 +127,38 @@ export default {
               "</td>" +
               "<td>" +
               values.chunkSize +
+              "</td>" +
+              "<td>" +
+              '<button type="button" v-on:click="download" class="btn btn-info">' +
+              "<a href=" +
+              url +
+              values._id +
+              ">" +
+              "DownLoad" +
+              "</button>" +
               "</td></tr>"
           );
         });
         // table
       });
     }
-  }
+  },
+  // download(fileName, data) {
+  //   const url = "http://127.0.0.1:8000/load/filedownload/";
+  //   if (!data) {
+  //     return;
+  //   }
+  //   axios
+  //     .post(url, {
+  //       data: postData
+  //     })
+  //     .then(res => {
+  //       console.log("走的res");
+  //     })
+  //     .catch(err => {
+  //       console.log("走的catch");
+  //     });
+  // }
 };
 </script>
 
@@ -138,5 +166,6 @@ export default {
 .seismictable {
   border: 0;
   padding: 0;
+  height: 720px;
 }
 </style>

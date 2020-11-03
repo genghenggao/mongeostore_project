@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-09-28 18:39:36
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 21:49:24
+ * @LastEditTime: 2020-11-03 10:07:36
 -->
 <template>
   <div>
@@ -18,7 +18,7 @@
       </div>
       <!-- 主界面-->
       <div class="col-10">
-        <div><h2>地震数据管理子系统</h2></div>
+        <div><h2  class="text-monospace">地震数据管理子系统</h2></div>
         <!-- 子导航 -->
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -44,13 +44,23 @@
             >
             <a
               class="nav-item nav-link"
-              id="nav-contact-tab"
+              id="nav-metadata-tab"
               data-toggle="tab"
-              href="#nav-contact"
+              href="#nav-metadata"
               role="tab"
-              aria-controls="nav-contact"
+              aria-controls="nav-metadata"
               aria-selected="false"
-              >Contact</a
+              >MetaData</a
+            >
+            <a
+              class="nav-item nav-link"
+              id="nav-uploadfile-tab"
+              data-toggle="tab"
+              href="#nav-uploadfile"
+              role="tab"
+              aria-controls="nav-uploadfile"
+              aria-selected="false"
+              >UploadFile</a
             >
           </div>
         </nav>
@@ -74,11 +84,19 @@
           </div>
           <div
             class="tab-pane fade"
-            id="nav-contact"
+            id="nav-metadata"
             role="tabpanel"
-            aria-labelledby="nav-contact-tab"
+            aria-labelledby="nav-metadata-tab"
           >
             <SeiTable />
+          </div>
+          <div
+            class="tab-pane fade"
+            id="nav-uploadfile"
+            role="tabpanel"
+            aria-labelledby="nav-uploadfile-tab"
+          >
+            <UploadFile />
           </div>
         </div>
         <!-- <table class="table table-hover">
@@ -123,6 +141,7 @@ import MenuTree from "@/components/MenuTree.vue";
 import Home from "@/views/Home.vue";
 import MapView from "@/views/MapView.vue";
 import HomePage from "@/views/HomePage.vue";
+import UploadFile from "@/views/UploadFile.vue";
 import SeiTable from "@/components/SeiTable.vue";
 export default {
   name: "test2",
@@ -133,7 +152,8 @@ export default {
     MapView,
     HomePage,
     Home,
-    SeiTable
+    SeiTable,
+    UploadFile
   },
   data() {
     return {

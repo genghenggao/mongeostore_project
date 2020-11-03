@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-06 17:05:32
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 21:55:31
+ * @LastEditTime: 2020-11-03 16:45:58
 -->
 <template>
   <div>
@@ -58,6 +58,6 @@ export default {
 /* The container of BaiduMap must be set width & height. */
 .map {
   width: 100%;
-  height: 750px;
+  height: 720px;
 }
 </style>

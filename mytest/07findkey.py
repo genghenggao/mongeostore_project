@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-28 21:26:41
 LastEditors: henggao
-LastEditTime: 2020-11-02 20:19:24
+LastEditTime: 2020-11-03 21:30:03
 '''
 from gridfs import grid_file
 import pymongo
@@ -37,10 +37,15 @@ list = fs.list
 print(list)
 
 
-#采用where来，取得id对象的字符串来进行正则匹配 
-for grid_out in fs.find({ "$where": "this._id.match(/.*o/)"}):
+# 采用where来，取得id对象的字符串来进行正则匹配
+for grid_out in fs.find({"$where": "this._id.match(/.*o/)"}):
     print(grid_out.name)
     print(grid_out.md5)
     print(grid_out)
-    print(grid_out._file)  #{'_id': 'o_1elnk91eu1dlpbih8qg1vo719tf8', 'filename': '六级成绩单.pdf', 'contentType': 'application/pdf', 'length': 210787, 'uploadDate': datetime.datetime(2020, 10, 28, 12, 52, 44, 702000), 'publisher': 'publisher', 'aliases': ['publisher'], 'metadata': '六级成绩单.pdf', 'md5': 'e3334d50e751a1398c7d1f271c1a21ad', 'chunkSize': 261120}
-    
+    # {'_id': 'o_1elnk91eu1dlpbih8qg1vo719tf8', 'filename': '六级成绩单.pdf', 'contentType': 'application/pdf', 'length': 210787, 'uploadDate': datetime.datetime(2020, 10, 28, 12, 52, 44, 702000), 'publisher': 'publisher', 'aliases': ['publisher'], 'metadata': '六级成绩单.pdf', 'md5': 'e3334d50e751a1398c7d1f271c1a21ad', 'chunkSize': 261120}
+    print(grid_out._file)
+
+
+file_sub = fs.find_one(
+    {"$where": "this._id.match(/.*o_1em6kn1f71cje1d7r10tjepo18lhk/)"})
+print(file_sub.name)

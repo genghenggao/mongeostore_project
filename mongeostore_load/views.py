@@ -4,9 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-02 20:51:48
+LastEditTime: 2020-11-03 22:17:28
 '''
 from django.core import serializers
+from django.http import request
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 from gridfs import GridFS
@@ -158,36 +159,44 @@ def FileShow(request):
         # print(response)
         # print(type(response))
         # print(json.dumps(response))
-        
+
         data.append(grid_out._file)
         print(data)
         response['list'] = data
         response['msg'] = 'success'
         response['error_num'] = 0
-    # try:
-    #     segys = fs.objects.filter()
-    #     response['list'] = json.loads(serializers.serialize("json", segys))
-    #     response['msg'] = 'success'
-    #     response['error_num'] = 0
-    # except Exception as e:
-    #     response['msg'] = str(e)
-    #     response['error_num'] = 1
-    # return HttpResponse("success")
 
-    return JsonResponse(response,safe=False) #不加safe=False的话必须返回dict
+    return JsonResponse(response, safe=False)  # 不加safe=False的话必须返回dic
     # return JsonResponse(json.loads(response)) #不加safe=False的话必须返回dict
     # return HttpResponse(json.dumps(response), content_type="application/json")
 
 
-# def show_segys(request):
-#     response = {}
-#     try:
-#         segys = Mysegy.objects.filter()
-#         response['list'] = json.loads(serializers.serialize("json", segys))
-#         response['msg'] = 'success'
-#         response['error_num'] = 0
-#     except Exception as e:
-#         response['msg'] = str(e)
-#         response['error_num'] = 1
+@require_http_methods(['GET'])
+def filedownload(request):
+    """
+    docstring
+    """
+    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
 
-#     return JsonResponse(response)
+    # file_id1 = request.FILES.get("_id", None)
+    # file_id2 = request.POST.get("_id")
+    file_id = request.GET.get("_id")
+    # print(file_id1)
+    # print(file_id2)
+    print(file_id)
+    db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为mysegy
+
+    # 读取文件
+    filetodown = fs.find_one({"$where": "this._id.match(/.*" + file_id + "/)"})
+    print(filetodown)
+    print(filetodown.name)
+    # 下载文件
+    File = filetodown.name
+    content = filetodown.read()
+
+    with open("../mongeostore_env/upload/%s" % File, 'wb') as f:
+        f.write(content)
+
+    return HttpResponse("success")
+    # return render(request, 'http://localhost:8080/maincontent')

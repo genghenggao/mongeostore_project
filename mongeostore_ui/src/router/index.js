@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-28 20:55:15
+ * @LastEditTime: 2020-11-03 16:19:26
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -60,6 +60,19 @@ const routes = [
     name: "HomePage",
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/HomePage.vue")
+  },
+  {
+    path: "/homepage1",
+    name: "HomePage1",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/HomePage1.vue"),
+    children: [
+      {
+        path: "/maincontent",
+        name: "MainContent",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/MainContent.vue")
+      }]
   },
   {
     path: "/test",
