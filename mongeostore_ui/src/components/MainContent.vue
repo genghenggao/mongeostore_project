@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-03 16:24:13
+ * @LastEditTime: 2020-11-04 18:46:51
 -->
 <template>
   <!-- 主界面-->
@@ -61,7 +61,7 @@
         role="tabpanel"
         aria-labelledby="nav-home-tab"
       >
-        <MapView />
+        <Data />
       </div>
 
       <div
@@ -97,13 +97,15 @@ import MapView from "@/views/MapView.vue";
 import Home from "@/views/Home.vue";
 import UploadFile from "@/views/UploadFile.vue";
 import SeiTable from "@/components/SeiTable.vue";
+import Data from "@/components/Data.vue";
 export default {
   name: "MainContent",
   components: {
     MapView,
     Home,
     SeiTable,
-    UploadFile
+    UploadFile,
+    Data
   },
   data() {
     return {

@@ -4,11 +4,14 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-03 22:17:28
+LastEditTime: 2020-11-05 22:36:08
 '''
+import xlrd
+import csv
+from bson.json_util import dumps
 from django.core import serializers
 from django.http import request
-from django.http.response import JsonResponse
+from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.http import require_http_methods
 from gridfs import GridFS
 import os
@@ -62,6 +65,8 @@ def uploadfile(request, *args, **kwargs):
 
     # return HttpResponse(data)
     return HttpResponse("You are better")
+
+# 上传到GriDFS数据，UploadFile.vue
 
 
 class FileInfoView(APIView):
@@ -134,7 +139,7 @@ class FileInfoView(APIView):
 
         return HttpResponse("Successful")
 
-
+# 展示GridFS数据，SeiTable.vue
 @require_http_methods(['GET'])
 def FileShow(request):
     """
@@ -170,7 +175,7 @@ def FileShow(request):
     # return JsonResponse(json.loads(response)) #不加safe=False的话必须返回dict
     # return HttpResponse(json.dumps(response), content_type="application/json")
 
-
+# 展示Data.vue表格数据
 @require_http_methods(['GET'])
 def filedownload(request):
     """
@@ -200,3 +205,140 @@ def filedownload(request):
 
     return HttpResponse("success")
     # return render(request, 'http://localhost:8080/maincontent')
+
+
+@require_http_methods(['GET'])
+def ShowData(request):
+    """
+    docstring
+    """
+    client = pymongo.MongoClient("192.168.55.110", 20000)
+    database = "segyfile"
+    db = client[database]
+    collection = "data"
+    db_coll = db[collection]
+    # 查询
+    content = {}
+    datainfo = []
+    for document in db_coll.find():
+
+        print(document)
+        print(type(document))
+        # print(document.vip)
+        # response['_id'] = str(document._id)
+        datainfo.append(document)
+        content = dumps(datainfo)
+        # return HttpResponse(json.dumps(document), content_type="application/json")
+        # return json.loads(json_util.dumps(document))
+        print(type(content))
+    return HttpResponse(content, "application/json")
+
+# 解析csv文件到数据库
+
+
+class UploadCSV(APIView):
+    """
+    docstring
+    """
+
+    def get(self, request):
+        """
+        docstring
+        """
+        File = request.FILES.get("file", None)
+
+        return HttpResponse(File)
+    # @require_http_methods(['POST'])
+
+    def post(self, request):
+        """
+        docstring
+        """
+        # 从前端拿到数据
+        File = request.FILES.get("file", None)
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入mongodb，data数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        database = "segyfile"
+        db = client[database]
+        collection = "data"
+        db_coll = db[collection]
+
+        with open("./upload/%s" % File.name, 'r', encoding='utf-8')as csvfile:
+            # 调用csv中的DictReader函数直接获取数据为字典形式
+            reader = csv.DictReader(csvfile)
+            # 创建一个counts计数一下 看自己一共添加了了多少条数据
+            counts = 0
+            for each in reader:
+                # 将数据中需要转换类型的数据转换类型。原本全是字符串（string）。
+                each['?rank'] = int(each['?rank'])
+                each['costMoney'] = float(each['costMoney'])
+                each['combat'] = float(each['combat'])
+                each['topHeroesCombat'] = int(each['topHeroesCombat'])
+                # each['表显里程'] = float(each['表显里程'])
+                # each['排量'] = float(each['排量'])
+                # each['过户数量'] = int(each['过户数量'])
+                db_coll.insert(each)
+                # set1.insert_one(each)
+                counts += 1
+                print('成功添加了'+str(counts)+'条数据 ')
+        return HttpResponse("uploadcsv success")
+
+
+class UploadExcel(APIView):
+    """
+    docstring
+    """
+
+    def get(self, request):
+        """
+        docstring
+        """
+        File = request.FILES.get("file", None)
+
+        return HttpResponse(File)
+    # @require_http_methods(['POST'])
+
+    def post(self, request):
+        """
+        docstring
+        """
+        # 从前端拿到数据
+        File = request.FILES.get("file", None)
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入mongodb，data数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        database = "segyfile"
+        db = client[database]
+        collection = "excel_data"
+        db_coll = db[collection]
+
+        # 读取Excel文件
+        data = xlrd.open_workbook("./upload/%s" % File.name)
+        table = data.sheets()[0]
+        # 读取excel第一行数据作为存入mongodb的字段名
+        rowstag = table.row_values(0)
+        nrows = table.nrows
+        returnData = {}
+
+        for i in range(1, nrows):
+            # 将字段名和excel数据存储为字典形式，并转换为json格式
+            returnData[i] = json.dumps(dict(zip(rowstag, table.row_values(i))))
+            # 通过编解码还原数据
+            returnData[i] = json.loads(returnData[i])
+            print(returnData[i])
+            db_coll.insert(returnData[i])
+
+        return HttpResponse("uploadexcel success")

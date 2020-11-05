@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-28 21:26:41
 LastEditors: henggao
-LastEditTime: 2020-11-03 21:30:03
+LastEditTime: 2020-11-05 09:12:19
 '''
 from gridfs import grid_file
 import pymongo
@@ -42,6 +42,8 @@ for grid_out in fs.find({"$where": "this._id.match(/.*o/)"}):
     print(grid_out.name)
     print(grid_out.md5)
     print(grid_out)
+    print("类型")
+    print(type(grid_out))
     # {'_id': 'o_1elnk91eu1dlpbih8qg1vo719tf8', 'filename': '六级成绩单.pdf', 'contentType': 'application/pdf', 'length': 210787, 'uploadDate': datetime.datetime(2020, 10, 28, 12, 52, 44, 702000), 'publisher': 'publisher', 'aliases': ['publisher'], 'metadata': '六级成绩单.pdf', 'md5': 'e3334d50e751a1398c7d1f271c1a21ad', 'chunkSize': 261120}
     print(grid_out._file)
 

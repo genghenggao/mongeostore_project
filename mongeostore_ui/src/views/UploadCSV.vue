@@ -1,13 +1,7 @@
 <template>
   <div style="padding-top:20px;">
-    <el-button ref="VideoChose" id="VideoChose" size="medium  "
-      >选择文件</el-button
-    >
-    <el-button
-      ref="VideoChose"
-      type="primary"
-      size="medium  "
-      @click="FileUplodeOn"
+    <el-button ref="VideoChose" id="VideoChose" size="mini">选择文件</el-button>
+    <el-button ref="VideoChose" type="primary" size="mini" @click="FileUplodeOn"
       >开始上传</el-button
     >
     <el-card style="margin-top:20px;">
@@ -69,7 +63,7 @@ import plupload from "plupload";
 import axios from "axios";
 import { stringify } from "qs";
 export default {
-  name: "UploadFile",
+  name: "UploadCSV",
   data() {
     return {
       show: false,
@@ -77,7 +71,7 @@ export default {
       fileOptions: {
         browse_button: "VideoChose",
         // url: "http://127.0.0.1:8000/load/uploadfile/",
-        url: "http://127.0.0.1:8000/load/fileinfo/",
+        url: "http://127.0.0.1:8000/load/uploadcsv/",
         flash_swf_url: "script/Moxie.swf",
         silverlight_xap_url: "script/Moxie.xap",
         // chunk_size: "10mb", //分块大小  ,注销掉或者改chunk_size：'0mb'为解决文件大于10M存为blob问题
@@ -94,8 +88,7 @@ export default {
             //文件格式
             {
               title: "files",
-              extensions:
-                "png,jpg,svg,mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
+              extensions: "csv" //文件格式
             }
           ],
           max_file_size: "10240mb", //最大上传的文件
@@ -123,7 +116,7 @@ export default {
     this.uploader.bind("FileUploaded", this.FileUploaded);
     //获取uuid
     // let url = `http://127.0.0.1:8000/api/uploadinfo/`;
-    let url = `http://127.0.0.1:8000/load/fileinfo/`;
+    let url = `http://127.0.0.1:8000/load/uploadcsv/`;
     axios.get(url).then(({ data }) => {
       this.fileOptions.multipart_params.uuid = data;
     });

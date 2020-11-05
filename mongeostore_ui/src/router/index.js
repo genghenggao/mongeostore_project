@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-03 16:19:26
+ * @LastEditTime: 2020-11-05 22:35:24
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -103,6 +103,18 @@ const routes = [
     name: "UploadFile",
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/UploadFile.vue")
+  },
+  {
+    path: "/uploadcsv",
+    name: "UploadCSV",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/UploadCSV.vue")
+  },
+  {
+    path: "/uploadexcel",
+    name: "UploadExcel",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/UploadExcel.vue")
   },
   {
     path: "/downloadfile",
