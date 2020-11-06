@@ -1,101 +1,106 @@
 <template>
   <div id="poster">
     <Navbar />
-    <el-form
-      class="login-container"
-      label-position="left"
-      ref="Register"
-      :model="Register"
-      :rules="rules"
-      label-width="100px"
-    >
-      <h3 class="login_title">注册</h3>
-      <el-form-item prop="username" label="用户名:">
-        <el-input
-          v-model="Register.username"
-          placeholder="请输入用户名"
-        ></el-input>
-      </el-form-item>
+    <div class="login-body">
+      <h1>欢迎注册地震大数据管理系统</h1>
+      <el-form
+        class="login-container"
+        label-position="left"
+        ref="Register"
+        :model="Register"
+        :rules="rules"
+        label-width="100px"
+      >
+        <h3 class="login_title">注册</h3>
+        <el-form-item prop="username" label="用户名:">
+          <el-input
+            v-model="Register.username"
+            placeholder="请输入用户名"
+          ></el-input>
+        </el-form-item>
 
-      <el-form-item prop="email" label="邮  箱:">
-        <el-input v-model="Register.email" placeholder="请输入邮箱"></el-input>
-      </el-form-item>
-      <el-form-item prop="password" label="设置密码:">
-        <el-input
-          v-model="Register.password"
-          show-password
-          placeholder="请输入密码"
-        ></el-input>
-      </el-form-item>
-      <el-form-item prop="password2" label="确认密码:">
-        <el-input
-          v-model="Register.password2"
-          show-password
-          placeholder="请再次输入密码"
-        ></el-input>
-      </el-form-item>
-      <el-form-item prop="mobile" label="手机号:">
-        <el-input
-          v-model="Register.mobile"
-          placeholder="请输入手机号"
-        ></el-input>
-      </el-form-item>
+        <el-form-item prop="email" label="邮  箱:">
+          <el-input
+            v-model="Register.email"
+            placeholder="请输入邮箱"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="password" label="设置密码:">
+          <el-input
+            v-model="Register.password"
+            show-password
+            placeholder="请输入密码"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="password2" label="确认密码:">
+          <el-input
+            v-model="Register.password2"
+            show-password
+            placeholder="请再次输入密码"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="mobile" label="手机号:">
+          <el-input
+            v-model="Register.mobile"
+            placeholder="请输入手机号"
+          ></el-input>
+        </el-form-item>
 
-      <el-row>
-        <el-col :span="16">
-          <el-form-item prop="smscode" label="验证码:">
-            <el-input
-              v-model="Register.smscode"
-              placeholder="短信验证码"
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
+        <el-row>
+          <el-col :span="16">
+            <el-form-item prop="smscode" label="验证码:">
+              <el-input
+                v-model="Register.smscode"
+                placeholder="短信验证码"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-button
+              plain
+              @click="sendCode"
+              :disabled="true"
+              v-if="disabled == 0"
+              >{{ buttonText }}</el-button
+            >
+            <el-button
+              type="primary"
+              :disabled="isDisabled"
+              @click="sendCode"
+              v-else-if="disabled == 1"
+              >{{ buttonText }}</el-button
+            >
+          </el-col>
+        </el-row>
+
+        <el-checkbox class="checkbox" name="allow" id="allow" v-model="allow"
+          >同意”用户使用协议“</el-checkbox
+        >
+        <el-link class="login" :underline="false" type="primary" href="/login"
+          >登录</el-link
+        >
+        <el-form-item>
           <el-button
-            plain
-            @click="sendCode"
+            style="width: 100%;background: #505458;border: none"
+            icon
+            :loading="logining"
             :disabled="true"
-            v-if="disabled == 0"
-            >{{ buttonText }}</el-button
+            v-if="!isLogin"
+            @click="submitRegister('Register')"
+            >注册账号</el-button
           >
           <el-button
             type="primary"
-            :disabled="isDisabled"
-            @click="sendCode"
-            v-else-if="disabled == 1"
-            >{{ buttonText }}</el-button
+            style="width: 100%;background: #505458;border: none"
+            icon
+            :loading="logining"
+            v-else-if="isLogin"
+            @click="submitRegister('Register')"
+            >注册账号</el-button
           >
-        </el-col>
-      </el-row>
-
-      <el-checkbox class="checkbox" name="allow" id="allow" v-model="allow"
-        >同意”用户使用协议“</el-checkbox
-      >
-      <el-link class="login" :underline="false" type="primary" href="/login"
-        >登录</el-link
-      >
-      <el-form-item>
-        <el-button
-          style="width: 100%;background: #505458;border: none"
-          icon
-          :loading="logining"
-          :disabled="true"
-          v-if="!isLogin"
-          @click="submitRegister('Register')"
-          >注册账号</el-button
-        >
-        <el-button
-          type="primary"
-          style="width: 100%;background: #505458;border: none"
-          icon
-          :loading="logining"
-          v-else-if="isLogin"
-          @click="submitRegister('Register')"
-          >注册账号</el-button
-        >
-      </el-form-item>
-    </el-form>
-
+        </el-form-item>
+      </el-form>
+    </div>
     <!-- <el-button :plain="true" @click="open4">错误</el-button> -->
   </div>
 </template>
@@ -556,6 +561,15 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 
 <style lang="scss" scoped>
+h1 {
+  // 欢迎字体设置
+  color: rgb(228, 214, 214);
+}
+.login-body {
+  // 登录表格的位置
+  padding-left: 1000px;
+  padding-top: 50px;
+}
 #poster {
   background: url("../assets/images/background.jpg") no-repeat;
   background-position: center;

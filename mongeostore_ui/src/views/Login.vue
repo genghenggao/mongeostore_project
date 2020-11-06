@@ -4,39 +4,41 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-15 15:17:39
+ * @LastEditTime: 2020-11-06 20:41:41
 -->
 <template>
   <div id="poster">
     <Navbar />
-    <el-form
-      class="login-container"
-      ref="Login"
-      :model="Login"
-      :rules="rules"
-      label-position="left"
-      label-width="80px"
-    >
-      <h3 class="login_title">MongeoStore</h3>
-      <el-form-item prop="username" label="用户名:">
-        <el-input
-          type="text"
-          v-model="Login.username"
-          auto-complete="off"
-          placeholder="请输入账号"
-        ></el-input>
-      </el-form-item>
-      <el-form-item prop="password" label="密码:">
-        <el-input
-          type="password"
-          v-model="Login.password"
-          auto-complete="off"
-          placeholder="请输入密码"
-          show-password
-        ></el-input>
-      </el-form-item>
+    <div class="login-body">
+      <h1>欢迎登录地震大数据管理系统</h1>
+      <el-form
+        class="login-container"
+        ref="Login"
+        :model="Login"
+        :rules="rules"
+        label-position="left"
+        label-width="80px"
+      >
+        <h3 class="login_title">MongeoStore</h3>
+        <el-form-item prop="username" label="用户名:">
+          <el-input
+            type="text"
+            v-model="Login.username"
+            auto-complete="off"
+            placeholder="请输入账号"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="password" label="密码:">
+          <el-input
+            type="password"
+            v-model="Login.password"
+            auto-complete="off"
+            placeholder="请输入密码"
+            show-password
+          ></el-input>
+        </el-form-item>
 
-      <!-- <el-row>
+        <!-- <el-row>
         <el-col :span="18">
           <el-form-item prop="picture_code" label="验证码:">
             <el-input
@@ -52,51 +54,52 @@
         </el-col>
       </el-row> -->
 
-      <el-form-item style="width: 100%">
-        <el-popover
-          placement="top"
-          width="320"
-          height="230"
-          trigger="manual"
-          v-model="visible"
-        >
-          <el-card v-model="visible">
-            <div class="page-slidecode">
-              <slide-verify
-                :l="32"
-                :r="10"
-                :w="260"
-                :h="155"
-                :imgs="bgimgs"
-                @success="onSuccess"
-                @fail="onFail"
-                @refresh="onRefresh"
-                :slider-text="text"
-              ></slide-verify>
-              <!-- <div>{{ msg }}</div> -->
-              <!--这个没完成设置文字居中-->
-            </div>
-          </el-card>
-          <el-button
-            type="primary"
-            style="width: 100%;background: #505458;border: none"
-            slot="reference"
-            v-on:click="visible = !visible"
-            >登录</el-button
+        <el-form-item style="width: 100%">
+          <el-popover
+            placement="top"
+            width="320"
+            height="230"
+            trigger="manual"
+            v-model="visible"
           >
-        </el-popover>
-        <div class="register">
-          <el-link :underline="false" type="primary">忘记密码？</el-link>
-          <el-link
-            class="register_id"
-            :underline="false"
-            type="primary"
-            href="/register"
-            >注册</el-link
-          >
-        </div>
-      </el-form-item>
-    </el-form>
+            <el-card v-model="visible">
+              <div class="page-slidecode">
+                <slide-verify
+                  :l="32"
+                  :r="10"
+                  :w="260"
+                  :h="155"
+                  :imgs="bgimgs"
+                  @success="onSuccess"
+                  @fail="onFail"
+                  @refresh="onRefresh"
+                  :slider-text="text"
+                ></slide-verify>
+                <!-- <div>{{ msg }}</div> -->
+                <!--这个没完成设置文字居中-->
+              </div>
+            </el-card>
+            <el-button
+              type="primary"
+              style="width: 100%;background: #505458;border: none"
+              slot="reference"
+              v-on:click="visible = !visible"
+              >登录</el-button
+            >
+          </el-popover>
+          <div class="register">
+            <el-link :underline="false" type="primary">忘记密码？</el-link>
+            <el-link
+              class="register_id"
+              :underline="false"
+              type="primary"
+              href="/register"
+              >注册</el-link
+            >
+          </div>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -263,6 +266,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  // 欢迎字体设置
+  color: rgb(228, 214, 214);
+}
+.login-body {
+  // 登录表格的位置
+  padding-left: 1000px;
+  padding-top: 100px;
+}
 #poster {
   background: url("../assets/images/background.jpg") no-repeat;
   background-position: center;

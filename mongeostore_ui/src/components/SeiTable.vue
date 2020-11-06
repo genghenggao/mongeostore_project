@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-06 21:09:44
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-03 21:07:42
+ * @LastEditTime: 2020-11-06 20:12:29
 -->
 <template>
   <div class="seismictable" style="overflow: scroll;max-height: 750px;">
@@ -166,6 +166,6 @@ export default {
 .seismictable {
   border: 0;
   padding: 0;
-  height: 720px;
+  height: 735px;
 }
 </style>

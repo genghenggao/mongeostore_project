@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-04 18:46:51
+ * @LastEditTime: 2020-11-06 20:53:50
 -->
 <template>
   <!-- 主界面-->
@@ -20,7 +20,7 @@
           role="tab"
           aria-controls="nav-home"
           aria-selected="true"
-          >Home</a
+          >首页</a
         >
         <a
           class="nav-item nav-link"
@@ -30,7 +30,7 @@
           role="tab"
           aria-controls="nav-profile"
           aria-selected="false"
-          >Profile</a
+          >表格数据</a
         >
         <a
           class="nav-item nav-link"
@@ -40,7 +40,7 @@
           role="tab"
           aria-controls="nav-metadata"
           aria-selected="false"
-          >MetaData</a
+          >元数据</a
         >
         <a
           class="nav-item nav-link"
@@ -50,7 +50,7 @@
           role="tab"
           aria-controls="nav-uploadfile"
           aria-selected="false"
-          >UploadFile</a
+          >上传数据</a
         >
       </div>
     </nav>
@@ -61,7 +61,7 @@
         role="tabpanel"
         aria-labelledby="nav-home-tab"
       >
-        <Data />
+        <Home />
       </div>
 
       <div
@@ -70,7 +70,7 @@
         role="tabpanel"
         aria-labelledby="nav-profile-tab"
       >
-        <Home />
+        <Data />
       </div>
       <div
         class="tab-pane fade"

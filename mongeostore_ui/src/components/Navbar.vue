@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-09-28 20:19:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-05 09:35:24
+ * @LastEditTime: 2020-11-06 19:47:27
 -->
 <template>
   <div class="sticky-top">
@@ -68,7 +68,7 @@
             placeholder="Search"
             aria-label="Search"
           />
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+          <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">
             Search
           </button>
         </form>
@@ -84,4 +84,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.bg-light {
+  background-color: #70624f !important;
+}
 </style>

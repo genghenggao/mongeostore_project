@@ -4,10 +4,11 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-05 17:25:34
+ * @LastEditTime: 2020-11-06 20:07:52
 -->
 <template>
   <div class="DataShow">
+    <SearchData />
     <el-table
       class="tb-edit"
       highlight-current-row
@@ -16,7 +17,23 @@
       "
       style="width: 100%"
       max-height="740"
+      :default-sort="{ prop: 'vip', order: 'vip' }"
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column
+        fixed="left"
+        label="?rank"
+        prop="?rank"
+        width="80"
+        :filters="[
+          { text: '1', value: 1 },
+          { text: '2', value: 2 },
+          { text: '3', value: 3 },
+          { text: '4', value: 4 }
+        ]"
+        :filter-method="filterHandler"
+      ></el-table-column>
       <template v-for="(col, index) in cols">
         <el-table-column
           v-if="col.nickname === 'normal'"
@@ -36,13 +53,20 @@
           </template>
         </el-table-column>
       </template>
-      <el-table-column fixed="right" label="操作" width="80">
+      <el-table-column fixed="right" label="操作" width="160">
         <template slot-scope="scope">
+          <el-button
+            type="primary"
+            plain
+            size="mini"
+            @click="handleEdit(scope.$index, scope.row)"
+            >编辑</el-button
+          >
           <el-button
             @click.native.prevent="deleteRow(scope.$index, tableData)"
             type="danger"
             plain
-            size="small"
+            size="mini"
           >
             删除
           </el-button>
@@ -66,8 +90,10 @@
 
 <script>
 import axios from "axios";
+import SearchData from "@/components/SearchData.vue";
 export default {
   name: "Data",
+  components: { SearchData },
   data() {
     return {
       // cols prop属性值都是作为 tableData的属性
@@ -109,13 +135,29 @@ export default {
       // 个数选择器（可修改）
       pageSizes: [10, 20, 30, 40],
       // 默认每页显示的条数（可修改)
-      PageSize: 9
+      PageSize: 9,
+      // 搜索
+      search: ""
     };
   },
   created() {
     this.showData();
   },
   methods: {
+    // 选择框
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    // 排序
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      return row[property] === value;
+    },
+    // 编辑按钮
+    handleEdit(index, row) {
+      console.log(index, row);
+    },
+    // 删除按钮
     deleteRow(index, rows) {
       rows.splice(index, 1);
     },
@@ -156,6 +198,7 @@ export default {
           // this.tableData = datatset;
           // 将数据赋值给tableData
           this.tableData = response.data;
+          this.searchCondition = response.data;
           // 分页所需信息
           // 将数据的长度赋值给totalCount
           this.totalCount = response.data.length;
@@ -211,5 +254,6 @@ export default {
 <style lang="less" scoped>
 .DataShow {
   height: 720px;
+  // height: 70px;
 }
 </style>
