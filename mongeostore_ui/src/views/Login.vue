@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-06 20:41:41
+ * @LastEditTime: 2020-11-07 16:52:33
 -->
 <template>
   <div id="poster">
@@ -19,7 +19,7 @@
         label-position="left"
         label-width="80px"
       >
-        <h3 class="login_title">MongeoStore</h3>
+        <h3 class="login_title">MonGeoStore</h3>
         <el-form-item prop="username" label="用户名:">
           <el-input
             type="text"
@@ -266,15 +266,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h1 {
-  // 欢迎字体设置
-  color: rgb(228, 214, 214);
-}
-.login-body {
-  // 登录表格的位置
-  padding-left: 1000px;
-  padding-top: 100px;
-}
+// 背景
 #poster {
   background: url("../assets/images/background.jpg") no-repeat;
   background-position: center;
@@ -283,7 +275,36 @@ h1 {
   background-size: cover;
   position: fixed;
 }
+// 登录内容
+.login-body {
+  // 登录表格的位置
+  padding-left: 1000px;
+  padding-top: 100px;
+  height: 800px;
+  position: absolute;
 
+}
+// 登录框位置
+form.el-form.login-container.el-form--label-left {
+  // right: 0px;
+  position: absolute;
+  /* width: 600px; */
+  margin: 30px 30px 0px 180px;
+  top: 200px;
+  /* left: 30px; */
+}
+// 注册标题设置
+.login-body h1 {
+  // 欢迎字体设置
+  color: rgb(228, 214, 214);
+  margin: 0 30px 0 80px;
+  padding: 40px 0 0 0;
+  position: absolute;
+  top: 60px;
+  // left: 3%;
+  width: 600px;
+}
+// 登录框
 .login-container {
   border-radius: 15px;
   background-clip: padding-box;
@@ -294,21 +315,24 @@ h1 {
   border: 1px solid #eaeaea;
   box-shadow: 0 0 25px #cac6c6;
 }
-
+// 登录框标题
 .login_title {
   margin: 0px auto 40px auto;
   text-align: center;
   color: #505458;
 }
+// 注册
 .register {
   position: relative;
   right: 40px;
   // width: 100%;
 }
+// 注册位置
 .register_id {
   right: -80px;
 }
 
+// 密码与注册
 .el-popover {
   padding: 0px;
   // line-height: 1;

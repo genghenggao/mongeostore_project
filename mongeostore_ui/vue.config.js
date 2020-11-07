@@ -4,13 +4,23 @@
  * @Author: henggao
  * @Date: 2020-08-29 16:00:58
  * @LastEditors: henggao
- * @LastEditTime: 2020-09-01 10:45:26
+ * @LastEditTime: 2020-11-07 17:58:07
  */
 const webpack = require('webpack');
 const path = require('path');  //引入path模块（node）
 const resolve = (dir) => path.join(__dirname, dir); //将文件组成绝对路径
 
 module.exports = {
+  // ico图标设置
+  pwa: {
+    iconPaths: {
+      favicon32: 'favicon.ico',
+      favicon16: 'favicon.ico',
+      appleTouchIcon: 'favicon.ico',
+      maskIcon: 'favicon.ico',
+      msTileImage: 'favicon.ico'
+    }
+  },
 
   // 跨域配置
   devServer: {

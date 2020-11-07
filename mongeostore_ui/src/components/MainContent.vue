@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-06 20:53:50
+ * @LastEditTime: 2020-11-07 10:36:26
 -->
 <template>
   <!-- 主界面-->
@@ -20,7 +20,7 @@
           role="tab"
           aria-controls="nav-home"
           aria-selected="true"
-          >首页</a
+          ><i class="el-icon-s-home"></i>首页</a
         >
         <a
           class="nav-item nav-link"
@@ -30,7 +30,7 @@
           role="tab"
           aria-controls="nav-profile"
           aria-selected="false"
-          >表格数据</a
+          ><i class="el-icon-s-data"></i>表格数据</a
         >
         <a
           class="nav-item nav-link"
@@ -40,7 +40,7 @@
           role="tab"
           aria-controls="nav-metadata"
           aria-selected="false"
-          >元数据</a
+          ><i class="el-icon-s-data"></i>元数据</a
         >
         <a
           class="nav-item nav-link"
@@ -50,7 +50,7 @@
           role="tab"
           aria-controls="nav-uploadfile"
           aria-selected="false"
-          >上传数据</a
+          ><i class="el-icon-top"></i>上传数据</a
         >
       </div>
     </nav>
@@ -121,4 +121,12 @@ export default {
 </script>
 
 <style>
+.maincontent div#nav-tab {
+  height: 46px;
+  /* background-color: rgba(21, 132, 197, 0.5); */
+  background-color: #870000;
+}
+.maincontent div#nav-tab a{
+  color: #b45c5c;
+}
 </style>

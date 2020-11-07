@@ -582,12 +582,26 @@ h1 {
 .login-container {
   border-radius: 15px;
   background-clip: padding-box;
-  margin: 90px auto;
+  // margin: 90px auto;
+  margin: 30px 30px 0px 180px;
+  top: 200px;
   width: 400px;
+  height: 600px;
+  position: absolute;
   padding: 35px 35px 15px 35px;
   background: #fff;
   border: 1px solid #eaeaea;
   box-shadow: 0 0 25px #cac6c6;
+}
+.login-body h1 {
+  // 欢迎字体设置
+  color: rgb(228, 214, 214);
+  margin: 0 30px 0 80px;
+  padding: 40px 0 0 0;
+  position: absolute;
+  top: 60px;
+  // left: 3%;
+  width: 600px;
 }
 
 .login_title {
