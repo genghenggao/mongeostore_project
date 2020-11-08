@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-05 22:36:08
+LastEditTime: 2020-11-08 20:24:39
 '''
 import xlrd
 import csv
@@ -215,7 +215,8 @@ def ShowData(request):
     client = pymongo.MongoClient("192.168.55.110", 20000)
     database = "segyfile"
     db = client[database]
-    collection = "data"
+    # 选择集合
+    collection = "excel_data"
     db_coll = db[collection]
     # 查询
     content = {}
@@ -327,7 +328,7 @@ class UploadExcel(APIView):
 
         # 读取Excel文件
         data = xlrd.open_workbook("./upload/%s" % File.name)
-        table = data.sheets()[0]
+        table = data.sheets()[1]
         # 读取excel第一行数据作为存入mongodb的字段名
         rowstag = table.row_values(0)
         nrows = table.nrows

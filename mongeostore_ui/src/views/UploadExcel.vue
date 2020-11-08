@@ -1,9 +1,20 @@
 <template>
   <div style="padding-top:20px;">
-    <el-button ref="VideoChose" id="VideoChose" size="mini">选择文件</el-button>
-    <el-button ref="VideoChose" type="primary" size="mini" @click="FileUplodeOn"
-      >开始上传</el-button
-    >
+    <el-row>
+      <el-col :span="18"><h4>上传Excel数据（保存json数据格式）</h4></el-col>
+      <el-col :span="6"
+        ><el-button ref="VideoChose1" id="VideoChose1" size="medium"
+          >选择文件</el-button
+        >
+        <el-button
+          ref="VideoChose1"
+          type="primary"
+          size="medium"
+          @click="FileUplodeOn1"
+          >开始上传</el-button
+        ></el-col
+      >
+    </el-row>
     <el-card style="margin-top:20px;">
       <el-table :data="fileList" style="width: 100%">
         <el-table-column prop="id" label="文件id"></el-table-column>
@@ -69,7 +80,7 @@ export default {
       show: false,
       fileList: [],
       fileOptions: {
-        browse_button: "VideoChose",
+        browse_button: "VideoChose1",
         // url: "http://127.0.0.1:8000/load/uploadfile/",
         url: "http://127.0.0.1:8000/load/uploadexcel/",
         flash_swf_url: "script/Moxie.swf",
@@ -204,7 +215,7 @@ export default {
       });
     },
     //开始上传
-    FileUplodeOn() {
+    FileUplodeOn1() {
       this.uploader.start();
     }
   }

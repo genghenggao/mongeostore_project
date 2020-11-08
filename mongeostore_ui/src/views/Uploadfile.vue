@@ -1,15 +1,23 @@
 <template>
   <div style="padding-top:20px;">
-    <el-button ref="VideoChose" id="VideoChose" size="medium  "
-      >选择文件</el-button
-    >
-    <el-button
-      ref="VideoChose"
-      type="primary"
-      size="medium  "
-      @click="FileUplodeOn"
-      >开始上传</el-button
-    >
+    <el-row>
+      <el-col :span="18" class="upload-title"
+        ><h4>上传源数据（保存元数据格式）</h4></el-col
+      >
+      <el-col :span="6"
+        ><el-button ref="VideoChose" id="VideoChose" size="medium "
+          >选择文件</el-button
+        >
+        <el-button
+          ref="VideoChose"
+          type="primary"
+          size="medium  "
+          @click="FileUplodeOn"
+          >开始上传</el-button
+        ></el-col
+      >
+    </el-row>
+
     <el-card style="margin-top:20px;">
       <el-table :data="fileList" style="width: 100%">
         <el-table-column prop="id" label="文件id"></el-table-column>
@@ -95,7 +103,7 @@ export default {
             {
               title: "files",
               extensions:
-                "png,jpg,svg,mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy" //文件格式
+                "png,jpg,svg,mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy,xls,xlsx,csv" //文件格式
             }
           ],
           max_file_size: "10240mb", //最大上传的文件

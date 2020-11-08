@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:18:02
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-06 20:09:26
+ * @LastEditTime: 2020-11-08 22:44:51
 -->
 <template>
   <div>
@@ -28,7 +28,7 @@
         <el-main><router-view></router-view></el-main>
       </el-container>
     </el-container>
-    <Footbar />
+    <!-- <el-footer> <Footbar /></el-footer> -->
   </div>
 </template>
 
@@ -43,17 +43,19 @@ export default {
 };
 </script>
 
-<style>
+<style >
+/* 头部 */
 .el-header {
   /* background-color: #106ba3; */
   font-size: 40px;
   height: 20px;
   font-family: serif;
-  color: rgb(134, 163, 207);
+  color: rgb(42, 8, 194);
   display: flex;
   justify-content: space-between;
   padding: 0; /* 消除子div边距*/
 }
+/* 标题头部 */
 .head.title {
   width: 1350px;
   height: 0px;
@@ -79,43 +81,23 @@ export default {
   transform: perspective(0.5em) rotateX(deg);
   transform-origin: bottom left;
 } */
-.el-footer {
-  background-color: #b3c0d1;
-  color: #333;
-  text-align: center;
-  line-height: 60px;
-}
-/* .el-aside {
-  background-color: #d3dce6;
-  color: #333;
-  text-align: center;
-  line-height: 200px;
-} */
-/* .el-main {
-  background-color: #e9eef3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-} */
-/* body > .el-container {
-  margin-bottom: 40px;
-} */
-/* .el-container:nth-child(5) .el-aside, */
-/* .el-container:nth-child(6) .el-aside {
-  line-height: 260px;
-} */
-/* .el-container:nth-child(7) .el-aside {
-  line-height: 320px;
-} */
 
+/* 侧边栏 */
 .menutree {
-  height: 840px;
+  height: 881px;
   background: #ffffff;
+  overflow: auto;
 }
+/* 主要内容 */
 .el-main {
   padding: 0px;
 }
-element.style {
-  height: 40px;
+
+/* 尾部 */
+.el-footer {
+  background-color: #a79f9f;
+  color: rgb(134, 125, 125);
+  text-align: center;
+  line-height: 40px;
 }
 </style>

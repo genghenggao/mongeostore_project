@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-09-28 20:21:57
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-06 20:52:42
+ * @LastEditTime: 2020-11-08 22:05:42
 -->
 <template>
   <div class="fixed-bottom">
@@ -42,20 +42,21 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .fixed-bottom {
-  margin: 0px;
-  padding: 0px;
-  position: relative;
-  /* bottom: 0; */
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 30px;
-  background-color: #f5f5f5;
-  /* background: #4f5893; */
-  /* color: #e7e7e7; */
-  opacity: 0.3;
-  filter: alpha(opacity=100);
-  /* 针对 IE8 以及更早的版本 */
+  background: #70624f;
+  //   margin: 0px;
+  //   padding: 0px;
+  //   position: relative;
+  //   /* bottom: 0; */
+  //   width: 100%;
+  //   /* Set the fixed height of the footer here */
+  //   height: 30px;
+  //   background-color: #f5f5f5;
+  //   /* background: #4f5893; */
+  //   /* color: #e7e7e7; */
+  //   opacity: 0.3;
+  //   filter: alpha(opacity=100);
+  //   /* 针对 IE8 以及更早的版本 */
 }
 </style>

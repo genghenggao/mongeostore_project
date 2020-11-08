@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-07 10:36:26
+ * @LastEditTime: 2020-11-08 22:21:39
 -->
 <template>
   <!-- 主界面-->
@@ -87,6 +87,8 @@
         aria-labelledby="nav-uploadfile-tab"
       >
         <UploadFile />
+        <UploadCSV />
+        <UploadExcel />
       </div>
     </div>
   </div>
@@ -96,6 +98,8 @@
 import MapView from "@/views/MapView.vue";
 import Home from "@/views/Home.vue";
 import UploadFile from "@/views/UploadFile.vue";
+import UploadCSV from "@/views/UploadCSV.vue";
+import UploadExcel from "@/views/UploadExcel.vue";
 import SeiTable from "@/components/SeiTable.vue";
 import Data from "@/components/Data.vue";
 export default {
@@ -105,6 +109,8 @@ export default {
     Home,
     SeiTable,
     UploadFile,
+    UploadCSV,
+    UploadExcel,
     Data
   },
   data() {
@@ -128,5 +134,8 @@ export default {
 }
 .maincontent div#nav-tab a{
   color: #b45c5c;
+}
+div#nav-tabContent{
+  height: 775px;
 }
 </style>
