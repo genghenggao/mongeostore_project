@@ -4,92 +4,123 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-08 22:25:56
+ * @LastEditTime: 2020-11-09 22:50:06
 -->
 <template>
   <div class="DataShow">
-    <SearchData />
-    <el-table
-      class="tb-edit"
-      highlight-current-row
-      :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
-      "
-      style="width: 100%"
-      max-height="740"
-      :default-sort="{ prop: 'ZK_num', order: 'ZK_num' }"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column
-        fixed="left"
-        label="ZK_num"
-        prop="ZK_num"
-        width="80"
-        :filters="[
-          { text: 'ZK1', value: 'ZK1' },
-          { text: 'ZK2', value: 'ZK2' },
-          { text: 'ZK3', value: 'ZK3' },
-          { text: 'ZK4', value: 'ZK4' }
-        ]"
-        :filter-method="filterHandler"
-      ></el-table-column>
-      <template v-for="(col, index) in cols">
-        <el-table-column
-          v-if="col.ZK_num === 'normal'"
-          :key="index"
-          :prop="col.prop"
-          :label="col.label"
-        ></el-table-column>
-        <el-table-column
-          v-if="col.ZK_num === 'sort'"
-          :key="col.ZK_num"
-          :prop="col.prop"
-          sortable
-          :label="col.label"
-        >
-          <template slot-scope="scope">
-            <el-tag type="primary">{{ scope.row.ZK_num }}</el-tag>
-          </template>
-        </el-table-column>
-      </template>
-      <el-table-column fixed="right" label="操作" width="160">
-        <template slot-scope="scope">
-          <el-button
-            type="primary"
-            plain
-            size="mini"
-            @click="handleEdit(scope.$index, scope.row)"
-            >编辑</el-button
+    <el-container>
+      <el-header class="data_search">
+        <SearchData />
+      </el-header>
+      <el-main class="data_content">
+        <div class="data_table">
+          <!-- 注意里面max-height字段设置高度 -->
+          <el-table
+            class="tb-edit"
+            highlight-current-row
+            :data="
+              tableData.slice(
+                (currentPage - 1) * PageSize,
+                currentPage * PageSize
+              )
+            "
+            style="width: 100%"
+            max-height="690px"
+            :default-sort="{ prop: 'ZK_num', order: 'ZK_num' }"
+            @selection-change="handleSelectionChange"
           >
-          <el-button
-            @click.native.prevent="deleteRow(scope.$index, tableData)"
-            type="danger"
-            plain
-            size="mini"
+            <!-- 选择框设置 -->
+            <el-table-column type="selection" width="55"> </el-table-column>
+            <el-table-column label="_id" prop="_id.$oid"> </el-table-column>
+            <!-- 筛选字段 -->
+            <el-table-column
+              fixed="left"
+              label="ZK_num"
+              prop="ZK_num"
+              width="100"
+              :filters="[
+                { text: 'ZK1', value: 'ZK1' },
+                { text: 'ZK2', value: 'ZK2' },
+                { text: 'ZK3', value: 'ZK3' },
+                { text: 'ZK4', value: 'ZK4' }
+              ]"
+              :filter-method="filterHandler"
+            ></el-table-column>
+            <!-- 生成关键词 -->
+            <!-- <template v-for="(col, index) in cols"> -->
+            <template v-for="col in cols">
+              <!-- 设置排序字段 -->
+              <el-table-column
+                v-if="col.ZK_num === 'normal'"
+                :key="col._id"
+                :prop="col.prop"
+                :label="col.label"
+                align="center"
+              >
+                <!-- 每一行数据 -->
+                <template slot-scope="scope">
+                  <div v-if="!scope.row.isEdit">{{ scope.row[col.prop] }}</div>
+                  <div v-else>
+                    <el-input v-model="scope.row[col.prop]"></el-input>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="col.ZK_num === 'sort'"
+                :key="col._id"
+                :prop="col.prop"
+                sortable
+                :label="col.label"
+              >
+                <template slot-scope="scope">
+                  <!-- 生成标签 -->
+                  <el-tag type="primary">{{ scope.row.ZK_num }}</el-tag>
+                </template>
+              </el-table-column>
+            </template>
+            <el-table-column fixed="right" label="操作" width="160">
+              <template slot-scope="scope">
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  @click="handleEdit(scope.$index, scope.row)"
+                  >{{ scope.row.isEdit ? "保存" : "编辑" }}</el-button
+                >
+                <el-button
+                  @click.native.prevent="deleteRow(scope.$index, tableData)"
+                  type="danger"
+                  plain
+                  size="mini"
+                >
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <!-- 分页 -->
+        <div class="block">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="pageSizes"
+            :page-size="PageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalCount"
           >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="block">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="pageSizes"
-        :page-size="PageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalCount"
-      >
-      </el-pagination>
-    </div>
+          </el-pagination>
+        </div>
+        <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
+      </el-main>
+    </el-container>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import qs from "qs";
 import SearchData from "@/components/SearchData.vue";
 export default {
   name: "Data",
@@ -102,7 +133,7 @@ export default {
         { label: "名称nickname", prop: "nickname", nickname: "sort" },
         { label: "类型combat", prop: "combat", nickname: "normal" },
         { label: "状态level", prop: "level", nickname: "normal" },
-        { label: "坐标rid", prop: "rid", nickname: "normal" },
+        { label: "坐标rid", prop: "rid", nickname: "normal" }
         // { label: "rid", prop: "_id.$oid", ZK_num: "normal" },
         // { label: "ZK_num", prop: "ZK_num", ZK_num: "normal" },
         // { label: "Depth", prop: "Depth", ZK_num: "sort" },
@@ -140,7 +171,7 @@ export default {
       // 个数选择器（可修改）
       pageSizes: [10, 20, 30, 40],
       // 默认每页显示的条数（可修改)
-      PageSize: 9,
+      PageSize: 10,
       // 搜索
       search: ""
     };
@@ -158,9 +189,44 @@ export default {
       const property = column["property"];
       return row[property] === value;
     },
-    // 编辑按钮
+    // 编辑（修改）按钮
     handleEdit(index, row) {
-      console.log(index, row);
+      // console.log(index, row);
+      // 动态设置数据并通过这个数据判断显示方式
+      if (row.isEdit) {
+        // 点击保存的
+        this.$delete(row, "isEdit");
+        // console.log("开始delete");
+        // console.log(index, row); //把row发送给后端
+        // console.log(row["_id"]["$oid"]); //把row发送给后端
+        row["id"] = row["_id"]["$oid"];
+        row["help_param"] = "help_param"; ////用于解决后端smscode参数为3019"}多了"}问题
+        let postData = qs.stringify(row); // w为了解决后端拿不到数据问题
+        // postData["_id"] = row["_id"]["$oid"];
+        console.log(typeof postData);
+        console.log(row["id"]);
+        const url = "http://127.0.0.1:8000/load/editdata/";
+        axios
+          .post(
+            url,
+            {
+              data: postData //data用于post请求
+            },
+            {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            },
+            console.log(postData)
+          )
+          .then(res => {
+            console.log("注册成功");
+          });
+      } else {
+        // 点击编辑
+        this.$set(row, "isEdit", true);
+        // console.log("开始set");
+        // console.log(index, row);
+      }
+      // console.log(this.tableData);
     },
     // 删除按钮
     deleteRow(index, rows) {
@@ -168,9 +234,6 @@ export default {
     },
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
-    },
-    handleEdit(index, row) {
-      console.log(index, row);
     },
     handleDelete(index, row) {
       console.log(index, row);
@@ -227,10 +290,12 @@ export default {
             });
           }
           // console.log(listcol);
-          listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
+          // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
+          listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
+          listcol.splice(0, 1); //去掉_id字段,自己在页面添加，为了更好的遍历
           // listcol[6].nickname = "sort"; //按字段设置排序
-          console.log(listcol)
-          listcol[1].ZK_num = "sort"; //按字段设置排序
+          console.log(listcol);
+          listcol[0].ZK_num = "sort"; //按字段设置排序
           this.cols = listcol;
         });
     },
@@ -259,8 +324,22 @@ export default {
 
 
 <style lang="less" scoped>
+// 设置真个数据内容的大小
 .DataShow {
-  height: 720px;
-  // height: 70px;
+  height: 775px;
+}
+// 设置搜索框的大小
+.data_search {
+  height: 45px !important;
+}
+// 设置表格数据大小，表格+分页
+.data_content {
+  height: 730px !important;
+  overflow: auto;
+}
+// 设置表格数据大小
+.data_table {
+  height: 690px !important;
+  overflow: auto;
 }
 </style>

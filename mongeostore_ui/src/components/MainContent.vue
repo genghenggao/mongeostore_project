@@ -4,93 +4,99 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-08 22:21:39
+ * @LastEditTime: 2020-11-09 09:48:18
 -->
 <template>
   <!-- 主界面-->
   <div class="maincontent">
     <!-- 子导航 -->
-    <nav>
-      <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a
-          class="nav-item nav-link active"
-          id="nav-home-tab"
-          data-toggle="tab"
-          href="#nav-home"
-          role="tab"
-          aria-controls="nav-home"
-          aria-selected="true"
-          ><i class="el-icon-s-home"></i>首页</a
-        >
-        <a
-          class="nav-item nav-link"
-          id="nav-profile-tab"
-          data-toggle="tab"
-          href="#nav-profile"
-          role="tab"
-          aria-controls="nav-profile"
-          aria-selected="false"
-          ><i class="el-icon-s-data"></i>表格数据</a
-        >
-        <a
-          class="nav-item nav-link"
-          id="nav-metadata-tab"
-          data-toggle="tab"
-          href="#nav-metadata"
-          role="tab"
-          aria-controls="nav-metadata"
-          aria-selected="false"
-          ><i class="el-icon-s-data"></i>元数据</a
-        >
-        <a
-          class="nav-item nav-link"
-          id="nav-uploadfile-tab"
-          data-toggle="tab"
-          href="#nav-uploadfile"
-          role="tab"
-          aria-controls="nav-uploadfile"
-          aria-selected="false"
-          ><i class="el-icon-top"></i>上传数据</a
-        >
-      </div>
-    </nav>
-    <div class="tab-content" id="nav-tabContent">
-      <div
-        class="tab-pane fade show active"
-        id="nav-home"
-        role="tabpanel"
-        aria-labelledby="nav-home-tab"
-      >
-        <Home />
-      </div>
+    <el-container>
+      <el-header class="maincontent_header">
+        <nav>
+          <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a
+              class="nav-item nav-link active"
+              id="nav-home-tab"
+              data-toggle="tab"
+              href="#nav-home"
+              role="tab"
+              aria-controls="nav-home"
+              aria-selected="true"
+              ><i class="el-icon-s-home"></i>首页</a
+            >
+            <a
+              class="nav-item nav-link"
+              id="nav-profile-tab"
+              data-toggle="tab"
+              href="#nav-profile"
+              role="tab"
+              aria-controls="nav-profile"
+              aria-selected="false"
+              ><i class="el-icon-s-data"></i>表格数据</a
+            >
+            <a
+              class="nav-item nav-link"
+              id="nav-metadata-tab"
+              data-toggle="tab"
+              href="#nav-metadata"
+              role="tab"
+              aria-controls="nav-metadata"
+              aria-selected="false"
+              ><i class="el-icon-s-data"></i>元数据</a
+            >
+            <a
+              class="nav-item nav-link"
+              id="nav-uploadfile-tab"
+              data-toggle="tab"
+              href="#nav-uploadfile"
+              role="tab"
+              aria-controls="nav-uploadfile"
+              aria-selected="false"
+              ><i class="el-icon-top"></i>上传数据</a
+            >
+          </div>
+        </nav>
+      </el-header>
+      <el-main>
+        <div class="tab-content" id="nav-tabContent">
+          <div
+            class="tab-pane fade show active"
+            id="nav-home"
+            role="tabpanel"
+            aria-labelledby="nav-home-tab"
+          >
+            <Home />
+          </div>
 
-      <div
-        class="tab-pane fade"
-        id="nav-profile"
-        role="tabpanel"
-        aria-labelledby="nav-profile-tab"
-      >
-        <Data />
-      </div>
-      <div
-        class="tab-pane fade"
-        id="nav-metadata"
-        role="tabpanel"
-        aria-labelledby="nav-metadata-tab"
-      >
-        <SeiTable />
-      </div>
-      <div
-        class="tab-pane fade"
-        id="nav-uploadfile"
-        role="tabpanel"
-        aria-labelledby="nav-uploadfile-tab"
-      >
-        <UploadFile />
-        <UploadCSV />
-        <UploadExcel />
-      </div>
-    </div>
+          <div
+            class="tab-pane fade"
+            id="nav-profile"
+            role="tabpanel"
+            aria-labelledby="nav-profile-tab"
+          >
+            <Data />
+          </div>
+          <div
+            class="tab-pane fade"
+            id="nav-metadata"
+            role="tabpanel"
+            aria-labelledby="nav-metadata-tab"
+          >
+            <SeiTable />
+          </div>
+          <div
+            class="tab-pane fade"
+            id="nav-uploadfile"
+            role="tabpanel"
+            aria-labelledby="nav-uploadfile-tab"
+          >
+            <UploadFile />
+            <UploadCSV />
+            <UploadExcel />
+          </div>
+        </div>
+      </el-main>
+    </el-container>
   </div>
 </template>
 
@@ -127,15 +133,30 @@ export default {
 </script>
 
 <style>
+.maincontent{
+  height: 821px;
+}
+/* 导航子标题 */
+.maincontent_header {
+  /* 固定高度 */
+  height: 46px !important;  
+  /* 消除边距 */
+  padding: 0;
+}
+/* maincontent子导航 */
 .maincontent div#nav-tab {
   height: 46px;
+  /* width: 100%; */
   /* background-color: rgba(21, 132, 197, 0.5); */
   background-color: #870000;
+  /* position: static; */
 }
-.maincontent div#nav-tab a{
+/* maincontent子导航 字体 */
+.maincontent div#nav-tab a {
   color: #b45c5c;
 }
-div#nav-tabContent{
+div#nav-tabContent {
   height: 775px;
 }
+
 </style>

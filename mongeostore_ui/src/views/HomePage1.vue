@@ -4,16 +4,16 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:18:02
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-08 22:44:51
+ * @LastEditTime: 2020-11-09 09:26:41
 -->
 <template>
   <div>
     <Navbar />
     <el-container>
       <el-aside width="250px"><MenuTree /></el-aside>
-      <el-container>
-        <el-header>
-          <div class="head title">
+      <el-main class="far_main_content">
+        <el-header class="hompage_head">
+          <div class="head_title">
             地震数据管理系统
           </div>
           <div id="head1" class="logo f1">
@@ -25,8 +25,8 @@
             /></a>
           </div>
         </el-header>
-        <el-main><router-view></router-view></el-main>
-      </el-container>
+        <el-main class="sub_main_content"><router-view></router-view></el-main>
+      </el-main>
     </el-container>
     <!-- <el-footer> <Footbar /></el-footer> -->
   </div>
@@ -45,7 +45,7 @@ export default {
 
 <style >
 /* 头部 */
-.el-header {
+.hompage_head {
   /* background-color: #106ba3; */
   font-size: 40px;
   height: 20px;
@@ -56,7 +56,7 @@ export default {
   padding: 0; /* 消除子div边距*/
 }
 /* 标题头部 */
-.head.title {
+.head_title {
   width: 1350px;
   height: 0px;
   color: #ffffff;
@@ -92,6 +92,9 @@ export default {
 .el-main {
   padding: 0px;
 }
+/* .far_main_content {
+  padding: 0px;
+} */
 
 /* 尾部 */
 .el-footer {

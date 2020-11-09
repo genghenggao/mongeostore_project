@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-08 20:24:39
+LastEditTime: 2020-11-09 23:01:47
 '''
 import xlrd
 import csv
@@ -291,6 +291,8 @@ class UploadCSV(APIView):
                 print('成功添加了'+str(counts)+'条数据 ')
         return HttpResponse("uploadcsv success")
 
+# 上传Excel到数据库（自动转为json）
+
 
 class UploadExcel(APIView):
     """
@@ -343,3 +345,22 @@ class UploadExcel(APIView):
             db_coll.insert(returnData[i])
 
         return HttpResponse("uploadexcel success")
+
+
+def EditData(request):
+    # 连接数据库
+    if request.method == "POST":
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        database = "segyfile"
+        db = client[database]
+        collection = "excel_data"
+        db_coll = db[collection]
+
+        # 1、通过——id拿到前端数据
+        data_id = request.POST.get("id")
+        print(data_id)
+
+        editdata = db_coll.find_one({"$where": "this._id.match(/.*" + data_id + "/)"})
+        print(editdata)
+        
+    return HttpResponse('success')

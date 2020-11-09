@@ -4,10 +4,10 @@
  * @Author: henggao
  * @Date: 2020-10-06 21:09:44
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-06 20:12:29
+ * @LastEditTime: 2020-11-09 10:24:13
 -->
 <template>
-  <div class="seismictable" style="overflow: scroll;max-height: 750px;">
+  <div class="seismictable" style="overflow: scroll;max-height: 775px;">
     <table class="table table-hover">
       <thead>
         <tr>
@@ -142,7 +142,7 @@ export default {
         // table
       });
     }
-  },
+  }
   // download(fileName, data) {
   //   const url = "http://127.0.0.1:8000/load/filedownload/";
   //   if (!data) {
@@ -166,6 +166,6 @@ export default {
 .seismictable {
   border: 0;
   padding: 0;
-  height: 735px;
+  height: 775px;
 }
 </style>

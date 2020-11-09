@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-05 15:31:17
+LastEditTime: 2020-11-09 21:30:47
 '''
 from .views import FileInfoView
 from django.urls import include, path
@@ -20,4 +20,5 @@ urlpatterns = [
     path('showdata/', views.ShowData, name="showdata"),
     path('uploadcsv/', UploadCSV.as_view(), name="uploadcsv"),
     path('uploadexcel/', UploadExcel.as_view(), name="uploadexcel"),
+    path('editdata/', views.EditData, name="editdata"),
 ]
