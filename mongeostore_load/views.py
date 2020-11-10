@@ -4,8 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-09 23:01:47
+LastEditTime: 2020-11-10 17:30:56
 '''
+import re
+from bson.objectid import ObjectId
 import xlrd
 import csv
 from bson.json_util import dumps
@@ -348,19 +350,89 @@ class UploadExcel(APIView):
 
 
 def EditData(request):
-    # 连接数据库
     if request.method == "POST":
+
+        # 1、通过——id拿到前端数据,这样取不到值，用request.body
+        # data_id = request.POST.get("_id")
+        # print(data_id)
+        # s使用request.POST取值
+        # all_data = request.POST
+        # print(all_data)
+        # <QueryDict: {'{"json_data":"{\\"_id\\":{\\"$oid\\":\\"5fa7dc070a6d3e479de148d9\\"},\\"ZK_num\\":\\"ZK1\\",\\"Depth\\":0,\\"Azimuth\\":131.29,\\"Inclination\\":-86.4}"}': ['']}>
+        # 使用request.body取值
+        body_data = request.body
+        # print(body_data)
+        # b'{"json_data":"{\\"_id\\":{\\"$oid\\":\\"5fa7dc070a6d3e479de148d9\\"},\\"ZK_num\\":\\"ZK1\\",\\"Depth\\":0,\\"Azimuth\\":131.29,\\"Inclination\\":-86.4}"}'
+        data_json = json.loads(body_data)
+        # {'json_data': '{"_id":{"$oid":"5fa7dc070a6d3e479de148d9"},"ZK_num":"ZK1","Depth":0,"Azimuth":131.29,"Inclination":-86.4}'}
+        # print(data_json)
+        # print(data_json.values())
+        # print(data_json['json_data']) #{"_id":{"$oid":"5fa7dc070a6d3e479de148d9"},"ZK_num":"ZK1","Depth":"1","Azimuth":131.29,"Inclination":-86.4}
+        query_data_json = data_json['json_data']
+        # print(type(query_data_json)) #<class 'str'>
+
+        dict_data = json.loads(query_data_json)
+        # {'_id': {'$oid': '5fa7dc070a6d3e479de148d9'}, 'ZK_num': 'ZK1', 'Depth': '1', 'Azimuth': 131.29, 'Inclination': -86.4}
+        print(dict_data)
+        print(type(dict_data))  # <class 'dict'>
+        front_query_oid = dict_data['_id']
+        print(front_query_oid)  # {'$oid': '5fa7dc070a6d3e479de148d9'}
+        print(type(front_query_oid))  # <class 'dict'>
+        front_query_id = front_query_oid['$oid']
+        print(front_query_id)  # 5fa7dc070a6d3e479de148d9   终于拿到了！！
+        print(type(front_query_id))  # <class 'str'>
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        database = "segyfile"
+        db = client[database]
+        collection = "excel_data"
+        db_coll = db[collection]
+        # 根据_id匹配到后端数据
+        cursor = db_coll.find_one(filter={"_id": ObjectId(front_query_id)})
+        # {'_id': ObjectId('5fa7dc070a6d3e479de148d9'), 'ZK_num': 'ZK1', 'Depth': 0.0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        print(cursor)
+
+        # 删掉_'_id': {'$oid': '5fa7dc070a6d3e479de148d9'}部分
+        dict_data.pop('_id')
+        # {'ZK_num': 'ZK1', 'Depth': 0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        print(dict_data)
+        print(type(dict_data))  # <class 'dict'>
+        update_data = db_coll.update_one(
+            cursor, update={"$set": dict_data})
+        # print(update_data)
+        # print(update_data.matched_count)
+        # print(update_data.modified_count)
+        # 关闭连接
+        client.close()
+    return HttpResponse('success')
+
+# 删除数据
+
+
+def DeleteData(request):
+    """
+    Delete data
+    """
+    if request.method == "POST":
+        body_data = request.body
+        print(body_data)
+        data_json = json.loads(body_data)
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        front_query_oid = dict_data['_id']
+        front_query_id = front_query_oid['$oid']
+        print(front_query_id)
+
+        # 连接数据库
         client = pymongo.MongoClient("192.168.55.110", 20000)
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
         db_coll = db[collection]
 
-        # 1、通过——id拿到前端数据
-        data_id = request.POST.get("id")
-        print(data_id)
+        db_coll.remove({"_id": ObjectId(front_query_id)})
+        print("Delete Success")
+        # 关闭连接
+        client.close()
 
-        editdata = db_coll.find_one({"$where": "this._id.match(/.*" + data_id + "/)"})
-        print(editdata)
-        
-    return HttpResponse('success')
+    return HttpResponse("Delete Success")

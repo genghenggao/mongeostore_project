@@ -4,13 +4,44 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-09 22:50:06
+ * @LastEditTime: 2020-11-10 23:10:00
 -->
 <template>
   <div class="DataShow">
     <el-container>
       <el-header class="data_search">
-        <SearchData />
+        <!-- 搜索和添加功能 -->
+        <!-- <h5>1：5万</h5> -->
+        <!--搜索头 开始-->
+        <el-form :inline="true" :model="tableData" class="demo-form-inline">
+          <el-form-item class="header_key_world" label="关键字:">
+            <el-input
+              v-model="tableData.ZK_num"
+              suffix-icon="el-icon-date"
+              placeholder="请输入关键字"
+            ></el-input>
+          </el-form-item>
+          <el-form-item id="submit-item">
+            <el-button
+              type="info"
+              plain
+              icon="el-icon-search"
+              @click="onSearchSubmit"
+              >查询</el-button
+            >
+          </el-form-item>
+          <el-form-item id="addNew-item">
+            <el-button
+              type="info"
+              plain
+              icon="el-icon-edit"
+              @click="addNewHandler"
+              >新增</el-button
+            >
+          </el-form-item>
+        </el-form>
+        <!--搜索头 结束-->
+        <!-- <SearchData /> -->
       </el-header>
       <el-main class="data_content">
         <div class="data_table">
@@ -26,24 +57,20 @@
             "
             style="width: 100%"
             max-height="690px"
-            :default-sort="{ prop: 'ZK_num', order: 'ZK_num' }"
+            :default-sort="{ prop: 'Depth', order: 'Depth' }"
             @selection-change="handleSelectionChange"
           >
             <!-- 选择框设置 -->
             <el-table-column type="selection" width="55"> </el-table-column>
+            <!-- 添加_id字段 -->
             <el-table-column label="_id" prop="_id.$oid"> </el-table-column>
-            <!-- 筛选字段 -->
+            <!-- 筛选字段 filters,这只是筛选当页的-->
             <el-table-column
               fixed="left"
               label="ZK_num"
               prop="ZK_num"
               width="100"
-              :filters="[
-                { text: 'ZK1', value: 'ZK1' },
-                { text: 'ZK2', value: 'ZK2' },
-                { text: 'ZK3', value: 'ZK3' },
-                { text: 'ZK4', value: 'ZK4' }
-              ]"
+              :filters="filter_data"
               :filter-method="filterHandler"
             ></el-table-column>
             <!-- 生成关键词 -->
@@ -51,7 +78,7 @@
             <template v-for="col in cols">
               <!-- 设置排序字段 -->
               <el-table-column
-                v-if="col.ZK_num === 'normal'"
+                v-if="col.Depth === 'normal'"
                 :key="col._id"
                 :prop="col.prop"
                 :label="col.label"
@@ -66,7 +93,7 @@
                 </template>
               </el-table-column>
               <el-table-column
-                v-if="col.ZK_num === 'sort'"
+                v-if="col.Depth === 'sort'"
                 :key="col._id"
                 :prop="col.prop"
                 sortable
@@ -74,7 +101,7 @@
               >
                 <template slot-scope="scope">
                   <!-- 生成标签 -->
-                  <el-tag type="primary">{{ scope.row.ZK_num }}</el-tag>
+                  <el-tag type="primary">{{ scope.row.Depth }}</el-tag>
                 </template>
               </el-table-column>
             </template>
@@ -88,7 +115,9 @@
                   >{{ scope.row.isEdit ? "保存" : "编辑" }}</el-button
                 >
                 <el-button
-                  @click.native.prevent="deleteRow(scope.$index, tableData)"
+                  @click.native.prevent="
+                    deleteRow(scope.$index, tableData, scope.row)
+                  "
                   type="danger"
                   plain
                   size="mini"
@@ -121,10 +150,12 @@
 <script>
 import axios from "axios";
 import qs from "qs";
-import SearchData from "@/components/SearchData.vue";
+// import SearchData from "@/components/SearchData.vue";
 export default {
   name: "Data",
-  components: { SearchData },
+  components: {
+    // SearchData
+  },
   data() {
     return {
       // cols prop属性值都是作为 tableData的属性
@@ -164,6 +195,13 @@ export default {
           coordinate: "45.41,67.45,78.6"
         }
       ],
+      // 筛选字段
+      filter_data: [
+        { text: "ZK1", value: "ZK1" },
+        { text: "ZK2", value: "ZK2" },
+        { text: "ZK3", value: "ZK3" },
+        { text: "ZK4", value: "ZK4" }
+      ],
       // 分页数据，默认第几页
       currentPage: 1,
       // 总条数，根据接口获取数据长度(注意：这里不能为空)
@@ -173,7 +211,14 @@ export default {
       // 默认每页显示的条数（可修改)
       PageSize: 10,
       // 搜索
-      search: ""
+      input_data: "",
+      select: ""
+      // 搜索条件
+      // searchCondition: {
+      //   nickname: "",
+      //   vip: "",
+      //   dateVal: ""
+      // }
     };
   },
   created() {
@@ -189,6 +234,15 @@ export default {
       const property = column["property"];
       return row[property] === value;
     },
+    // 开始搜索
+    onSearchSubmit() {
+      // this.initAdminList(1);
+      console.log(this.tableData.ZK_num);
+    },
+    // 添加数据
+    addNewHandler() {
+      this.addNew.visible = true;
+    },
     // 编辑（修改）按钮
     handleEdit(index, row) {
       // console.log(index, row);
@@ -199,26 +253,29 @@ export default {
         // console.log("开始delete");
         // console.log(index, row); //把row发送给后端
         // console.log(row["_id"]["$oid"]); //把row发送给后端
-        row["id"] = row["_id"]["$oid"];
-        row["help_param"] = "help_param"; ////用于解决后端smscode参数为3019"}多了"}问题
-        let postData = qs.stringify(row); // w为了解决后端拿不到数据问题
+        // row["id"] = row["_id"]["$oid"];
+        // row["help_param"] = "help_param"; //用于解决后端smscode参数为3019"}多了"}问题
+        // let postData = qs.stringify(row); // w为了解决后端拿不到数据问题
         // postData["_id"] = row["_id"]["$oid"];
-        console.log(typeof postData);
-        console.log(row["id"]);
+        // console.log(typeof postData);
+        // console.log(row["id"]);
+        let json_data = JSON.stringify(row);
+
         const url = "http://127.0.0.1:8000/load/editdata/";
         axios
           .post(
             url,
             {
-              data: postData //data用于post请求
+              // data: JSON.stringify(row) //data用于post请求
+              json_data
             },
             {
               headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            },
-            console.log(postData)
+            }
+            // console.log(postData)
           )
           .then(res => {
-            console.log("注册成功");
+            console.log("编辑成功");
           });
       } else {
         // 点击编辑
@@ -226,11 +283,25 @@ export default {
         // console.log("开始set");
         // console.log(index, row);
       }
-      // console.log(this.tableData);
+      // console.log(this.tableData);s
     },
     // 删除按钮
-    deleteRow(index, rows) {
+    deleteRow(index, rows, row) {
       rows.splice(index, 1);
+      let json_data = JSON.stringify(row);
+      console.log(json_data);
+      const url = "http://127.0.0.1:8000/load/deletedata/";
+      axios
+        .post(
+          url,
+          { json_data },
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+          }
+        )
+        .then(res => {
+          console.log("删除成功");
+        });
     },
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
@@ -238,6 +309,7 @@ export default {
     handleDelete(index, row) {
       console.log(index, row);
     },
+    // 展示数据
     showData(n1, n2) {
       const url = "http://127.0.0.1:8000/load/showdata/";
       axios
@@ -266,11 +338,10 @@ export default {
           // this.tableData = datatset;
           // 将数据赋值给tableData
           this.tableData = response.data;
-          this.searchCondition = response.data;
+          // this.searchCondition = response.data;
           // 分页所需信息
           // 将数据的长度赋值给totalCount
           this.totalCount = response.data.length;
-
           console.log(this.tableData);
           console.log(typeof this.tableData);
           // 获取字段信息
@@ -286,17 +357,30 @@ export default {
             listcol.push({
               label: key,
               prop: key,
-              ZK_num: "normal"
+              Depth: "normal"
             });
           }
           // console.log(listcol);
           // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
           listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
-          listcol.splice(0, 1); //去掉_id字段,自己在页面添加，为了更好的遍历
+          listcol.splice(0, 2); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
           // listcol[6].nickname = "sort"; //按字段设置排序
           console.log(listcol);
-          listcol[0].ZK_num = "sort"; //按字段设置排序
+          listcol[0].Depth = "sort"; //按字段设置排序
           this.cols = listcol;
+
+          // 生成一个筛选字段ZKX，赋值给filter_data
+          let tem_list = [];
+          for (let i = 0; i < 55; i++) {
+            // const element = array[i];
+            let ZK = "ZK";
+            let ZKX = ZK + i;
+            // {text:"ZKX",value;"ZKX"}
+            let json_data = { text: ZKX, value: ZKX };
+            tem_list.push(json_data);
+          }
+          console.log(tem_list);
+          this.filter_data = tem_list;
         });
     },
     // 分页
@@ -323,7 +407,7 @@ export default {
 </script>
 
 
-<style lang="less" scoped>
+<style lang="scss">
 // 设置真个数据内容的大小
 .DataShow {
   height: 775px;
@@ -341,5 +425,11 @@ export default {
 .data_table {
   height: 690px !important;
   overflow: auto;
+}
+label.el-form-item__label {
+  font-size: 18px;
+  font-family: "Arial Narrow";
+  // font-weight: bold;
+  // font-family: Arial;
 }
 </style>

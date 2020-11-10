@@ -21,4 +21,5 @@ urlpatterns = [
     path('uploadcsv/', UploadCSV.as_view(), name="uploadcsv"),
     path('uploadexcel/', UploadExcel.as_view(), name="uploadexcel"),
     path('editdata/', views.EditData, name="editdata"),
+    path('deletedata/', views.DeleteData, name="deletedata"),
 ]
