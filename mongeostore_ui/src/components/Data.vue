@@ -4,48 +4,52 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-10 23:10:00
+ * @LastEditTime: 2020-11-11 21:37:12
 -->
 <template>
   <div class="DataShow">
     <el-container>
       <el-header class="data_search">
-        <!-- 搜索和添加功能 -->
-        <!-- <h5>1：5万</h5> -->
         <!--搜索头 开始-->
-        <el-form :inline="true" :model="tableData" class="demo-form-inline">
-          <el-form-item class="header_key_world" label="关键字:">
-            <el-input
-              v-model="tableData.ZK_num"
-              suffix-icon="el-icon-date"
-              placeholder="请输入关键字"
-            ></el-input>
-          </el-form-item>
-          <el-form-item id="submit-item">
-            <el-button
-              type="info"
-              plain
-              icon="el-icon-search"
-              @click="onSearchSubmit"
-              >查询</el-button
-            >
-          </el-form-item>
-          <el-form-item id="addNew-item">
-            <el-button
-              type="info"
-              plain
-              icon="el-icon-edit"
-              @click="addNewHandler"
-              >新增</el-button
-            >
-          </el-form-item>
-        </el-form>
+        <section id="search-title" style="min-width:500px">
+          <el-form
+            :inline="true"
+            :model="searchCondition"
+            class="demo-form-inline"
+          >
+            <el-form-item label="关键字段:">
+              <el-input
+                v-model="searchCondition.ZK_num"
+                suffix-icon="el-icon-date"
+                placeholder="请输入关键字"
+              ></el-input>
+            </el-form-item>
+            <el-form-item id="submit-item">
+              <el-button
+                type="info"
+                plain
+                icon="el-icon-search"
+                @click="onSearchSubmit"
+                >查询</el-button
+              >
+            </el-form-item>
+            <el-form-item id="addNew-item">
+              <el-button
+                type="info"
+                plain
+                icon="el-icon-edit"
+                @click="dialogVisible = true"
+                >新增</el-button
+              >
+            </el-form-item>
+          </el-form>
+        </section>
         <!--搜索头 结束-->
         <!-- <SearchData /> -->
       </el-header>
       <el-main class="data_content">
-        <div class="data_table">
-          <!-- 注意里面max-height字段设置高度 -->
+        <div class="data_table" style="overflow:hidden">
+          <!-- 注意里面max-height字段设置高度  tableData放列表数据-->
           <el-table
             class="tb-edit"
             highlight-current-row
@@ -73,7 +77,7 @@
               :filters="filter_data"
               :filter-method="filterHandler"
             ></el-table-column>
-            <!-- 生成关键词 -->
+            <!-- 生成关键词 cols存放关键词-->
             <!-- <template v-for="(col, index) in cols"> -->
             <template v-for="col in cols">
               <!-- 设置排序字段 -->
@@ -129,7 +133,7 @@
           </el-table>
         </div>
         <!-- 分页 -->
-        <div class="block">
+        <div class="block" style="overflow:hidden">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -142,6 +146,55 @@
           </el-pagination>
         </div>
         <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
+        <!-- 添加用户的对话框 -->
+        <el-dialog
+          title="添加数据"
+          :visible.sync="dialogVisible"
+          width="30%"
+          @close="addDialogClosed"
+        >
+          <!-- 内容的主体区域 -->
+          <!--去掉:rules="addFormRules" -->
+          <el-form
+            ref="addFormRef"
+            :model="add_to_data"
+            :rules="addFormRules"
+            label-width="100px"
+          >
+            <template v-for="(item, key) of addForm">
+              <!-- <el-form-item
+                v-if="key == '_id'"
+                :label="key"
+                :prop="key"
+                :key="key"
+              >
+                <el-input v-model="addForm[key]"></el-input>
+              </el-form-item> -->
+              <el-form-item
+                v-if="key !== '_id'"
+                :label="key"
+                :prop="key"
+                :key="key"
+              >
+                <el-input v-model="add_to_data[key]"></el-input>
+              </el-form-item>
+              <!-- <el-form-item label="密码" prop="password">
+              <el-input v-model="addForm.password"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="addForm.email"></el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="mobile">
+              <el-input v-model="addForm.mobile"></el-input>
+            </el-form-item> -->
+            </template>
+          </el-form>
+          <!-- 底部区域 -->
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addData">确 定</el-button>
+          </span>
+        </el-dialog>
       </el-main>
     </el-container>
   </div>
@@ -157,6 +210,38 @@ export default {
     // SearchData
   },
   data() {
+    // 校验钻孔号
+    var checkZK_num = (rule, value, callback) => {
+      const regZK_num = /^ZK+([0-9]){1-7}/;
+      if (regZK_num.test(value)) {
+        // 验证通过，合法的邮箱
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的孔号"));
+    };
+    // // 验证邮箱的校验规则
+    // var checkEmail = (rule, value, callback) => {
+    //   // 验证邮箱的正则表达式
+    //   const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\\.[a-zA-Z0-9_-])+/;
+    //   if (regEmail.test(value)) {
+    //     // 验证通过，合法的邮箱
+    //     return callback();
+    //   }
+    //   // 验证不通过，不合法
+    //   callback(new Error("请输入合法的邮箱"));
+    // };
+    // // 验证手机号的验证规则
+    // var checkMobile = (rule, value, callback) => {
+    //   // 验证手机号的正则表达式
+    //   const regMobile = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$/;
+    //   if (regMobile.test(value)) {
+    //     // 验证通过，合法的手机号
+    //     return callback();
+    //   }
+    //   // 验证不通过，不合法
+    //   callback(new Error("请输入合法的手机号"));
+    // };
     return {
       // cols prop属性值都是作为 tableData的属性
       cols: [
@@ -210,21 +295,151 @@ export default {
       pageSizes: [10, 20, 30, 40],
       // 默认每页显示的条数（可修改)
       PageSize: 10,
-      // 搜索
-      input_data: "",
-      select: ""
-      // 搜索条件
-      // searchCondition: {
-      //   nickname: "",
-      //   vip: "",
-      //   dateVal: ""
-      // }
+      // 控制添加用户对话框的显示与隐藏，默认为隐藏
+      dialogVisible: false,
+      // 添加对象
+      addForm: {
+        ZK_num: "",
+        _id: "",
+        Depth: "",
+        Azimuth: "",
+        Inclination: ""
+      },
+      add_to_data: {},
+      // // 添加表单的验证规则对象
+      addFormRules: {
+        ZK_num: [
+          { required: true, message: "请输入钻孔号", trigger: "blur" },
+          { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" }
+        ]
+        //   username: [
+        //     { required: true, message: "请输入用户名", trigger: "blur" },
+        //     { min: 3, max: 10, message: "长度在 3 到 10 个字符", trigger: "blur" }
+        //   ],
+        //   password: [
+        //     { required: true, message: "请输入密码", trigger: "blur" },
+        //     { min: 3, max: 10, message: "长度在 6 到 15 个字符", trigger: "blur" }
+        //   ],
+        //   email: [
+        //     { required: true, message: "请输入邮箱", trigger: "blur" },
+        //     { validator: checkEmail, trigger: "blur" }
+        //   ],
+        //   mobile: [
+        //     { required: true, message: "请输入手机号", trigger: "blur" },
+        //     { validator: checkMobile, trigger: "blur" }
+        //   ]
+      },
+      // 搜索对象
+      searchCondition: {
+        ZK_num: "",
+        Depth: "",
+        _id: ""
+      }
     };
   },
   created() {
     this.showData();
   },
   methods: {
+    // 展示数据
+    showData(n1, n2) {
+      const url = "http://127.0.0.1:8000/load/showdata/";
+      axios
+        .get(url, {
+          orgCode: 1,
+          // 每页显示的条数
+          PageSize: n1,
+          // 显示第几页
+          currentPage: n2
+        })
+        .then(response => {
+          // var res = JSON.parse(response.bodyText);
+          // console.log(response);
+          // console.log(response.data);
+          // console.log("取到单个数据");
+          // console.log(typeof response.data);
+          // let detailsnew = JSON.parse(JSON.stringify(this.detailslist));
+          // var datatset = [];
+          // datatset.push(response.data);
+          // console.log(typeof datatset);
+          // console.log(datatset);
+          // datatset = response.data
+          // console.log(datatset)
+          // console.log(this.tableData)
+          // console.log(typeof this.tableData)
+          // this.tableData = datatset;
+          // 将数据赋值给tableData
+          this.tableData = response.data;
+          // this.searchCondition = response.data;
+          // 分页所需信息
+          // 将数据的长度赋值给totalCount
+          this.totalCount = response.data.length;
+          // console.log(this.tableData);
+          // console.log(typeof this.tableData);
+          // 获取字段信息
+          // this.cols = ""
+          let tmp = response.data[0];
+          // console.log(tmp);
+          var listcol = [];
+          for (var key in tmp) {
+            //  { label: "节点编号_id", prop: "_id.$oid", nickname: "normal" },
+            //   console.log(key);
+            //   console.log(typeof key);
+            // console.log(key[1])
+            listcol.push({
+              label: key,
+              prop: key,
+              Depth: "normal"
+            });
+          }
+          // console.log(listcol);
+          // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
+          listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
+          listcol.splice(0, 2); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
+          // listcol[6].nickname = "sort"; //按字段设置排序
+          // console.log(listcol);
+          listcol[0].Depth = "sort"; //按字段设置排序
+          this.cols = listcol;
+
+          // 添加数据设置字段
+          // delete tmp._id; //删除_id字段，
+          this.addForm = tmp;
+          // this.addForm = JSON.parse(tmp_addForm) //数组转json
+          // console.log(this.addForm); //Object
+          // console.log(typeof this.addForm);
+          // 生成一个筛选字段ZKX，赋值给filter_data
+          let tem_list = [];
+          for (let i = 0; i < 55; i++) {
+            // const element = array[i];
+            let ZK = "ZK";
+            let ZKX = ZK + i;
+            // {text:"ZKX",value;"ZKX"}
+            let json_data = { text: ZKX, value: ZKX };
+            tem_list.push(json_data);
+          }
+          // console.log(tem_list);
+          this.filter_data = tem_list;
+        });
+    },
+    // 分页
+    // 每页显示的条数
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+      // 改变每页显示的条数
+      this.PageSize = val;
+      // 点击每页显示的条数时，显示第一页
+      this.showData(val, 1);
+      // 注意：在改变每页显示的条数时，要将页码显示到第一页
+      this.currentPage = 1;
+    },
+    // 监听 pageSize 改变的事件，显示第几页
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      // 改变默认的页数
+      this.currentPage = val;
+      // 切换页码时，要获取每页显示的条数
+      this.showData(this.PageSize, val * this.pageSize);
+    },
     // 选择框
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -237,11 +452,27 @@ export default {
     // 开始搜索
     onSearchSubmit() {
       // this.initAdminList(1);
-      console.log(this.tableData.ZK_num);
+      console.log(this.searchCondition.ZK_num);
     },
-    // 添加数据
-    addNewHandler() {
-      this.addNew.visible = true;
+    // 点击按钮，添加数据
+    addData() {
+      // this.addForm.visible = true;
+      // 发送添加数据的网络请求
+      const url = "http://127.0.0.1:8000/load/add_data/";
+      let tmp_data = this.add_to_data;
+      console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
+      axios.post(url, { tmp_data }).then(res => {
+        console.log("Success");
+      });
+
+      // 隐藏添加用户的对话框
+      this.dialogVisible = false;
+      // 重新获取用户列表数据
+      this.showData();
+    },
+    // 监听添加用户对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields();
     },
     // 编辑（修改）按钮
     handleEdit(index, row) {
@@ -303,111 +534,22 @@ export default {
           console.log("删除成功");
         });
     },
-    handleCurrentChange(row, event, column) {
-      console.log(row, event, column, event.currentTarget);
-    },
+    // //  监听 pageSize 改变的事件
+    // handleCurrentChange(row, event, column) {
+    //   console.log(row, event, column, event.currentTarget);
+    // },
     handleDelete(index, row) {
       console.log(index, row);
-    },
-    // 展示数据
-    showData(n1, n2) {
-      const url = "http://127.0.0.1:8000/load/showdata/";
-      axios
-        .get(url, {
-          orgCode: 1,
-          // 每页显示的条数
-          PageSize: n1,
-          // 显示第几页
-          currentPage: n2
-        })
-        .then(response => {
-          // var res = JSON.parse(response.bodyText);
-          console.log(response);
-          console.log(response.data);
-          console.log("取到单个数据");
-          console.log(typeof response.data);
-          // let detailsnew = JSON.parse(JSON.stringify(this.detailslist));
-          // var datatset = [];
-          // datatset.push(response.data);
-          // console.log(typeof datatset);
-          // console.log(datatset);
-          // datatset = response.data
-          // console.log(datatset)
-          // console.log(this.tableData)
-          // console.log(typeof this.tableData)
-          // this.tableData = datatset;
-          // 将数据赋值给tableData
-          this.tableData = response.data;
-          // this.searchCondition = response.data;
-          // 分页所需信息
-          // 将数据的长度赋值给totalCount
-          this.totalCount = response.data.length;
-          console.log(this.tableData);
-          console.log(typeof this.tableData);
-          // 获取字段信息
-          // this.cols = ""
-          let tmp = response.data[0];
-          console.log(tmp);
-          var listcol = [];
-          for (var key in tmp) {
-            //  { label: "节点编号_id", prop: "_id.$oid", nickname: "normal" },
-            //   console.log(key);
-            //   console.log(typeof key);
-            // console.log(key[1])
-            listcol.push({
-              label: key,
-              prop: key,
-              Depth: "normal"
-            });
-          }
-          // console.log(listcol);
-          // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
-          listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
-          listcol.splice(0, 2); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
-          // listcol[6].nickname = "sort"; //按字段设置排序
-          console.log(listcol);
-          listcol[0].Depth = "sort"; //按字段设置排序
-          this.cols = listcol;
-
-          // 生成一个筛选字段ZKX，赋值给filter_data
-          let tem_list = [];
-          for (let i = 0; i < 55; i++) {
-            // const element = array[i];
-            let ZK = "ZK";
-            let ZKX = ZK + i;
-            // {text:"ZKX",value;"ZKX"}
-            let json_data = { text: ZKX, value: ZKX };
-            tem_list.push(json_data);
-          }
-          console.log(tem_list);
-          this.filter_data = tem_list;
-        });
-    },
-    // 分页
-    // 每页显示的条数
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-      // 改变每页显示的条数
-      this.PageSize = val;
-      // 点击每页显示的条数时，显示第一页
-      this.showData(val, 1);
-      // 注意：在改变每页显示的条数时，要将页码显示到第一页
-      this.currentPage = 1;
-    },
-    // 显示第几页
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      // 改变默认的页数
-      this.currentPage = val;
-      // 切换页码时，要获取每页显示的条数
-      this.showData(this.PageSize, val * this.pageSize);
     }
   }
 };
 </script>
 
-
-<style lang="scss">
+<style>
+/* 全局样式 */
+</style>
+<style lang="scss" scoped>
+/* 本地样式 */
 // 设置真个数据内容的大小
 .DataShow {
   height: 775px;
@@ -426,10 +568,18 @@ export default {
   height: 690px !important;
   overflow: auto;
 }
-label.el-form-item__label {
-  font-size: 18px;
-  font-family: "Arial Narrow";
-  // font-weight: bold;
-  // font-family: Arial;
+// 搜索设置
+#search-title {
+  padding-top: 2px;
+  height: 45px;
+  float: right;
 }
+// 设置搜索关键字段字体
+.demo-form-inline ::v-deep .el-form-item__label {
+  font-size: 18px !important;
+  color: rgb(73, 76, 80);
+  font-family: "Arial Narrow";
+  font-weight: bold;
+}
+// 设置表格数据滚动条,这里还是留着比较好
 </style>

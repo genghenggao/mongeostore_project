@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-06 15:35:53
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-09 20:01:20
+ * @LastEditTime: 2020-11-11 10:06:20
 -->
 <template>
   <el-table :data="tableData" @cell-dblclick="handle" style="width: 100%">

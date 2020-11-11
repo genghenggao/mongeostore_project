@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:11:11
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-09 09:48:18
+ * @LastEditTime: 2020-11-11 11:11:19
 -->
 <template>
   <!-- 主界面-->
@@ -13,7 +13,7 @@
     <el-container>
       <el-header class="maincontent_header">
         <nav>
-          <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <div class="nav nav-tabs" id="nav-tab" role="tablist" style="min-width:1100px">
             <a
               class="nav-item nav-link active"
               id="nav-home-tab"
@@ -132,16 +132,17 @@ export default {
 };
 </script>
 
-<style>
-.maincontent{
+<style lang="scss" scoped>
+.maincontent {
   height: 821px;
 }
 /* 导航子标题 */
 .maincontent_header {
   /* 固定高度 */
-  height: 46px !important;  
+  height: 46px !important;
   /* 消除边距 */
   padding: 0;
+  // 固定内容
 }
 /* maincontent子导航 */
 .maincontent div#nav-tab {
@@ -158,5 +159,4 @@ export default {
 div#nav-tabContent {
   height: 775px;
 }
-
 </style>

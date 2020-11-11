@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-06 21:09:44
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-09 10:24:13
+ * @LastEditTime: 2020-11-11 20:04:15
 -->
 <template>
   <div class="seismictable" style="overflow: scroll;max-height: 775px;">
@@ -91,8 +91,8 @@ export default {
       const url = "http://127.0.0.1:8000/load/fileshow/";
       axios.get(url).then(response => {
         // var res = JSON.parse(response.bodyText);
-        console.log(response);
-        console.log(response.data.filename);
+        // console.log(response);
+        // console.log(response.data.filename);
         var result = response.data.list;
         this.files = result;
         $(response.data.list).each(function(i, values) {

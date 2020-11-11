@@ -4,15 +4,15 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:18:02
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-09 09:26:41
+ * @LastEditTime: 2020-11-11 14:45:50
 -->
 <template>
   <div>
     <Navbar />
     <el-container>
       <el-aside width="250px"><MenuTree /></el-aside>
-      <el-main class="far_main_content">
-        <el-header class="hompage_head">
+      <el-main class="far_main_content" style="overflow:hidden">
+        <el-header class="homepage_head" style="min-width:1100px">
           <div class="head_title">
             地震数据管理系统
           </div>
@@ -45,7 +45,7 @@ export default {
 
 <style >
 /* 头部 */
-.hompage_head {
+.homepage_head {
   /* background-color: #106ba3; */
   font-size: 40px;
   height: 20px;
