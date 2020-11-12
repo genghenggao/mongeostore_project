@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-11 21:37:12
+ * @LastEditTime: 2020-11-12 22:52:40
 -->
 <template>
   <div class="DataShow">
@@ -16,12 +16,14 @@
             :inline="true"
             :model="searchCondition"
             class="demo-form-inline"
+            @submit.native.prevent
           >
-            <el-form-item label="关键字段:">
+            <el-form-item label="钻孔号:">
               <el-input
                 v-model="searchCondition.ZK_num"
-                suffix-icon="el-icon-date"
-                placeholder="请输入关键字"
+                suffix-icon="el-icon-view"
+                placeholder="请输入钻孔号"
+                @keyup.enter.native="onSearchSubmit"
               ></el-input>
             </el-form-item>
             <el-form-item id="submit-item">
@@ -31,6 +33,15 @@
                 icon="el-icon-search"
                 @click="onSearchSubmit"
                 >查询</el-button
+              >
+            </el-form-item>
+            <el-form-item id="submit-reset">
+              <el-button
+                type="info"
+                plain
+                icon="el-icon-refresh"
+                @click="showData"
+                >重置</el-button
               >
             </el-form-item>
             <el-form-item id="addNew-item">
@@ -49,7 +60,7 @@
       </el-header>
       <el-main class="data_content">
         <div class="data_table" style="overflow:hidden">
-          <!-- 注意里面max-height字段设置高度  tableData放列表数据-->
+          <!-- 注意里面max-height字段设置高度  tableData放列表数据 -->
           <el-table
             class="tb-edit"
             highlight-current-row
@@ -137,7 +148,7 @@
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page.sync="currentPage"
             :page-sizes="pageSizes"
             :page-size="PageSize"
             layout="total, sizes, prev, pager, next, jumper"
@@ -211,10 +222,10 @@ export default {
   },
   data() {
     // 校验钻孔号
-    var checkZK_num = (rule, value, callback) => {
-      const regZK_num = /^ZK+([0-9]){1-7}/;
+    let checkZK_num = (rule, value, callback) => {
+      const regZK_num = /^ZK[0-9]{1,6}/;
       if (regZK_num.test(value)) {
-        // 验证通过，合法的邮箱
+        // 验证通过，合法
         return callback();
       }
       // 验证不通过，不合法
@@ -310,7 +321,8 @@ export default {
       addFormRules: {
         ZK_num: [
           { required: true, message: "请输入钻孔号", trigger: "blur" },
-          { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" }
+          { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
+          { validator: checkZK_num, trigger: "blur" }
         ]
         //   username: [
         //     { required: true, message: "请输入用户名", trigger: "blur" },
@@ -334,23 +346,26 @@ export default {
         ZK_num: "",
         Depth: "",
         _id: ""
-      }
+      },
+      // 用于判断是否点击过搜索按钮
+      flag: false
     };
   },
+  watch: {},
   created() {
     this.showData();
   },
   methods: {
     // 展示数据
-    showData(n1, n2) {
+    showData() {
       const url = "http://127.0.0.1:8000/load/showdata/";
       axios
         .get(url, {
-          orgCode: 1,
-          // 每页显示的条数
-          PageSize: n1,
-          // 显示第几页
-          currentPage: n2
+          // orgCode: 1,
+          // // 每页显示的条数
+          // PageSize: n1,
+          // // 显示第几页
+          // currentPage: n2
         })
         .then(response => {
           // var res = JSON.parse(response.bodyText);
@@ -373,7 +388,10 @@ export default {
           // this.searchCondition = response.data;
           // 分页所需信息
           // 将数据的长度赋值给totalCount
-          this.totalCount = response.data.length;
+          this.totalCount = response.data.length; //分页总数
+          //渲染表格,根据值
+          this.currentChangePage(this.tableData);
+          //页面初始化数据需要判断是否检索过
           // console.log(this.tableData);
           // console.log(typeof this.tableData);
           // 获取字段信息
@@ -421,25 +439,7 @@ export default {
           this.filter_data = tem_list;
         });
     },
-    // 分页
-    // 每页显示的条数
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-      // 改变每页显示的条数
-      this.PageSize = val;
-      // 点击每页显示的条数时，显示第一页
-      this.showData(val, 1);
-      // 注意：在改变每页显示的条数时，要将页码显示到第一页
-      this.currentPage = 1;
-    },
-    // 监听 pageSize 改变的事件，显示第几页
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      // 改变默认的页数
-      this.currentPage = val;
-      // 切换页码时，要获取每页显示的条数
-      this.showData(this.PageSize, val * this.pageSize);
-    },
+
     // 选择框
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -449,11 +449,7 @@ export default {
       const property = column["property"];
       return row[property] === value;
     },
-    // 开始搜索
-    onSearchSubmit() {
-      // this.initAdminList(1);
-      console.log(this.searchCondition.ZK_num);
-    },
+
     // 点击按钮，添加数据
     addData() {
       // this.addForm.visible = true;
@@ -468,7 +464,13 @@ export default {
       // 隐藏添加用户的对话框
       this.dialogVisible = false;
       // 重新获取用户列表数据
-      this.showData();
+      // this.showData();
+      //通过flag判断,刷新数据
+      if (!this.flag) {
+        this.showData();
+      } else {
+        this.onSearchSubmit();
+      }
     },
     // 监听添加用户对话框的关闭事件
     addDialogClosed() {
@@ -533,13 +535,102 @@ export default {
         .then(res => {
           console.log("删除成功");
         });
+      // 重新获取用户列表数据
+      // this.showData();
+      //通过flag判断,刷新数据
+      if (!this.flag) {
+        this.showData();
+      } else {
+        this.onSearchSubmit();
+      }
     },
-    // //  监听 pageSize 改变的事件
-    // handleCurrentChange(row, event, column) {
-    //   console.log(row, event, column, event.currentTarget);
-    // },
+    // 开始搜索
+    onSearchSubmit() {
+      // this.initAdminList(1);
+      if (this.searchCondition.ZK_num == "") {
+        this.$message.warning("查询条件不能为空！");
+        return;
+      }
+      console.log(this.searchCondition.ZK_num);
+      let ZK_num_data = this.searchCondition.ZK_num;
+      const url = "http://127.0.0.1:8000/load/querydata/";
+      axios
+        .post(url, {
+          ZK_num_data
+        })
+        .then(response => {
+          if (response.data) {
+            this.tableData = response.data; //返回查询的数据
+            console.log(response.data);
+            // console.log(this.tableData);
+            // 总共数据
+            var count = Object.keys(response.data).length;
+            // console.log(count)
+            this.totalCount = count;
+            // tmp_count = (count%10+1)*10
+            let countarr = [];
+            for (let i = 0; i < (count % 10) + 1; i++) {
+              const tencount = (i + 1) * 10;
+              countarr.push(tencount);
+            }
+            // 个数选择器（可修改）
+            // console.log(countarr);
+            this.pageSizes = countarr; //有个小意外，这个地方设置了，变不会去了
+            this.orgCode = 1;
+            // 每页显示的条数
+            this.PageSize = 10;
+            // 显示第几页
+            // this.currentPage = 1;
+          } else {
+            // alert("输入有误或数据不存在");
+            this.$message.warning("输入有误或数据不存在");
+            return;
+          }
+          //页面初始化数据需要判断是否检索过
+          this.flag = true;
+        });
+    },
+
     handleDelete(index, row) {
       console.log(index, row);
+    },
+    // 分页
+    // 每页显示的条数
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+      // 改变每页显示的条数
+      this.PageSize = val;
+      // 点击每页显示的条数时，显示第一页
+      // this.showData(val, 1);
+      // 注意：在改变每页显示的条数时，要将页码显示到第一页
+      // this.currentPage = 1;
+      this.handleCurrentChange(this.currentPage);
+    },
+    // 监听 pageSize 改变的事件，显示第几页
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      // 改变默认的页数
+      this.currentPage = val;
+      // 切换页码时，要获取每页显示的条数
+      // this.showData(this.PageSize, val * this.pageSize);
+      //需要判断是否检索
+      // if (!this.flag) {
+      //   //tableDataBegin不能写成tableDataEnd，不然在没有进行搜索功能的时候，不能进行分页操作，数据丢失
+      //   this.currentChangePage(this.tableDataBegin);
+      // } else {
+      //   this.currentChangePage(this.filterTableDataEnd);
+      // }
+    },
+    //组件自带监控当前页码
+    currentChangePage(list) {
+      let from = (this.currentPage - 1) * this.pageSize;
+      let to = this.currentPage * this.pageSize;
+      // this.tableData = [];
+      for (; from < to; from++) {
+        if (list[from]) {
+          this.tableData.push(list[from]);
+        }
+      }
     }
   }
 };

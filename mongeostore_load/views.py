@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-11 21:16:53
+LastEditTime: 2020-11-12 11:18:36
 '''
 import re
 from bson.objectid import ObjectId
@@ -138,7 +138,7 @@ class FileInfoView(APIView):
             fs = gridfs.GridFS(db, 'mysegy')  # 连接GridFS集合，名称位mysegy
             fs.put(data, **dic)
             f.close()
-
+        client.close()
         return HttpResponse("Successful")
 
 # 展示GridFS数据，SeiTable.vue
@@ -172,7 +172,7 @@ def FileShow(request):
         response['list'] = data
         response['msg'] = 'success'
         response['error_num'] = 0
-
+    client.close()
     return JsonResponse(response, safe=False)  # 不加safe=False的话必须返回dic
     # return JsonResponse(json.loads(response)) #不加safe=False的话必须返回dict
     # return HttpResponse(json.dumps(response), content_type="application/json")
@@ -204,7 +204,7 @@ def filedownload(request):
 
     with open("../mongeostore_env/upload/%s" % File, 'wb') as f:
         f.write(content)
-
+    client.close()
     return HttpResponse("success")
     # return render(request, 'http://localhost:8080/maincontent')
 
@@ -234,6 +234,7 @@ def ShowData(request):
         # return HttpResponse(json.dumps(document), content_type="application/json")
         # return json.loads(json_util.dumps(document))
         # print(type(content))
+    client.close()
     return HttpResponse(content, "application/json")
 
 # 解析csv文件到数据库
@@ -291,6 +292,7 @@ class UploadCSV(APIView):
                 # set1.insert_one(each)
                 counts += 1
                 # print('成功添加了'+str(counts)+'条数据 ')
+        client.close()
         return HttpResponse("uploadcsv success")
 
 # 上传Excel到数据库（自动转为json）
@@ -345,7 +347,7 @@ class UploadExcel(APIView):
             returnData[i] = json.loads(returnData[i])
             print(returnData[i])
             db_coll.insert(returnData[i])
-
+        client.close()
         return HttpResponse("uploadexcel success")
 
 
@@ -464,3 +466,31 @@ def AddData(request):
         # client.close()
 
     return HttpResponse("Delete Success")
+
+
+def QueryData(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+
+        body_data = request.body  # b'{"ZK_num_data":"ZK1"}'
+        data_json = json.loads(body_data)
+        ZK_num = data_json['ZK_num_data']
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        database = "segyfile"
+        db = client[database]
+        collection = "excel_data"
+        db_coll = db[collection]
+        # 根据字段匹配到后端数据
+        datainfo = []
+        content = {}
+        cursors = db_coll.find({"ZK_num": ZK_num})
+        for cursor in cursors:
+            datainfo.append(cursor)
+            content = dumps(datainfo)
+        # print(content)
+        client.close()
+        return HttpResponse(content, "application/json")

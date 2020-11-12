@@ -23,4 +23,5 @@ urlpatterns = [
     path('editdata/', views.EditData, name="editdata"),
     path('deletedata/', views.DeleteData, name="deletedata"),
     path('add_data/', views.AddData, name="add_data"),
+    path('querydata/', views.QueryData, name="add_data"),
 ]
