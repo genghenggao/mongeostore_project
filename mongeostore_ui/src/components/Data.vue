@@ -4,14 +4,14 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-12 22:52:40
+ * @LastEditTime: 2020-11-13 10:01:47
 -->
 <template>
   <div class="DataShow">
     <el-container>
       <el-header class="data_search">
         <!--搜索头 开始-->
-        <section id="search-title" style="min-width:500px">
+        <section id="search-title" style="min-width: 500px">
           <el-form
             :inline="true"
             :model="searchCondition"
@@ -59,7 +59,7 @@
         <!-- <SearchData /> -->
       </el-header>
       <el-main class="data_content">
-        <div class="data_table" style="overflow:hidden">
+        <div class="data_table" style="overflow: hidden">
           <!-- 注意里面max-height字段设置高度  tableData放列表数据 -->
           <el-table
             class="tb-edit"
@@ -144,7 +144,7 @@
           </el-table>
         </div>
         <!-- 分页 -->
-        <div class="block" style="overflow:hidden">
+        <div class="block" style="overflow: hidden">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -203,7 +203,19 @@
           <!-- 底部区域 -->
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addData">确 定</el-button>
+            <el-button
+              type="primary"
+              :disabled="true"
+              v-if="!add_button_state"
+              @click="addData"
+              >确 定</el-button
+            >
+            <el-button
+              type="primary"
+              v-else-if="add_button_state"
+              @click="addData"
+              >确 定</el-button
+            >
           </span>
         </el-dialog>
       </el-main>
@@ -229,7 +241,7 @@ export default {
         return callback();
       }
       // 验证不通过，不合法
-      callback(new Error("请输入正确的孔号"));
+      callback(new Error("请输入正确的钻孔号(如'ZK1')"));
     };
     // // 验证邮箱的校验规则
     // var checkEmail = (rule, value, callback) => {
@@ -260,7 +272,7 @@ export default {
         { label: "名称nickname", prop: "nickname", nickname: "sort" },
         { label: "类型combat", prop: "combat", nickname: "normal" },
         { label: "状态level", prop: "level", nickname: "normal" },
-        { label: "坐标rid", prop: "rid", nickname: "normal" }
+        { label: "坐标rid", prop: "rid", nickname: "normal" },
         // { label: "rid", prop: "_id.$oid", ZK_num: "normal" },
         // { label: "ZK_num", prop: "ZK_num", ZK_num: "normal" },
         // { label: "Depth", prop: "Depth", ZK_num: "sort" },
@@ -274,29 +286,29 @@ export default {
           name: " 机库顶",
           type: "UWB",
           status: "正常",
-          coordinate: "12.21,34.45,34.6"
+          coordinate: "12.21,34.45,34.6",
         },
         {
           node: "0061",
           name: "机库门",
           type: "GPS",
           status: "低电",
-          coordinate: "45.41,67.45,78.6"
+          coordinate: "45.41,67.45,78.6",
         },
         {
           node: "0061",
           name: "机库门",
           type: "GPS",
           status: "低电",
-          coordinate: "45.41,67.45,78.6"
-        }
+          coordinate: "45.41,67.45,78.6",
+        },
       ],
       // 筛选字段
       filter_data: [
         { text: "ZK1", value: "ZK1" },
         { text: "ZK2", value: "ZK2" },
         { text: "ZK3", value: "ZK3" },
-        { text: "ZK4", value: "ZK4" }
+        { text: "ZK4", value: "ZK4" },
       ],
       // 分页数据，默认第几页
       currentPage: 1,
@@ -314,16 +326,24 @@ export default {
         _id: "",
         Depth: "",
         Azimuth: "",
-        Inclination: ""
+        Inclination: "",
       },
-      add_to_data: {},
+      // 添加数据框的字段,用来判断是否为空，确定按钮
+      add_to_data: {
+        ZK_num: "",
+        Depth: "",
+        Azimuth: "",
+        Inclination: "",
+      },
+      // 通过add_button_state值判断确定按钮是否激活
+      add_button_state: false,
       // // 添加表单的验证规则对象
       addFormRules: {
         ZK_num: [
-          { required: true, message: "请输入钻孔号", trigger: "blur" },
+          { required: true, message: "请输入钻孔号(如'ZK1')", trigger: "blur" },
           { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
-          { validator: checkZK_num, trigger: "blur" }
-        ]
+          { validator: checkZK_num, trigger: "blur" },
+        ],
         //   username: [
         //     { required: true, message: "请输入用户名", trigger: "blur" },
         //     { min: 3, max: 10, message: "长度在 3 到 10 个字符", trigger: "blur" }
@@ -345,13 +365,30 @@ export default {
       searchCondition: {
         ZK_num: "",
         Depth: "",
-        _id: ""
+        _id: "",
       },
       // 用于判断是否点击过搜索按钮
-      flag: false
+      flag: false,
     };
   },
-  watch: {},
+  watch: {
+    add_to_data: {
+      handler(curval, oldval) {
+        // console.log(curval);
+        if (
+          curval.ZK_num != "" &&
+          curval.Depth != "" &&
+          curval.Azimuth != "" &&
+          curval.Inclination != ""
+        ) {
+          this.add_button_state = true;
+        } else {
+          this.add_button_state = false;
+        }
+      },
+      deep: true,
+    },
+  },
   created() {
     this.showData();
   },
@@ -367,7 +404,7 @@ export default {
           // // 显示第几页
           // currentPage: n2
         })
-        .then(response => {
+        .then((response) => {
           // var res = JSON.parse(response.bodyText);
           // console.log(response);
           // console.log(response.data);
@@ -407,7 +444,7 @@ export default {
             listcol.push({
               label: key,
               prop: key,
-              Depth: "normal"
+              Depth: "normal",
             });
           }
           // console.log(listcol);
@@ -457,7 +494,7 @@ export default {
       const url = "http://127.0.0.1:8000/load/add_data/";
       let tmp_data = this.add_to_data;
       console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
-      axios.post(url, { tmp_data }).then(res => {
+      axios.post(url, { tmp_data }).then((res) => {
         console.log("Success");
       });
 
@@ -500,14 +537,14 @@ export default {
             url,
             {
               // data: JSON.stringify(row) //data用于post请求
-              json_data
+              json_data,
             },
             {
-              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
             }
             // console.log(postData)
           )
-          .then(res => {
+          .then((res) => {
             console.log("编辑成功");
           });
       } else {
@@ -529,10 +566,10 @@ export default {
           url,
           { json_data },
           {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
           }
         )
-        .then(res => {
+        .then((res) => {
           console.log("删除成功");
         });
       // 重新获取用户列表数据
@@ -556,9 +593,9 @@ export default {
       const url = "http://127.0.0.1:8000/load/querydata/";
       axios
         .post(url, {
-          ZK_num_data
+          ZK_num_data,
         })
-        .then(response => {
+        .then((response) => {
           if (response.data) {
             this.tableData = response.data; //返回查询的数据
             console.log(response.data);
@@ -631,8 +668,8 @@ export default {
           this.tableData.push(list[from]);
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
