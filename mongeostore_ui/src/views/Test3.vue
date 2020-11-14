@@ -1,85 +1,157 @@
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
- * @Date: 2020-10-06 15:35:53
- * @LastEditors: henggao
- * @LastEditTime: 2020-11-11 10:06:20
--->
 <template>
-  <el-table :data="tableData" @cell-dblclick="handle" style="width: 100%">
-    <el-table-column prop="date" label="日期" width="180">
-      <template slot-scope="scope">
-        <div v-if="!scope.row.isEdit">{{ scope.row.date }}</div>
-        <div v-else>
-          <el-input v-model="scope.row.date"></el-input>
-        </div>
-      </template>
-    </el-table-column>
-    <el-table-column prop="name" label="姓名" width="180">
-      <template slot-scope="scope">
-        <div v-if="!scope.row.isEdit">{{ scope.row.name }}</div>
-        <div v-else>
-          <el-input v-model="scope.row.name"></el-input>
-        </div>
-      </template>
-    </el-table-column>
-    <el-table-column prop="address" label="地址"> </el-table-column>
-    <el-table-column label="按钮">
-      <template slot-scope="scope">
-        <el-button @click="handleClick(scope.row)">{{
-          scope.row.isEdit ? "完成" : "编辑"
-        }}</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div class="custom-tree-container">
+    <div class="block">
+      <p>使用 render-content</p>
+      <el-tree
+        :data="data"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :expand-on-click-node="false"
+        :render-content="renderContent"
+      >
+      </el-tree>
+    </div>
+    <div class="block">
+      <p>使用 scoped slot</p>
+      <el-tree
+        :data="data"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :expand-on-click-node="false"
+      >
+        <span class="custom-tree-node" slot-scope="{ node, data }">
+          <span>{{ node.label }}</span>
+          <span>
+            <el-button type="text" size="mini" @click="() => append(data)">
+              Append
+            </el-button>
+            <el-button
+              type="text"
+              size="mini"
+              @click="() => remove(node, data)"
+            >
+              Delete
+            </el-button>
+          </span>
+        </span>
+      </el-tree>
+    </div>
+  </div>
 </template>
 
 <script>
+let id = 1000;
+
 export default {
   data() {
+    const data = [
+      {
+        id: 1,
+        label: "一级 1",
+        children: [
+          {
+            id: 4,
+            label: "二级 1-1",
+            children: [
+              {
+                id: 9,
+                label: "三级 1-1-1",
+              },
+              {
+                id: 10,
+                label: "三级 1-1-2",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 2,
+        label: "一级 2",
+        children: [
+          {
+            id: 5,
+            label: "二级 2-1",
+          },
+          {
+            id: 6,
+            label: "二级 2-2",
+          },
+        ],
+      },
+      {
+        id: 3,
+        label: "一级 3",
+        children: [
+          {
+            id: 7,
+            label: "二级 3-1",
+          },
+          {
+            id: 8,
+            label: "二级 3-2",
+          },
+        ],
+      },
+    ];
     return {
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王小虎1",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎2",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎3",
-          address: "上海市普陀区金沙江路 1519 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ]
+      data: JSON.parse(JSON.stringify(data)),
+      data: JSON.parse(JSON.stringify(data)),
     };
   },
+
   methods: {
-    handleClick(row) {
-      // 动态设置数据并通过这个数据判断显示方式
-      if (row.isEdit) {
-        this.$delete(row, "isEdit");
-      } else {
-        this.$set(row, "isEdit", true);
+    append(data) {
+      const newChild = { id: id++, label: "testtest", children: [] };
+      if (!data.children) {
+        this.$set(data, "children", []);
       }
-      console.log(this.tableData);
+      data.children.push(newChild);
     },
-    handle(row, column, cell, event) {}
-  }
+
+    remove(node, data) {
+      const parent = node.parent;
+      const children = parent.data.children || parent.data;
+      const index = children.findIndex((d) => d.id === data.id);
+      children.splice(index, 1);
+    },
+
+    renderContent(h, { node, data, store }) {
+      return (
+        <span class="custom-tree-node">
+          <span>{node.label}</span>
+          <span>
+            <el-button
+              size="mini"
+              type="text"
+              on-click={() => this.append(data)}
+            >
+              Append
+            </el-button>
+            <el-button
+              size="mini"
+              type="text"
+              on-click={() => this.remove(node, data)}
+            >
+              Delete
+            </el-button>
+          </span>
+        </span>
+      );
+    },
+  },
 };
 </script>
 
-<style scoped>
-.el-input {
-  width: 100%;
+<style>
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
 }
 </style>

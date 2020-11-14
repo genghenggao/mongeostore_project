@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-03 15:18:02
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-11 14:45:50
+ * @LastEditTime: 2020-11-13 10:55:44
 -->
 <template>
   <div>
@@ -14,7 +14,7 @@
       <el-main class="far_main_content" style="overflow:hidden">
         <el-header class="homepage_head" style="min-width:1100px">
           <div class="head_title">
-            地震数据管理系统
+            钻孔数据管理子系统
           </div>
           <div id="head1" class="logo f1">
             <a
