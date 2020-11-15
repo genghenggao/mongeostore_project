@@ -4,10 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-11-13 15:12:07
 LastEditors: henggao
-LastEditTime: 2020-11-13 16:15:02
+LastEditTime: 2020-11-15 09:41:00
 '''
 import pymongo
-from pymongo import collation
 from pymongo import collection
 # 连接mongoDB数据库，读取 db 库 table 表中的数据
 client = pymongo.MongoClient("192.168.55.110", 20000)
