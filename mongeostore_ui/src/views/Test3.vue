@@ -12,36 +12,12 @@
       >
       </el-tree>
     </div>
-    <div class="block">
-      <p>使用 scoped slot</p>
-      <el-tree
-        :data="data"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        :expand-on-click-node="false"
-      >
-        <span class="custom-tree-node" slot-scope="{ node, data }">
-          <span>{{ node.label }}</span>
-          <span>
-            <el-button type="text" size="mini" @click="() => append(data)">
-              Append
-            </el-button>
-            <el-button
-              type="text"
-              size="mini"
-              @click="() => remove(node, data)"
-            >
-              Delete
-            </el-button>
-          </span>
-        </span>
-      </el-tree>
-    </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import qs from "qs";
 let id = 1000;
 
 export default {
@@ -98,11 +74,42 @@ export default {
     ];
     return {
       data: JSON.parse(JSON.stringify(data)),
-      data: JSON.parse(JSON.stringify(data)),
+      // data: JSON.parse(JSON.stringify(data)),
     };
+  },
+  created() {
+    this.showDataBase();
   },
 
   methods: {
+    // 读取数据库信息，返回前端页面展示
+    showDataBase() {
+      let url = "http://127.0.0.1:8000/load/showdatabase/";
+      var temp_list = [];
+      axios
+        .get(url, {})
+        .then((res) => {
+          console.log(res.data); //打印后端传过来的数据,string
+          console.log(typeof res.data); //打印后端传过来的数据
+          this.data = res.data
+          // var data_json = res.data.parseJSON();
+          // var data_json = JSON.parse(JSON.stringify(res.data));
+          // console.log(data_json);
+          // console.log(typeof data_json);
+          // temp_list.push(res.data);
+          // var arr = eval(temp_list);
+          // var temp_list = eval("(" + res.data + ")");
+          // console.log(arr);
+          // console.log(typeof arr);
+          // var arrParse = JSON.parse(arr)
+          // console.log(typeof arrParse);
+          // console.log(arrParse);
+          // this.data = temp_list //将数据赋值给data
+          // console.log(this.data);
+          // console.log(typeof this.data);
+        })
+        .catch();
+    },
     append(data) {
       const newChild = { id: id++, label: "testtest", children: [] };
       if (!data.children) {
@@ -128,14 +135,14 @@ export default {
               type="text"
               on-click={() => this.append(data)}
             >
-              Append
+              <i class="el-icon-plus"></i>
             </el-button>
             <el-button
               size="mini"
               type="text"
               on-click={() => this.remove(node, data)}
             >
-              Delete
+              <i class="el-icon-minus"></i>
             </el-button>
           </span>
         </span>

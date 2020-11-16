@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-04 17:05:21
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-13 10:01:47
+ * @LastEditTime: 2020-11-16 21:44:42
 -->
 <template>
   <div class="DataShow">
@@ -407,7 +407,7 @@ export default {
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
           // console.log(response);
-          // console.log(response.data);
+          console.log(response.data);
           // console.log("取到单个数据");
           // console.log(typeof response.data);
           // let detailsnew = JSON.parse(JSON.stringify(this.detailslist));

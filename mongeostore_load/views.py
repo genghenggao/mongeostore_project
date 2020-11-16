@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-12 11:18:36
+LastEditTime: 2020-11-16 21:57:24
 '''
+import collections
 import re
 from bson.objectid import ObjectId
 import xlrd
@@ -14,7 +15,7 @@ from bson.json_util import dumps
 from django.core import serializers
 from django.http import request
 from django.http.response import HttpResponseNotAllowed, JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import condition, require_http_methods
 from gridfs import GridFS
 import os
 from django.http import response
@@ -230,7 +231,7 @@ def ShowData(request):
         # print(document.vip)
         # response['_id'] = str(document._id)
         datainfo.append(document)
-        content = dumps(datainfo)
+        content = dumps(datainfo)    #这个地方要用字符串传到前端去
         # return HttpResponse(json.dumps(document), content_type="application/json")
         # return json.loads(json_util.dumps(document))
         # print(type(content))
@@ -494,3 +495,98 @@ def QueryData(request):
         # print(content)
         client.close()
         return HttpResponse(content, "application/json")
+
+
+def ShowDataBase(request):
+    """
+    获取数据库以及集合，在前端实现展示
+    """
+    if request.method == "GET":
+        # 连接mongoDB数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # 查询数据库
+        # ['admin', 'config', 'gridfs', 'segyfile', 'testGridfs', 'testdb', '中文数据库']
+        databases = client.list_database_names()
+        databases.remove('admin')
+        databases.remove('config')
+        database_total = len(databases)  # 获取数据库个数
+
+        # print("=========================================")
+        list_db = []
+        # children = []
+        dict_db = {}
+        dict_col = {}
+        children_id = database_total
+        database_id = 0
+        content = {}
+        for database in databases:
+            children = []
+            cur_database = client[database]
+            collections = cur_database.list_collection_names()
+            # 删除.files和.chunks文件
+            print("===================当前在的数据库是：" + str(database))
+            for collection in collections:
+                # print(collection)
+                # 删除.chunks集合
+                if ('.chunks') in collection:
+                    collections.remove(collection)
+            # print(collections)
+
+            for collection in collections:
+                # print(collection)
+                # 删.files集合
+                if ('.files') in collection:
+                    collections.remove(collection)
+            # print(collections)
+
+            # 将数据按前端数据要求存放
+            for collection in collections:
+                children_id += 1
+                dict_col = {
+                    'id': children_id,
+                    'label': collection
+                }
+                children.append(dict_col)
+            print(children)
+            database_id += 1
+            dict_db = {
+                'id': database_id,
+                'label': database,
+                'children': children
+            }
+            list_db.append(dict_db)
+            content = dumps(list_db)    #这个地方要用字符串传到前端去
+        print(content)
+        print(type(content))
+        # print(list_db)
+        # print(type(list_db))
+        return HttpResponse(content, "application/json")
+        # return HttpResponse('success')
+
+
+def AddDataBase(parameter_list):
+    """
+    add a mongodb database
+    """
+    pass
+
+
+def DeleteDataBase(parameter_list):
+    """
+    delete a mongodb database
+    """
+    pass
+
+
+def AddCollection(parameter_list):
+    """
+    docstring
+    """
+    pass
+
+
+def DeleteCollection(parameter_list):
+    """
+    docstring
+    """
+    pass

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-05 11:09:49
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-13 11:18:16
+ * @LastEditTime: 2020-11-16 08:56:55
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -121,16 +121,25 @@
                 <el-submenu index="1-1">
                   <template slot="title">
                     <i class="el-icon-folder-opened"></i>
-                    <span>钻孔数据侧斜表</span>
+                    <span>柠条塔工区</span>
                   </template>
                   <el-menu-item index="1-1-1"
-                    ><i class="el-icon-document"></i>柠条塔工区</el-menu-item
+                    ><i class="el-icon-document"></i>定位表</el-menu-item
+                  >
+                  <el-menu-item index="1-1-2"
+                    ><i class="el-icon-document"></i>测斜表</el-menu-item
+                  >
+                  <el-menu-item index="1-1-2"
+                    ><i class="el-icon-document"></i>化验表</el-menu-item
+                  >
+                  <el-menu-item index="1-1-2"
+                    ><i class="el-icon-document"></i>岩性表</el-menu-item
                   >
                 </el-submenu>
                 <el-submenu index="1-2">
                   <template slot="title">
                     <i class="el-icon-folder-opened"></i>
-                    <span>地震数据处理子系统</span></template
+                    <span>哈勒噶提工区</span></template
                   >
                   <el-menu-item index="1-2-1"
                     ><i class="el-icon-document"></i>哈勒噶提区域</el-menu-item
