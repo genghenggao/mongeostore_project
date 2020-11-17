@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-11-13 15:12:07
 LastEditors: henggao
-LastEditTime: 2020-11-16 19:57:48
+LastEditTime: 2020-11-17 19:59:08
 '''
 import re
 from re import match
@@ -64,15 +64,18 @@ for database in databases:
         children_id += 1
         dict_col = {
             'id': children_id,
-            'label': collection
+            'label': collection,
+            'isEdit': False,  # 主要用于前端判断添加、修改、删除按钮
+            '_database': database,  # 属于哪个数据库，后续便于修改集合名称
         }
         children.append(dict_col)
     print(children)
     database_id += 1
     dict_db = {
-        'id':database_id,
-        'label':database,
-        'children':children
-        }
+        'id': database_id,
+        'label': database,
+        'isEdit': True,  # 主要用于前端判断添加、修改、删除按钮
+        'children': children
+    }
     list_db.append(dict_db)
 print(list_db)

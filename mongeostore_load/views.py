@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-16 21:57:24
+LastEditTime: 2020-11-17 22:48:09
 '''
+import time
 import collections
 import re
 from bson.objectid import ObjectId
@@ -231,7 +232,7 @@ def ShowData(request):
         # print(document.vip)
         # response['_id'] = str(document._id)
         datainfo.append(document)
-        content = dumps(datainfo)    #这个地方要用字符串传到前端去
+        content = dumps(datainfo)  # 这个地方要用字符串传到前端去
         # return HttpResponse(json.dumps(document), content_type="application/json")
         # return json.loads(json_util.dumps(document))
         # print(type(content))
@@ -524,7 +525,7 @@ def ShowDataBase(request):
             cur_database = client[database]
             collections = cur_database.list_collection_names()
             # 删除.files和.chunks文件
-            print("===================当前在的数据库是：" + str(database))
+            # print("===================当前在的数据库是：" + str(database))
             for collection in collections:
                 # print(collection)
                 # 删除.chunks集合
@@ -544,24 +545,93 @@ def ShowDataBase(request):
                 children_id += 1
                 dict_col = {
                     'id': children_id,
-                    'label': collection
+                    'label': collection,
+                    'isEdit': False,  # 主要用于前端判断添加、修改、删除按钮
+                    '_database': database,  # 属于哪个数据库，后续便于修改集合名称
                 }
                 children.append(dict_col)
-            print(children)
+            # print(children)
             database_id += 1
             dict_db = {
                 'id': database_id,
                 'label': database,
+                'isEdit': True,  # 主要用于前端判断添加、修改、删除按钮
                 'children': children
             }
             list_db.append(dict_db)
-            content = dumps(list_db)    #这个地方要用字符串传到前端去
-        print(content)
-        print(type(content))
+            content = dumps(list_db)  # 这个地方要用字符串传到前端去
+        # print(content)
+        # print(type(content))
         # print(list_db)
         # print(type(list_db))
         return HttpResponse(content, "application/json")
         # return HttpResponse('success')
+
+
+def EditDataBase(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        editdatas = request.body
+        edit_json = json.loads(editdatas)
+        # print(edit_json)
+        # print(edit_json['value'])
+        new_databasename = edit_json['value']  # 新名称
+        data = edit_json['data']
+        # print(data['isEdit'])
+
+        # 连接mongoDB数据库，读取 db 库 table 表中的数据
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        if (data['isEdit']):
+            check_name = data['label']  # 数据库名称
+            # print(check_name)
+            # start_time = time.time()
+            old_database = client[check_name]  # 获取数据库
+            # 新的数据库，下面三行创建一个临时集合，这样创建一个新的数据库
+            new_database = client[new_databasename]
+            temp_collection = new_database[new_databasename]
+            temp_collection.insert_one({})
+            collection_list = old_database.list_collection_names()
+            for item in collection_list:
+                query = {
+                    'renameCollection': check_name + '.' + item,
+                    'to': new_databasename + '.' + item
+                }
+                client.admin.command(query)
+            # print(time.time() - start_time)
+            # 删除临时集合
+            temp_collection.drop()
+            # 删除原来的数据库
+            client.drop_database(old_database)
+
+            # client.admin.command(
+            #     'copydb', fromdb=check_name, todb=new_databasename)
+        else:
+            # 1.判断集合在哪个数据库
+            check_database = data['_database']  # 拿到数据库名称
+            # print(check_database)
+            db = client[check_database]  # 取到数据库
+            # 2. 集合的名称
+            old_collection_name = data['label']  # 拿到l老的集合名称
+            # print(new_collection)
+            # print(type(new_collection))
+            # 3. 拿到集合，适用复制的方式
+            old_collection = db[old_collection_name]  # 取到老的集合
+            # new_collection = db[new_databasename]  # 新的集合
+            # new_collection_name = old_collection.rename(new_collection) #不支持分片集群的集合修改
+
+            # 使用MongoDB Aggregation运算符$match和$out
+            pipeline = [{"$match": {}},
+                        {"$out": new_databasename},
+                        ]
+            old_collection.aggregate(pipeline)
+
+            # 删除原来的集合
+            # old_collection.remove({}) #清空文档
+            old_collection.drop()  # 删除集合
+
+    return HttpResponse('success')
 
 
 def AddDataBase(parameter_list):

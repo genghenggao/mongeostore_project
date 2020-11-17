@@ -29,4 +29,5 @@ urlpatterns = [
     path('deletedatabase/', views.DeleteDataBase, name="deletedatabase"),
     path('addcollection/', views.AddCollection, name="addcollection"),
     path('deletecollection/', views.DeleteCollection, name="deletecollection"),
+    path('editdatabasename/', views.EditDataBase, name="editdatabasename"),
 ]
