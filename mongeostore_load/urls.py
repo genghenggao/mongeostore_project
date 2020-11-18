@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-16 09:36:37
+LastEditTime: 2020-11-18 09:05:51
 '''
 from .views import FileInfoView
 from django.urls import include, path

@@ -1,10 +1,8 @@
 <template>
   <div class="custom-tree-container">
     <div class="block">
-      <p>使用 scoped slot</p>
       <el-tree
         :data="data"
-        show-checkbox
         node-key="id"
         default-expand-all
         :expand-on-click-node="false"
@@ -16,7 +14,12 @@
           @mouseenter="mouseenter(data)"
           @mouseleave="mouseleave(data)"
         >
-          <span>{{ node.label }}</span>
+          <span v-if="data.isEdit"
+            ><i class="el-icon-folder"></i>{{ node.label }}</span
+          >
+          <span v-else-if="!data.isEdit"
+            ><i class="el-icon-folder-opened"></i>{{ node.label }}</span
+          >
           <span>
             <el-button
               type="text"
@@ -301,59 +304,11 @@ export default {
     mouseleave(data) {
       this.$set(data, "del", false);
     },
-    handleNodeClick(data) {
+    handleNodeClick(obj, node, data) {
       console.log(data);
+      console.log(node);
+      console.log(obj);
     },
-    // renderContent(h, { node, data, store }) {
-    //   // console.log(data.isEdit);
-    //   if (!data.isEdit) {
-    //     return (
-    //       <span class="custom-tree-node">
-    //         <span>{node.label}</span>
-    //         <span>
-    //           <el-button
-    //             size="mini"
-    //             type="text"
-    //             on-click={() => this.rename(node, data)}
-    //           >
-    //             <i class="el-icon-edit-outline"></i>
-    //           </el-button>
-    //           <el-button
-    //             size="mini"
-    //             type="text"
-    //             // v-show="node.isEdit"
-    //             on-click={() => this.remove(node, data)}
-    //           >
-    //             <i class="el-icon-delete"></i>
-    //           </el-button>
-    //         </span>
-    //       </span>
-    //     );
-    //   } else {
-    //     return (
-    //       <span class="custom-tree-node">
-    //         <span>{node.label}</span>
-    //         <span>
-    //           <el-button
-    //             size="mini"
-    //             type="text"
-    //             // v-show="!node.isEdit"
-    //             on-click={() => this.append(data)}
-    //           >
-    //             <i class="el-icon-plus"></i>
-    //           </el-button>
-    //           <el-button
-    //             size="mini"
-    //             type="text"
-    //             on-click={() => this.rename(node, data)}
-    //           >
-    //             <i class="el-icon-edit-outline"></i>
-    //           </el-button>
-    //         </span>
-    //       </span>
-    //     );
-    //   }
-    // },
   },
 };
 </script>

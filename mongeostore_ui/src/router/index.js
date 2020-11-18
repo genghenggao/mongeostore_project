@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-05 22:35:24
+ * @LastEditTime: 2020-11-18 20:12:11
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -127,6 +127,19 @@ const routes = [
     name: "Uploadfile2",
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/Uploadfile2.vue")
+  },
+  // 关于MonGeoStore设置
+  {
+    path: "/sidecatalog",
+    name: "SideCatalog",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../components/SideCatalog.vue")
+  },
+  {
+    path: "/mongeostore",
+    name: "MonGeoStore",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "@/views/MonGeoStore.vue")
   },
 ];
 

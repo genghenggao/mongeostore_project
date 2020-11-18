@@ -1,11 +1,4 @@
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
- * @Date: 2020-11-03 15:11:11
- * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 15:01:59
--->
+
 <template>
   <!-- 主界面-->
   <div class="maincontent">
@@ -79,7 +72,7 @@
             role="tabpanel"
             aria-labelledby="nav-profile-tab"
           >
-            <Data />
+            <CommonData />
           </div>
           <div
             class="tab-pane fade"
@@ -112,9 +105,9 @@ import UploadFile from "@/views/UploadFile.vue";
 import UploadCSV from "@/views/UploadCSV.vue";
 import UploadExcel from "@/views/UploadExcel.vue";
 import SeiTable from "@/components/SeiTable.vue";
-import Data from "@/components/Data.vue";
+import CommonData from "@/components/CommonData.vue";
 export default {
-  name: "MainContent",
+  name: "CommonModule",
   components: {
     MapView,
     Home,
@@ -122,7 +115,7 @@ export default {
     UploadFile,
     UploadCSV,
     UploadExcel,
-    Data,
+    CommonData,
   },
   data() {
     return {

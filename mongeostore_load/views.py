@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-17 22:48:09
+LastEditTime: 2020-11-18 14:59:44
 '''
 import time
 import collections
@@ -641,22 +641,67 @@ def AddDataBase(parameter_list):
     pass
 
 
-def DeleteDataBase(parameter_list):
+def DeleteDataBase(request):
     """
     delete a mongodb database
     """
     pass
 
 
-def AddCollection(parameter_list):
+def AddCollection(request):
     """
     docstring
     """
-    pass
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        print(data_json)
+        data = data_json['newChild']
+        col_name = data['label']  # 取到集合名称
+        print(col_name)
+        data_name = data['_database']  # 取到数据库名称
+
+        # 连接mongoDB数据库，读取 db 库 table 表中的数据
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        db = client[data_name]  # 连接数据库
+        collections = db.list_collection_names()
+        if col_name in collections:
+            # 后端再次判断集合是否存在
+            print('数据库存在')
+            return HttpResponse('集合已经存在')
+        else:
+            # 创建集合
+            db.create_collection(col_name)
+            return HttpResponse('success')
 
 
-def DeleteCollection(parameter_list):
+def DeleteCollection(request):
     """
-    docstring
+    delete a mongodb collection
     """
-    pass
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        data = data_json['data']
+        col_name = data['label']  # 取到集合名称
+        data_name = data['_database']  # 取到数据库名称
+
+        # 连接mongoDB数据库，读取 db 库 table 表中的数据
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        db = client[data_name]  # 连接数据库
+        collections = db.list_collection_names()
+        if col_name in collections:
+            # 删除集合
+            db[col_name].drop()
+            print('删除成功')
+
+        return HttpResponse('success')
+
+
+#################树形结构对应分内容######################
+
+
+#################树形结构对应分内容######################

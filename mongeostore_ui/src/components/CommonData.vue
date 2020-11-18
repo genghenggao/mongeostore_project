@@ -2,9 +2,9 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-11-04 17:05:21
+ * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 11:14:04
+ * @LastEditTime: 2020-11-18 22:50:56
 -->
 <template>
   <div class="DataShow">
@@ -18,11 +18,11 @@
             class="demo-form-inline"
             @submit.native.prevent
           >
-            <el-form-item label="钻孔号:">
+            <el-form-item label="关键字:">
               <el-input
                 v-model="searchCondition.ZK_num"
                 suffix-icon="el-icon-view"
-                placeholder="请输入钻孔号"
+                placeholder="请输入关键字"
                 @keyup.enter.native="onSearchSubmit"
               ></el-input>
             </el-form-item>
@@ -72,7 +72,6 @@
             "
             style="width: 100%"
             max-height="690px"
-            :default-sort="{ prop: 'Depth', order: 'Depth' }"
             @selection-change="handleSelectionChange"
           >
             <!-- 选择框设置 -->
@@ -96,6 +95,7 @@
                 v-if="col.Depth === 'normal'"
                 :key="col._id"
                 :prop="col.prop"
+                sortable
                 :label="col.label"
                 align="center"
               >
@@ -228,7 +228,7 @@ import axios from "axios";
 import qs from "qs";
 // import SearchData from "@/components/SearchData.vue";
 export default {
-  name: "Data",
+  name: "CommonData",
   components: {
     // SearchData
   },
@@ -243,28 +243,7 @@ export default {
       // 验证不通过，不合法
       callback(new Error("请输入正确的钻孔号(如'ZK1')"));
     };
-    // // 验证邮箱的校验规则
-    // var checkEmail = (rule, value, callback) => {
-    //   // 验证邮箱的正则表达式
-    //   const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\\.[a-zA-Z0-9_-])+/;
-    //   if (regEmail.test(value)) {
-    //     // 验证通过，合法的邮箱
-    //     return callback();
-    //   }
-    //   // 验证不通过，不合法
-    //   callback(new Error("请输入合法的邮箱"));
-    // };
-    // // 验证手机号的验证规则
-    // var checkMobile = (rule, value, callback) => {
-    //   // 验证手机号的正则表达式
-    //   const regMobile = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$/;
-    //   if (regMobile.test(value)) {
-    //     // 验证通过，合法的手机号
-    //     return callback();
-    //   }
-    //   // 验证不通过，不合法
-    //   callback(new Error("请输入合法的手机号"));
-    // };
+
     return {
       // cols prop属性值都是作为 tableData的属性
       cols: [
@@ -273,11 +252,6 @@ export default {
         { label: "类型combat", prop: "combat", nickname: "normal" },
         { label: "状态level", prop: "level", nickname: "normal" },
         { label: "坐标rid", prop: "rid", nickname: "normal" },
-        // { label: "rid", prop: "_id.$oid", ZK_num: "normal" },
-        // { label: "ZK_num", prop: "ZK_num", ZK_num: "normal" },
-        // { label: "Depth", prop: "Depth", ZK_num: "sort" },
-        // { label: "Azimuth", prop: "Azimuth", ZK_num: "normal" },
-        // { label: "Inclination", prop: "Inclination", ZK_num: "normal" }
       ],
       //   表格数据
       tableData: [
@@ -344,22 +318,6 @@ export default {
           { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
           { validator: checkZK_num, trigger: "blur" },
         ],
-        //   username: [
-        //     { required: true, message: "请输入用户名", trigger: "blur" },
-        //     { min: 3, max: 10, message: "长度在 3 到 10 个字符", trigger: "blur" }
-        //   ],
-        //   password: [
-        //     { required: true, message: "请输入密码", trigger: "blur" },
-        //     { min: 3, max: 10, message: "长度在 6 到 15 个字符", trigger: "blur" }
-        //   ],
-        //   email: [
-        //     { required: true, message: "请输入邮箱", trigger: "blur" },
-        //     { validator: checkEmail, trigger: "blur" }
-        //   ],
-        //   mobile: [
-        //     { required: true, message: "请输入手机号", trigger: "blur" },
-        //     { validator: checkMobile, trigger: "blur" }
-        //   ]
       },
       // 搜索对象
       searchCondition: {
