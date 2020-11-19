@@ -115,6 +115,7 @@ export default {
     return {
       data: JSON.parse(JSON.stringify(data)),
       // data: JSON.parse(JSON.stringify(data)),
+      sub_message: "", //用于父标题名称
     };
   },
   created() {
@@ -177,7 +178,7 @@ export default {
         inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
       })
         .then(({ value }) => {
-          //判断是否存在
+          //判断集合是否存在
           if (!temp.has(value)) {
             // 后端数据添加
             const newChild = {
@@ -226,6 +227,49 @@ export default {
       // console.log(data.isEdit);
       // console.log(data.id <= 2);
       // data.label = "xiaocui";
+      // console.log(node);
+      // console.log(data); //当前的data
+      // console.log(data["label"]); //当前数据名称
+      // console.log(this.data); //数据中的data
+      // console.log(this.data.length); //数据中的data
+      let db_cols = [];
+      if (data["isEdit"]) {
+        console.log("数据库");
+        // let db_cols = [];
+        for (let i = 0; i < this.data.length; i++) {
+          const db_data = this.data[i];
+          const dbcol = db_data["label"];
+          db_cols.push(dbcol);
+        }
+        // console.log(db_cols);
+        // let db_temp = new Set(db_cols);
+      } else {
+        // console.log("集合");
+        // console.log(data["_database"]);
+        // 通过this.data拿到集合数据
+        // let db_cols = [];
+        let databasename = data["_database"];
+        for (let i = 0; i < this.data.length; i++) {
+          const db_data = this.data[i];
+          const dbcol = db_data["label"];
+          if (databasename == dbcol) {
+            console.log("存在" + databasename);
+            console.log(db_data);
+            console.log(db_data["children"]);
+            let children_col = db_data["children"];
+            for (let i = 0; i < children_col.length; i++) {
+              const db_data = children_col[i];
+              const collection = db_data["label"];
+              db_cols.push(collection);
+            }
+          }
+        }
+        // console.log(db_cols);
+        // let db_temp = new Set(db_cols);
+      }
+      console.log(db_cols);
+      let db_temp = new Set(db_cols);
+
       let url = "http://127.0.0.1:8000/load/editdatabasename/";
       this.$prompt("请输入新的名称", "重命名", {
         confirmButtonText: "确定",
@@ -234,24 +278,32 @@ export default {
         inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
       })
         .then(({ value }) => {
-          //可以在这里发请求，http是我模拟的一个虚假的封装好的axios请求,()可写请求参数
-          axios
-            .post(url, { value, data })
-            .then((data) => {
-              this.$message({
-                type: "success",
-                message: "修改成功",
+          // 判断重命名的数据库和集合是否已经存在
+          if (!db_temp.has(value)) {
+            //可以在这里发请求，http是我模拟的一个虚假的封装好的axios请求,()可写请求参数
+            axios
+              .post(url, { value, data })
+              .then((data) => {
+                this.$message({
+                  type: "success",
+                  message: "修改成功",
+                });
+                //请求成功需局部刷新该节点，调用方法,把节点信息node传入
+                this.showDataBase();
+              })
+              //请求失败
+              .catch(() => {
+                this.$message({
+                  type: "info",
+                  message: "修改失败",
+                });
               });
-              //请求成功需局部刷新该节点，调用方法,把节点信息node传入
-              this.showDataBase();
-            })
-            //请求失败
-            .catch(() => {
-              this.$message({
-                type: "info",
-                message: "修改失败",
-              });
+          } else {
+            this.$message({
+              type: "info",
+              message: "已存在，请重新输入！",
             });
+          }
         })
         .catch(() => {
           this.$message({
@@ -308,6 +360,11 @@ export default {
       console.log(data);
       console.log(node);
       console.log(obj);
+      // console.log(obj["label"]);
+      // console.log(obj["isEdit"]);
+      // this.sub_message = obj["label"];
+      this.$store.state.title_message = obj["label"]; //给标题动态赋值
+      this.$store.state.DBorCol = obj["isEdit"]; //设置参数，判断数据库还是集合
     },
   },
 };

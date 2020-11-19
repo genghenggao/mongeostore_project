@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 21:32:55
+ * @LastEditTime: 2020-11-19 20:40:17
 -->
 <template>
   <el-container>
@@ -14,35 +14,55 @@
       <el-main
         ><el-container>
           <el-header class="main_head" style="min-width: 1100px"
-            ><div class="head_title">钻孔数据管理子系统</div>
+            ><div class="head_title">
+              {{ title_message }}
+            </div>
             <div id="head1" class="logo f1">
-              <a
-                href="https://www.cumtb.edu.cn/index.htm"
-                title="煤炭国家重点实验室"
-              >
+              <a href="https://crsm.cumtb.edu.cn/" title="煤炭国家重点实验室">
                 <img src="@/assets/重点实验室logo-removebg.png" alt=""
               /></a></div
           ></el-header>
           <el-main class="sub_main_content"
-            ><CommonModule
-          /></el-main> </el-container
+            ><div v-if="!this.$store.state.DBorCol"><CommonCol /></div>
+            <div v-else-if="this.$store.state.DBorCol">
+              <!-- <router-link to="/about">about</router-link> <router-view /> -->
+
+              <div
+                v-if="this.$store.state.title_message == '地震数据管理子系统'"
+              >
+                {{ title_message }}
+              </div>
+              <div v-else>
+                <CommonDB />
+              </div>
+            </div>
+          </el-main> </el-container
       ></el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
+import { mapState } from "vuex";
 import Navbar from "@/components/Navbar.vue";
 import SideCatalog from "@/components/SideCatalog.vue";
-import CommonModule from "@/components/CommonModule.vue";
+import SideTree from "@/components/SideTree.vue";
+import CommonCol from "@/components/CommonCol.vue";
+import CommonDB from "@/components/CommonDB.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
-  components: { Navbar, SideCatalog, CommonModule },
+  components: { Navbar, SideCatalog, CommonCol, SideTree, CommonDB },
   data() {
-    return {};
+    return {
+      //   parent_message: "地震大数据管理系统",
+      //   parent_message: this.$store.state.title_message,
+    };
   },
   created() {},
+  computed: {
+    ...mapState(["title_message", "DBorCol"]), //title_message设置动态标题；DBorCol判断是数据库，还是集合；
+  },
   methods: {},
 };
 </script>

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 22:23:53
+ * @LastEditTime: 2020-11-19 19:18:54
 -->
 <!--
  * @Description: henggao_learning
@@ -19,7 +19,10 @@
   <div class="menutree">
     <div class="sidebar_header">
       <div class="title_img">
-        <a href="https://crsm.cumtb.edu.cn/" title="煤炭国家重点实验室">
+        <a
+          href="https://www.cumtb.edu.cn/index.htm"
+          title="中国矿业大学（北京）"
+        >
           <img
             style="width: 240px; height: 42px"
             src="@/assets/logo-20191228.png"
@@ -190,7 +193,7 @@ header.el-header {
   height: 106px;
 }
 .title_img {
-  height: 60px;
+  height: 55px;
   background: #870000;
   color: #b45c5c;
   padding-top: 10px;

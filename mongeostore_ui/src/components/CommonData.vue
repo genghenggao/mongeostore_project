@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 22:50:56
+ * @LastEditTime: 2020-11-19 08:54:23
 -->
 <template>
   <div class="DataShow">
@@ -289,7 +289,7 @@ export default {
       // 总条数，根据接口获取数据长度(注意：这里不能为空)
       totalCount: 400,
       // 个数选择器（可修改）
-      pageSizes: [10, 20, 30, 40],
+      pageSizes: [10, 20, 50, 100],
       // 默认每页显示的条数（可修改)
       PageSize: 10,
       // 控制添加用户对话框的显示与隐藏，默认为隐藏

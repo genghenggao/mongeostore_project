@@ -7,6 +7,7 @@
  * @LastEditTime: 2020-10-21 14:57:37
  */
 import Vue from "vue";
+import Vuex from 'vuex'  // 引入 vuex
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -34,6 +35,8 @@ import SlideVerify from 'vue-monoplasty-slide-verify';
 import BaiduMap from 'vue-baidu-map';
 import uploader from 'vue-simple-uploader';
 
+
+Vue.use(Vuex) // 引入
 // 滑动验证码
 Vue.use(SlideVerify)
 

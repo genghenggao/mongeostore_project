@@ -1,4 +1,11 @@
-
+<!--
+ * @Description: henggao_learning
+ * @version: v1.0.0
+ * @Author: henggao
+ * @Date: 2020-11-19 15:15:31
+ * @LastEditors: henggao
+ * @LastEditTime: 2020-11-19 19:57:14
+-->
 <template>
   <!-- 主界面-->
   <div class="maincontent">
@@ -88,7 +95,7 @@
             role="tabpanel"
             aria-labelledby="nav-uploadfile-tab"
           >
-            <UploadFile />
+            <!-- <UploadFile /> -->
             <UploadCSV />
             <UploadExcel />
           </div>
@@ -107,7 +114,7 @@ import UploadExcel from "@/views/UploadExcel.vue";
 import SeiTable from "@/components/SeiTable.vue";
 import CommonData from "@/components/CommonData.vue";
 export default {
-  name: "CommonModule",
+  name: "CommonCol",
   components: {
     MapView,
     Home,
