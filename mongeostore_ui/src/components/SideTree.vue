@@ -171,11 +171,13 @@ export default {
       // console.log(collections);
       // 用es6的new Set来生成一个Set数据结构的数据，从而调用has方法来判断，有则返回true，没有则false
       let temp = new Set(collections);
-      this.$prompt("请输入中文名称", "添加数据（请勿重名）", {
+      this.$prompt("请输入名称", "添加数据（请勿重名）", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        inputPattern: /^[\u4e00-\u9fa5]{1,}$/, //匹配全中文
-        inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
+        inputPattern: /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/, //匹配全中文
+        inputErrorMessage: "请输入不少于3个字符", //不符合正则匹配的提示语句
+        // inputPattern: /^[\u4e00-\u9fa5]{1,}$/, //匹配全中文
+        // inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
       })
         .then(({ value }) => {
           //判断集合是否存在
@@ -274,8 +276,10 @@ export default {
       this.$prompt("请输入新的名称", "重命名", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        inputPattern: /^[\u4e00-\u9fa5]{1,}$/, //匹配全中文
-        inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
+        // inputPattern: /^[\u4e00-\u9fa5]{1,}$/, //匹配全中文
+        // inputErrorMessage: "请输入中文", //不符合正则匹配的提示语句
+        inputPattern: /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/, //匹配全中文
+        inputErrorMessage: "请输入不少于3个字符", //不符合正则匹配的提示语句
       })
         .then(({ value }) => {
           // 判断重命名的数据库和集合是否已经存在
@@ -357,14 +361,27 @@ export default {
       this.$set(data, "del", false);
     },
     handleNodeClick(obj, node, data) {
-      console.log(data);
-      console.log(node);
-      console.log(obj);
+      // console.log(data);
+      // console.log(node);
+      // console.log(obj);
       // console.log(obj["label"]);
       // console.log(obj["isEdit"]);
       // this.sub_message = obj["label"];
       this.$store.state.title_message = obj["label"]; //给标题动态赋值
       this.$store.state.DBorCol = obj["isEdit"]; //设置参数，判断数据库还是集合
+      this.$store.state.temp_database = obj["_database"]; //判断集合属于哪个数据库
+      if (!obj["isEdit"]) {
+        const url = "http://127.0.0.1:8000/load/showcommondata/";
+        axios
+          .post(url, { colname: obj["label"], dbname: obj["_database"] })
+          .then((res) => {
+            console.log("success");
+            console.log(res.data);
+          })
+          .catch(() => {
+            console.log("error");
+          });
+      }
     },
   },
 };

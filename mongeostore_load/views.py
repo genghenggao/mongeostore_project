@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-18 14:59:44
+LastEditTime: 2020-11-20 21:11:07
 '''
 import time
 import collections
@@ -703,5 +703,38 @@ def DeleteCollection(request):
 
 #################树形结构对应分内容######################
 
+@require_http_methods(['POST'])
+def ShowCommonData(request):
+    """
+    docstring
+    """
+    body_data = request.body
+    # print(body_data)
+    data_json = json.loads(body_data)
+    print(data_json)
+    db = data_json['dbname']  # 取到数据名称
+    col_name = data_json['colname']  # 取到集合名称
+    # 连接数据库
+    client = pymongo.MongoClient("192.168.55.110", 20000)
+    db = client[db]
+    db_coll = db[col_name]
+    # 查询
+    content = {}
+    datainfo = []
+    for document in db_coll.find().limit(1000):
 
+        # print(document)
+        # print(type(document))
+        # print(document.vip)
+        # response['_id'] = str(document._id)
+        datainfo.append(document)
+        content = dumps(datainfo)  # 这个地方要用字符串传到前端去
+        # return HttpResponse(json.dumps(document), content_type="application/json")
+        # return json.loads(json_util.dumps(document))
+        # print(type(content))
+    client.close()
+    return HttpResponse(content, "application/json")
+    # return HttpResponse('content', "application/json")
+
+# 解析csv文件到数据库
 #################树形结构对应分内容######################

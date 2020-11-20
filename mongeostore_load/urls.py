@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-18 09:05:51
+LastEditTime: 2020-11-20 11:13:00
 '''
 from .views import FileInfoView
 from django.urls import include, path
@@ -30,4 +30,6 @@ urlpatterns = [
     path('addcollection/', views.AddCollection, name="addcollection"),
     path('deletecollection/', views.DeleteCollection, name="deletecollection"),
     path('editdatabasename/', views.EditDataBase, name="editdatabasename"),
+    # mongeostore
+    path('showcommondata/', views.ShowCommonData, name="showcommondata"),
 ]

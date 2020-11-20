@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-19 20:40:17
+ * @LastEditTime: 2020-11-20 10:50:47
 -->
 <template>
   <el-container>
@@ -23,7 +23,20 @@
               /></a></div
           ></el-header>
           <el-main class="sub_main_content"
-            ><div v-if="!this.$store.state.DBorCol"><CommonCol /></div>
+            ><div v-if="!this.$store.state.DBorCol">
+              <div
+                v-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地质数据'
+                "
+              >
+                {{ title_message }}
+                {{ temp_database }}
+              </div>
+              <div v-else>
+                <CommonCol />
+              </div>
+            </div>
             <div v-else-if="this.$store.state.DBorCol">
               <!-- <router-link to="/about">about</router-link> <router-view /> -->
 
@@ -61,7 +74,7 @@ export default {
   },
   created() {},
   computed: {
-    ...mapState(["title_message", "DBorCol"]), //title_message设置动态标题；DBorCol判断是数据库，还是集合；
+    ...mapState(["title_message", "DBorCol", "temp_database"]), //title_message设置动态标题；DBorCol判断是数据库，还是集合；
   },
   methods: {},
 };
