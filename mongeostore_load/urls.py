@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-20 11:13:00
+LastEditTime: 2020-11-22 22:43:44
 '''
 from .views import FileInfoView
 from django.urls import include, path
@@ -32,4 +32,14 @@ urlpatterns = [
     path('editdatabasename/', views.EditDataBase, name="editdatabasename"),
     # mongeostore
     path('showcommondata/', views.ShowCommonData, name="showcommondata"),
+    path('showdrillclination/', DrillInclinationPageView.as_view(),
+         name="showdrillclination"),  # 钻孔测斜表
+    path('commonuploadexcel/', CommonUploadExcel.as_view(),
+         name="commonuploadexcel"),  # 上传Excel
+    path('commonuploadcsv/', CommonUploadCSV.as_view(),
+         name="commonuploadcsv"),  # 上传CSV
+    path('commonuploadmeta/', CommonUploadMeta.as_view(),
+         name="commonuploadmeta"),  # 上传元数据到GridFS
+
+
 ]

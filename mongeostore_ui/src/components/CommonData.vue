@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-20 10:18:38
+ * @LastEditTime: 2020-11-22 09:25:11
 -->
 <template>
   <div class="DataShow">
@@ -146,6 +146,7 @@
         <!-- 分页 -->
         <div class="block" style="overflow: hidden">
           <el-pagination
+            small
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page.sync="currentPage"

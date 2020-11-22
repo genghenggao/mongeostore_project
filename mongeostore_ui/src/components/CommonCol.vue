@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-19 15:15:31
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-19 19:57:14
+ * @LastEditTime: 2020-11-22 21:49:15
 -->
 <template>
   <!-- 主界面-->
@@ -96,8 +96,10 @@
             aria-labelledby="nav-uploadfile-tab"
           >
             <!-- <UploadFile /> -->
-            <UploadCSV />
-            <UploadExcel />
+            <!-- <UploadCSV /> -->
+            <!-- <UploadExcel /> -->
+            <CommonUploadExcel />
+            <CommonUploadCSV />
           </div>
         </div>
       </el-main>
@@ -113,6 +115,8 @@ import UploadCSV from "@/views/UploadCSV.vue";
 import UploadExcel from "@/views/UploadExcel.vue";
 import SeiTable from "@/components/SeiTable.vue";
 import CommonData from "@/components/CommonData.vue";
+import CommonUploadExcel from "@/components/CommonUploadExcel.vue";
+import CommonUploadCSV from "@/components/CommonUploadCSV.vue";
 export default {
   name: "CommonCol",
   components: {
@@ -123,6 +127,8 @@ export default {
     UploadCSV,
     UploadExcel,
     CommonData,
+    CommonUploadExcel,
+    CommonUploadCSV,
   },
   data() {
     return {

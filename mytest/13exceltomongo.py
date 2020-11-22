@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-11-05 19:25:23
 LastEditors: henggao
-LastEditTime: 2020-11-05 20:09:37
+LastEditTime: 2020-11-22 20:51:52
 '''
 import xlrd
 import json
@@ -18,7 +18,15 @@ info = mydb['excel_data']
 # 读取Excel文件
 data = xlrd.open_workbook('./mongeostore_env/upload/data_w.xls')
 # 选择上传的sheet，注意字段
+# print(len(data.sheets())) #返回excel中sheet的数量
 table = data.sheets()[2]
+print(data.sheet_names())  # 拿到EXcel的sheet名称
+list = data.sheet_names()  # 拿到EXcel的sheet名称
+name = '汇总'
+if name in list :
+    print("yes")
+    print(list.index(name))  #判断元素的位置
+
 # 读取excel第一行数据作为存入mongodb的字段名
 rowstag = table.row_values(0)
 nrows = table.nrows

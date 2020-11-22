@@ -99,9 +99,40 @@ DATABASES = {
         'CLIENT': {
             'host': '192.168.55.110:27017',
         }
-    }
+    },
+    'drill': {
+        'ENGINE': 'djongo',
+        'NAME': '钻孔数据管理子系统',
+        'CLIENT': {
+            'host': '192.168.55.110:20000',
+        }
+    },
+    'geological': {
+        'ENGINE': 'djongo',
+        'NAME': '地质数据管理子系统',
+        'CLIENT': {
+            'host': '192.168.55.110:20000',
+        }
+    },
+    'seismic': {
+        'ENGINE': 'djongo',
+        'NAME': '地震数据管理子系统',
+        'CLIENT': {
+            'host': '192.168.55.110:20000',
+        }
+    },
 }
 
+# 数据库路由
+DATABASE_ROUTERS = ['mongeostore_v1.database_router.DatabaseAppsRouter']
+
+# 设置APP对应的数据库路由表,不指定则会自动创建到默认（default）的数据库中
+DATABASE_APPS_MAPPING = {
+    # example:
+    # 'app_name':'database_name',
+    'mongeostore_app': 'default',
+    # 'mongeostore_load': 'drill', #这里由于数据库用到不同的集合，可以在models中具体配置
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

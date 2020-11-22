@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-20 21:11:07
+LastEditTime: 2020-11-22 22:37:55
 '''
+from rest_framework.pagination import PageNumberPagination
 import time
 import collections
 import re
@@ -20,9 +21,9 @@ from django.views.decorators.http import condition, require_http_methods
 from gridfs import GridFS
 import os
 from django.http import response
-from .models import FileInfo
+from .models import DrillInclinationModel, FileInfo
 from rest_framework.views import APIView
-from .serializers import FileInfoSerializer
+from .serializers import DrillInclinationSerializer, FileInfoSerializer
 from typing import ClassVar
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -701,8 +702,33 @@ def DeleteCollection(request):
         return HttpResponse('success')
 
 
-#################树形结构对应分内容######################
+#################MonGeoStore######################
 
+# 自定义分页类，实现分页功能
+# 创建分页类
+class MyPagination(PageNumberPagination):
+    page_size = 10
+    # 每页显示数据的数量
+    max_page_size = 50
+    # 每页最多可以显示的数据数量
+    page_query_param = 'page'
+    # 获取页码时用的参数
+    page_size_query_param = 'size'
+    # 调整每页显示数量的参数名
+
+
+class DrillInclinationPageView(APIView):
+    def get(self, request, *args, **kwargs):
+        drill_obj = DrillInclinationModel.objects.using('drill').all()
+        pg = MyPagination()
+        page = pg.paginate_queryset(
+            queryset=drill_obj, request=request, view=self)
+        serializer = DrillInclinationSerializer(instance=page, many=True)
+        data = pg.get_paginated_response(serializer.data)
+        # 自定义的分页类中实例化后使用get_paginated_response方法可以实现显示上下页链接的功能
+        return data
+
+# 展示数据
 @require_http_methods(['POST'])
 def ShowCommonData(request):
     """
@@ -721,7 +747,7 @@ def ShowCommonData(request):
     # 查询
     content = {}
     datainfo = []
-    for document in db_coll.find().limit(1000):
+    for document in db_coll.find().limit(10):
 
         # print(document)
         # print(type(document))
@@ -736,5 +762,213 @@ def ShowCommonData(request):
     return HttpResponse(content, "application/json")
     # return HttpResponse('content', "application/json")
 
-# 解析csv文件到数据库
-#################树形结构对应分内容######################
+# Excel数据上传到对应集合 CommonUploadExcel.vue
+
+
+class CommonUploadExcel(APIView):
+    """
+    docstring
+    """
+
+    def get(self, request):
+        """
+        docstring
+        """
+        File = request.FILES.get("file", None)
+        # print(request.data)
+
+        return HttpResponse(File)
+    # @require_http_methods(['POST'])
+
+    def post(self, request):
+        """
+        docstring
+        """
+        # 从前端拿到数据
+        File = request.FILES.get("file", None)
+        # print('post')
+        # print(request.data)
+        # print(request.data['colname'])
+        # print(request.data['dbname'])
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入mongodb，data数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = request.data['dbname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
+        # collection = "excel_data"
+        collection = request.data['colname']  # 从前端拿到数集合名称
+        db_coll = db[collection]  # 连接集合
+
+        # 读取Excel文件
+        data = xlrd.open_workbook("./upload/%s" % File.name)
+        list = data.sheet_names()  # 拿到EXcel的sheet名称
+        if collection in list:
+            print("yes")
+            print(list.index(collection))  # 判断元素的位置
+            x = list.index(collection)  # 获取集合的位置
+        else:
+            x = 0  # 不存在设置默认第一个sheet
+        print(x)
+        table = data.sheets()[x]
+        # 读取excel第一行数据作为存入mongodb的字段名
+        rowstag = table.row_values(0)
+        nrows = table.nrows
+        returnData = {}
+
+        for i in range(1, nrows):
+            # 将字段名和excel数据存储为字典形式，并转换为json格式
+            returnData[i] = json.dumps(dict(zip(rowstag, table.row_values(i))))
+            # 通过编解码还原数据
+            returnData[i] = json.loads(returnData[i])
+            print(returnData[i])
+            db_coll.insert(returnData[i])
+        client.close()
+        return HttpResponse("uploadexcel success")
+
+
+# 解析csv文件到数据库 CommonUploadCSV.vue
+class CommonUploadCSV(APIView):
+    """
+    docstring
+    """
+
+    def get(self, request):
+        """
+        docstring
+        """
+        File = request.FILES.get("file", None)
+
+        return HttpResponse(File)
+    # @require_http_methods(['POST'])
+
+    def post(self, request):
+        """
+        docstring
+        """
+        # 从前端拿到数据
+        File = request.FILES.get("file", None)
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入mongodb，data数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = request.data['dbname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
+        # collection = "excel_data"
+        collection = request.data['colname']  # 从前端拿到数集合名称
+        db_coll = db[collection]  # 连接集合
+
+        with open("./upload/%s" % File.name, 'r', encoding='utf-8')as csvfile:
+            # 调用csv中的DictReader函数直接获取数据为字典形式
+            reader = csv.DictReader(csvfile)
+            # 创建一个counts计数一下 看自己一共添加了了多少条数据
+            counts = 0
+            for each in reader:
+                # 将数据中需要转换类型的数据转换类型。原本全是字符串（string）。
+                each['?rank'] = int(each['?rank'])
+                each['costMoney'] = float(each['costMoney'])
+                each['combat'] = float(each['combat'])
+                each['topHeroesCombat'] = int(each['topHeroesCombat'])
+                # each['表显里程'] = float(each['表显里程'])
+                # each['排量'] = float(each['排量'])
+                # each['过户数量'] = int(each['过户数量'])
+                db_coll.insert(each)
+                # set1.insert_one(each)
+                counts += 1
+                # print('成功添加了'+str(counts)+'条数据 ')
+        client.close()
+        return HttpResponse("uploadcsv success")
+
+
+# 上传源文件到GridFS数据库 CommonUploadMeta.vue
+class CommonUploadMeta(APIView):
+
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        # print("走的是GET方法")
+        response = {}
+        queryset = FileInfo.objects.all()
+        serializer_class = FileInfoSerializer
+        response['code'] = 200
+        # response["Access-Control-Allow-Methods"] = "POST"
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    def post(self, request):
+        """
+        docstring
+        """
+        # print("走的是POST方法")
+        # file = self.request.POST.get('name',None)  # 获取上传的文件，如果没有文件，则默认为None
+        File = request.FILES.get("file", None)  # 注意比较
+        # print(File)
+        # print(File.name)   #同上
+        # print(File.chunks)  # 二进制信息
+        _id = self.request.POST.get('id')
+        filename = self.request.POST.get('filename')
+        type = self.request.POST.get('type')
+        size = self.request.POST.get('size')
+        upload_date = self.request.POST.get('upload_date')
+        publisher = self.request.POST.get('publisher')
+        # print(filename)
+        # print(publisher)
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+
+        #  上传文件到MongoDB中gridfs
+        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+
+        # 如果没有数据库，创建数据库
+        # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+        # database = "segyfile"
+        # print(request.data)
+        database = request.data['colname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
+
+        with open("./upload/%s" % File.name, 'rb') as f:
+            _id = self.request.POST.get('id')
+            filename = self.request.POST.get('filename')
+            contentType = self.request.POST.get('type')
+            size = self.request.POST.get('size')
+            upload_date = self.request.POST.get('upload_date')
+            publisher = self.request.POST.get('publisher')
+            # print(upload_date)
+            dic = {
+                "_id": _id,
+                "filename": filename,
+                "contentType": contentType,
+                "length": size,
+                "uploadDate": upload_date,
+                "publisher": publisher,
+                "aliases": [publisher],  # 别名
+                "metadata": filename,
+            }
+            data = f.read()
+            fs = gridfs.GridFS(db, '元数据')  # 连接GridFS集合，名称为'元数据'
+            fs.put(data, **dic)
+            f.close()
+        client.close()
+        return HttpResponse("Successful")
+
+
+#################MonGeoStore######################

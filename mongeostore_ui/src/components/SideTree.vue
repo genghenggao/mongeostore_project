@@ -255,9 +255,9 @@ export default {
           const db_data = this.data[i];
           const dbcol = db_data["label"];
           if (databasename == dbcol) {
-            console.log("存在" + databasename);
-            console.log(db_data);
-            console.log(db_data["children"]);
+            // console.log("存在" + databasename);
+            // console.log(db_data);
+            // console.log(db_data["children"]);
             let children_col = db_data["children"];
             for (let i = 0; i < children_col.length; i++) {
               const db_data = children_col[i];
@@ -269,7 +269,7 @@ export default {
         // console.log(db_cols);
         // let db_temp = new Set(db_cols);
       }
-      console.log(db_cols);
+      // console.log(db_cols);
       let db_temp = new Set(db_cols);
 
       let url = "http://127.0.0.1:8000/load/editdatabasename/";
@@ -375,8 +375,8 @@ export default {
         axios
           .post(url, { colname: obj["label"], dbname: obj["_database"] })
           .then((res) => {
-            console.log("success");
-            console.log(res.data);
+            // console.log("success");
+            // console.log(res.data);
           })
           .catch(() => {
             console.log("error");
