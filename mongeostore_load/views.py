@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-22 22:37:55
+LastEditTime: 2020-11-23 22:57:40
 '''
 from rest_framework.pagination import PageNumberPagination
 import time
@@ -21,6 +21,7 @@ from django.views.decorators.http import condition, require_http_methods
 from gridfs import GridFS
 import os
 from django.http import response
+from xlrd.formula import colname
 from .models import DrillInclinationModel, FileInfo
 from rest_framework.views import APIView
 from .serializers import DrillInclinationSerializer, FileInfoSerializer
@@ -180,7 +181,7 @@ def FileShow(request):
     # return JsonResponse(json.loads(response)) #不加safe=False的话必须返回dict
     # return HttpResponse(json.dumps(response), content_type="application/json")
 
-# 展示Data.vue表格数据
+# 元数据下载
 @require_http_methods(['GET'])
 def filedownload(request):
     """
@@ -211,7 +212,7 @@ def filedownload(request):
     return HttpResponse("success")
     # return render(request, 'http://localhost:8080/maincontent')
 
-
+# 展示Data.vue表格数据
 @require_http_methods(['GET'])
 def ShowData(request):
     """
@@ -454,6 +455,10 @@ def AddData(request):
         print(type(data_json))  # <class 'dict'>
         query_data_json = data_json['tmp_data']
         print(type(query_data_json))
+        # 将数据类型转换一下
+        query_data_json['Depth'] = float(query_data_json['Depth'])
+        query_data_json['Azimuth'] = float(query_data_json['Azimuth'])
+        query_data_json['Inclination'] = float(query_data_json['Inclination'])
         print(query_data_json)
 
         # 连接数据库
@@ -469,6 +474,8 @@ def AddData(request):
         # client.close()
 
     return HttpResponse("Delete Success")
+
+#  collection数据搜索
 
 
 def QueryData(request):
@@ -729,22 +736,22 @@ class DrillInclinationPageView(APIView):
         return data
 
 # 展示数据
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def ShowCommonData(request):
     """
     docstring
     """
-    body_data = request.body
-    # print(body_data)
-    data_json = json.loads(body_data)
-    print(data_json)
-    db = data_json['dbname']  # 取到数据名称
-    col_name = data_json['colname']  # 取到集合名称
-    # 连接数据库
+    db = request.GET.get('dbname')  # 获取到前端数据库名称
+    col_name = request.GET.get('colname')  # 获取到前端集合名称
+    # data_json = json.loads(body_data)
+    # print(data_json)
+    # db = data_json['dbname']  # 取到数据库名称
+    # col_name = data_json['colname']  # 取到集合名称
+    # # 连接数据库
     client = pymongo.MongoClient("192.168.55.110", 20000)
     db = client[db]
     db_coll = db[col_name]
-    # 查询
+    # # 查询
     content = {}
     datainfo = []
     for document in db_coll.find().limit(10):
@@ -759,8 +766,166 @@ def ShowCommonData(request):
         # return json.loads(json_util.dumps(document))
         # print(type(content))
     client.close()
+    # print(content)
     return HttpResponse(content, "application/json")
     # return HttpResponse('content', "application/json")
+
+# Collection数据修改
+
+
+def CommonEditData(request):
+    if request.method == "POST":
+
+        body_data = request.body
+
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+
+        dict_data = json.loads(query_data_json)
+
+        front_query_oid = dict_data['_id']
+
+        front_query_id = front_query_oid['$oid']
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # print(data_json['colname'])
+        # print(data_json['dbname'])
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']  # 从前端拿到集合名称
+        db_coll = db[collection]
+        # 根据_id匹配到后端数据
+        cursor = db_coll.find_one(filter={"_id": ObjectId(front_query_id)})
+        # {'_id': ObjectId('5fa7dc070a6d3e479de148d9'), 'ZK_num': 'ZK1', 'Depth': 0.0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(cursor)
+
+        # 删掉_'_id': {'$oid': '5fa7dc070a6d3e479de148d9'}部分
+        dict_data.pop('_id')
+        # {'ZK_num': 'ZK1', 'Depth': 0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(dict_data)
+        # print(type(dict_data))  # <class 'dict'>
+        update_data = db_coll.update_one(
+            cursor, update={"$set": dict_data})
+        # print(update_data)
+        # print(update_data.matched_count)
+        # print(update_data.modified_count)
+        # 关闭连接
+        client.close()
+    return HttpResponse('success')
+
+# Collection数据删除
+
+
+def CommonDeleteData(request):
+    """
+    Delete data
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        front_query_oid = dict_data['_id']
+        front_query_id = front_query_oid['$oid']
+        # print(front_query_id)
+        # print(data_json['dbname'])
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']  # 从前端拿到数据库名称
+        db_coll = db[collection]
+
+        db_coll.remove({"_id": ObjectId(front_query_id)})
+        # print("Delete Success")
+        # 关闭连接
+        client.close()
+
+    return HttpResponse("Delete Success")
+
+
+# Collection添加数据
+def CommonAddData(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(type(body_data))  # <class 'bytes'>
+        data_json = json.loads(body_data)
+        # print(data_json['colname'])
+        # print(type(data_json))  # <class 'dict'>
+        query_data_json = data_json['tmp_data']
+        # print(type(query_data_json))
+        # print(query_data_json)
+
+        # 由于公用集合，一些数据类型不知，所以这里默认使用字符串
+        # 将数据类型转换一下
+        # query_data_json['Depth'] = float(query_data_json['Depth'])
+        # query_data_json['Azimuth'] = float(query_data_json['Azimuth'])
+        # query_data_json['Inclination'] = float(query_data_json['Inclination'])
+        # print(query_data_json)
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = data_json['dbname']
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']
+        db_coll = db[collection]
+
+        result = db_coll.insert_one(document=query_data_json)
+        print("添加成功 Success")
+        # 关闭连接
+        # client.close()
+
+    return HttpResponse("Delete Success")
+
+#  collection数据搜索
+
+
+def CommonQueryData(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+
+        body_data = request.body  # b'{"ZK_num_data":"ZK1"}'
+        data_json = json.loads(body_data)
+        filter_key = data_json['filter_key_data']
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = data_json['dbname']
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']
+        db_coll = db[collection]
+        # 根据字段匹配到后端数据
+        listkeys = db_coll.find_one().keys()  # <class 'dict_keys'>
+        second_key = list(listkeys)[1]
+
+        datainfo=[]
+        content={}
+        cursors=db_coll.find({second_key: filter_key})
+        for cursor in cursors:
+            datainfo.append(cursor)
+            content=dumps(datainfo)
+        # print(content)
+        client.close()
+        return HttpResponse(content, "application/json")
+
 
 # Excel数据上传到对应集合 CommonUploadExcel.vue
 
@@ -774,7 +939,7 @@ class CommonUploadExcel(APIView):
         """
         docstring
         """
-        File = request.FILES.get("file", None)
+        File=request.FILES.get("file", None)
         # print(request.data)
 
         return HttpResponse(File)
@@ -785,7 +950,7 @@ class CommonUploadExcel(APIView):
         docstring
         """
         # 从前端拿到数据
-        File = request.FILES.get("file", None)
+        File=request.FILES.get("file", None)
         # print('post')
         # print(request.data)
         # print(request.data['colname'])
@@ -799,35 +964,35 @@ class CommonUploadExcel(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        client=pymongo.MongoClient("192.168.55.110", 20000)
         # database = "segyfile"
-        database = request.data['dbname']  # 从前端拿到数据库名称
-        db = client[database]  # 连接数据库
+        database=request.data['dbname']  # 从前端拿到数据库名称
+        db=client[database]  # 连接数据库
         # collection = "excel_data"
-        collection = request.data['colname']  # 从前端拿到数集合名称
-        db_coll = db[collection]  # 连接集合
+        collection=request.data['colname']  # 从前端拿到数集合名称
+        db_coll=db[collection]  # 连接集合
 
         # 读取Excel文件
-        data = xlrd.open_workbook("./upload/%s" % File.name)
-        list = data.sheet_names()  # 拿到EXcel的sheet名称
+        data=xlrd.open_workbook("./upload/%s" % File.name)
+        list=data.sheet_names()  # 拿到EXcel的sheet名称
         if collection in list:
             print("yes")
             print(list.index(collection))  # 判断元素的位置
-            x = list.index(collection)  # 获取集合的位置
+            x=list.index(collection)  # 获取集合的位置
         else:
-            x = 0  # 不存在设置默认第一个sheet
+            x=0  # 不存在设置默认第一个sheet
         print(x)
-        table = data.sheets()[x]
+        table=data.sheets()[x]
         # 读取excel第一行数据作为存入mongodb的字段名
-        rowstag = table.row_values(0)
-        nrows = table.nrows
-        returnData = {}
+        rowstag=table.row_values(0)
+        nrows=table.nrows
+        returnData={}
 
         for i in range(1, nrows):
             # 将字段名和excel数据存储为字典形式，并转换为json格式
-            returnData[i] = json.dumps(dict(zip(rowstag, table.row_values(i))))
+            returnData[i]=json.dumps(dict(zip(rowstag, table.row_values(i))))
             # 通过编解码还原数据
-            returnData[i] = json.loads(returnData[i])
+            returnData[i]=json.loads(returnData[i])
             print(returnData[i])
             db_coll.insert(returnData[i])
         client.close()
@@ -844,7 +1009,7 @@ class CommonUploadCSV(APIView):
         """
         docstring
         """
-        File = request.FILES.get("file", None)
+        File=request.FILES.get("file", None)
 
         return HttpResponse(File)
     # @require_http_methods(['POST'])
@@ -854,7 +1019,7 @@ class CommonUploadCSV(APIView):
         docstring
         """
         # 从前端拿到数据
-        File = request.FILES.get("file", None)
+        File=request.FILES.get("file", None)
         # 保存到本地
         if not os.path.exists('upload/'):
             os.mkdir('upload/')
@@ -863,25 +1028,25 @@ class CommonUploadCSV(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        client=pymongo.MongoClient("192.168.55.110", 20000)
         # database = "segyfile"
-        database = request.data['dbname']  # 从前端拿到数据库名称
-        db = client[database]  # 连接数据库
+        database=request.data['dbname']  # 从前端拿到数据库名称
+        db=client[database]  # 连接数据库
         # collection = "excel_data"
-        collection = request.data['colname']  # 从前端拿到数集合名称
-        db_coll = db[collection]  # 连接集合
+        collection=request.data['colname']  # 从前端拿到数集合名称
+        db_coll=db[collection]  # 连接集合
 
-        with open("./upload/%s" % File.name, 'r', encoding='utf-8')as csvfile:
+        with open("./upload/%s" % File.name, 'r', encoding = 'utf-8')as csvfile:
             # 调用csv中的DictReader函数直接获取数据为字典形式
-            reader = csv.DictReader(csvfile)
+            reader=csv.DictReader(csvfile)
             # 创建一个counts计数一下 看自己一共添加了了多少条数据
-            counts = 0
+            counts=0
             for each in reader:
                 # 将数据中需要转换类型的数据转换类型。原本全是字符串（string）。
-                each['?rank'] = int(each['?rank'])
-                each['costMoney'] = float(each['costMoney'])
-                each['combat'] = float(each['combat'])
-                each['topHeroesCombat'] = int(each['topHeroesCombat'])
+                each['?rank']=int(each['?rank'])
+                each['costMoney']=float(each['costMoney'])
+                each['combat']=float(each['combat'])
+                each['topHeroesCombat']=int(each['topHeroesCombat'])
                 # each['表显里程'] = float(each['表显里程'])
                 # each['排量'] = float(each['排量'])
                 # each['过户数量'] = int(each['过户数量'])
@@ -901,12 +1066,12 @@ class CommonUploadMeta(APIView):
         docstring
         """
         # print("走的是GET方法")
-        response = {}
-        queryset = FileInfo.objects.all()
-        serializer_class = FileInfoSerializer
-        response['code'] = 200
+        response={}
+        queryset=FileInfo.objects.all()
+        serializer_class=FileInfoSerializer
+        response['code']=200
         # response["Access-Control-Allow-Methods"] = "POST"
-        return HttpResponse(json.dumps(response), content_type="application/json")
+        return HttpResponse(json.dumps(response), content_type = "application/json")
 
     def post(self, request):
         """
@@ -914,16 +1079,16 @@ class CommonUploadMeta(APIView):
         """
         # print("走的是POST方法")
         # file = self.request.POST.get('name',None)  # 获取上传的文件，如果没有文件，则默认为None
-        File = request.FILES.get("file", None)  # 注意比较
+        File=request.FILES.get("file", None)  # 注意比较
         # print(File)
         # print(File.name)   #同上
         # print(File.chunks)  # 二进制信息
-        _id = self.request.POST.get('id')
-        filename = self.request.POST.get('filename')
-        type = self.request.POST.get('type')
-        size = self.request.POST.get('size')
-        upload_date = self.request.POST.get('upload_date')
-        publisher = self.request.POST.get('publisher')
+        _id=self.request.POST.get('id')
+        filename=self.request.POST.get('filename')
+        type=self.request.POST.get('type')
+        size=self.request.POST.get('size')
+        upload_date=self.request.POST.get('upload_date')
+        publisher=self.request.POST.get('publisher')
         # print(filename)
         # print(publisher)
 
@@ -936,24 +1101,24 @@ class CommonUploadMeta(APIView):
             f.close()
 
         #  上传文件到MongoDB中gridfs
-        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        client=MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
 
         # 如果没有数据库，创建数据库
         # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
         # database = "segyfile"
         # print(request.data)
-        database = request.data['colname']  # 从前端拿到数据库名称
-        db = client[database]  # 连接数据库
+        database=request.data['colname']  # 从前端拿到数据库名称
+        db=client[database]  # 连接数据库
 
         with open("./upload/%s" % File.name, 'rb') as f:
-            _id = self.request.POST.get('id')
-            filename = self.request.POST.get('filename')
-            contentType = self.request.POST.get('type')
-            size = self.request.POST.get('size')
-            upload_date = self.request.POST.get('upload_date')
-            publisher = self.request.POST.get('publisher')
+            _id=self.request.POST.get('id')
+            filename=self.request.POST.get('filename')
+            contentType=self.request.POST.get('type')
+            size=self.request.POST.get('size')
+            upload_date=self.request.POST.get('upload_date')
+            publisher=self.request.POST.get('publisher')
             # print(upload_date)
-            dic = {
+            dic={
                 "_id": _id,
                 "filename": filename,
                 "contentType": contentType,
@@ -969,6 +1134,59 @@ class CommonUploadMeta(APIView):
             f.close()
         client.close()
         return HttpResponse("Successful")
+
+# 展示GridFS数据，CommonMetaTable.vue
+@require_http_methods(['GET'])
+def CommonMetaShow(request):
+    """
+    docstring
+    """
+    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    # print(request.GET.get('dbname'))
+    dbname = request.GET.get('dbname')  # 从前端获取数据库名称
+    # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    db = client[dbname]  # 选定数据库
+    fs = GridFS(db, collection='元数据')  # 连接GridFS集合，名称为元数据
+    gf = fs.find_one()
+
+    response = {}
+    data = []
+    for grid_out in fs.find({"$where": "this._id.match(/.*o/)"}):
+
+        response['uploadDate'] = str(grid_out.upload_date)
+
+        data.append(grid_out._file)
+        # print(data)
+        response['list'] = data
+        response['msg'] = 'success'
+        response['error_num'] = 0
+    client.close()
+    return JsonResponse(response, safe=False)  # 不加safe=False的话必须返回dic
+
+# 下载元数据
+@require_http_methods(['GET'])
+def CommonFileDownload(request):
+    """
+    docstring
+    """
+    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+
+    file_id = request.GET.get("_id")
+
+    db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    fs = GridFS(db, collection='元数据')  # 连接GridFS集合，名称为元数据
+
+    # 读取文件
+    filetodown = fs.find_one({"$where": "this._id.match(/.*" + file_id + "/)"})
+
+    # 下载文件
+    File = filetodown.name
+    content = filetodown.read()
+
+    with open("../mongeostore_env/upload/%s" % File, 'wb') as f:
+        f.write(content)
+    client.close()
+    return HttpResponse("success")
 
 
 #################MonGeoStore######################

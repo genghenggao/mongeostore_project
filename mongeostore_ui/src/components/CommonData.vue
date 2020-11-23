@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-22 09:25:11
+ * @LastEditTime: 2020-11-23 22:40:55
 -->
 <template>
   <div class="DataShow">
@@ -20,7 +20,7 @@
           >
             <el-form-item label="关键字:">
               <el-input
-                v-model="searchCondition.ZK_num"
+                v-model="searchCondition.filter_key"
                 suffix-icon="el-icon-view"
                 placeholder="请输入关键字"
                 @keyup.enter.native="onSearchSubmit"
@@ -79,20 +79,19 @@
             <!-- 添加_id字段 -->
             <el-table-column label="_id" prop="_id.$oid"> </el-table-column>
             <!-- 筛选字段 filters,这只是筛选当页的-->
-            <el-table-column
+            <!-- <el-table-column
               fixed="left"
               label="ZK_num"
               prop="ZK_num"
               width="100"
               :filters="filter_data"
               :filter-method="filterHandler"
-            ></el-table-column>
+            ></el-table-column> -->
             <!-- 生成关键词 cols存放关键词-->
             <!-- <template v-for="(col, index) in cols"> -->
             <template v-for="col in cols">
               <!-- 设置排序字段 -->
               <el-table-column
-                v-if="col.Depth === 'normal'"
                 :key="col._id"
                 :prop="col.prop"
                 sortable
@@ -105,18 +104,6 @@
                   <div v-else>
                     <el-input v-model="scope.row[col.prop]"></el-input>
                   </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="col.Depth === 'sort'"
-                :key="col._id"
-                :prop="col.prop"
-                sortable
-                :label="col.label"
-              >
-                <template slot-scope="scope">
-                  <!-- 生成标签 -->
-                  <el-tag type="primary">{{ scope.row.Depth }}</el-tag>
                 </template>
               </el-table-column>
             </template>
@@ -158,7 +145,7 @@
           </el-pagination>
         </div>
         <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
-        <!-- 添加用户的对话框 -->
+        <!-- 添加数据的对话框 -->
         <el-dialog
           title="添加数据"
           :visible.sync="dialogVisible"
@@ -234,15 +221,16 @@ export default {
     // SearchData
   },
   data() {
-    // 校验钻孔号
-    let checkZK_num = (rule, value, callback) => {
-      const regZK_num = /^ZK[0-9]{1,6}/;
-      if (regZK_num.test(value)) {
+    // 校验添加信息
+    let checkKey_word = (rule, value, callback) => {
+      // const regZK_num = /^ZK[0-9]{1,6}/;
+      const regKey_word = /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/;
+      if (regKey_word.test(value)) {
         // 验证通过，合法
         return callback();
       }
       // 验证不通过，不合法
-      callback(new Error("请输入正确的钻孔号(如'ZK1')"));
+      callback(new Error("请输入正确的信息"));
     };
 
     return {
@@ -297,7 +285,7 @@ export default {
       dialogVisible: false,
       // 添加对象
       addForm: {
-        ZK_num: "",
+        filter_key: "",
         _id: "",
         Depth: "",
         Azimuth: "",
@@ -305,7 +293,7 @@ export default {
       },
       // 添加数据框的字段,用来判断是否为空，确定按钮
       add_to_data: {
-        ZK_num: "",
+        filter_key: "",
         Depth: "",
         Azimuth: "",
         Inclination: "",
@@ -314,15 +302,15 @@ export default {
       add_button_state: false,
       // // 添加表单的验证规则对象
       addFormRules: {
-        ZK_num: [
-          { required: true, message: "请输入钻孔号(如'ZK1')", trigger: "blur" },
-          { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
-          { validator: checkZK_num, trigger: "blur" },
+        filter_key: [
+          { required: true, message: "请输入相关信息", trigger: "blur" },
+          { min: 3, max: 10, message: "数据格式有误", trigger: "blur" },
+          { validator: checkKey_word, trigger: "blur" },
         ],
       },
       // 搜索对象
       searchCondition: {
-        ZK_num: "",
+        filter_key: "",
         Depth: "",
         _id: "",
       },
@@ -334,12 +322,7 @@ export default {
     add_to_data: {
       handler(curval, oldval) {
         // console.log(curval);
-        if (
-          curval.ZK_num != "" &&
-          curval.Depth != "" &&
-          curval.Azimuth != "" &&
-          curval.Inclination != ""
-        ) {
+        if (curval[0] != "") {
           this.add_button_state = true;
         } else {
           this.add_button_state = false;
@@ -354,7 +337,7 @@ export default {
   methods: {
     // 展示数据
     showData() {
-      const url = "http://127.0.0.1:8000/load/showdata/";
+      const url = "http://127.0.0.1:8000/load/showcommondata/";
       axios
         .get(url, {
           // orgCode: 1,
@@ -362,6 +345,11 @@ export default {
           // PageSize: n1,
           // // 显示第几页
           // currentPage: n2
+          params: {
+            // 设置上传到后端的数据库和集合名称
+            colname: this.$store.state.title_message,
+            dbname: this.$store.state.temp_database,
+          },
         })
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
@@ -403,16 +391,16 @@ export default {
             listcol.push({
               label: key,
               prop: key,
-              Depth: "normal",
+              // Depth: "normal",
             });
           }
           // console.log(listcol);
           // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
           listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
-          listcol.splice(0, 2); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
-          // listcol[6].nickname = "sort"; //按字段设置排序
+          listcol.splice(0, 1); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
           // console.log(listcol);
-          listcol[0].Depth = "sort"; //按字段设置排序
+          // listcol[6].nickname = "sort"; //按字段设置排序
+          // listcol[0].Depth = "sort"; //按字段设置排序
           this.cols = listcol;
 
           // 添加数据设置字段
@@ -450,12 +438,19 @@ export default {
     addData() {
       // this.addForm.visible = true;
       // 发送添加数据的网络请求
-      const url = "http://127.0.0.1:8000/load/add_data/";
+      const url = "http://127.0.0.1:8000/load/commonadd_data/";
       let tmp_data = this.add_to_data;
       console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
-      axios.post(url, { tmp_data }).then((res) => {
-        console.log("Success");
-      });
+      axios
+        .post(url, {
+          tmp_data,
+          // 设置上传到后端的数据库和集合名称
+          colname: this.$store.state.title_message,
+          dbname: this.$store.state.temp_database,
+        })
+        .then((res) => {
+          console.log("Success");
+        });
 
       // 隐藏添加用户的对话框
       this.dialogVisible = false;
@@ -490,13 +485,16 @@ export default {
         // console.log(row["id"]);
         let json_data = JSON.stringify(row);
 
-        const url = "http://127.0.0.1:8000/load/editdata/";
+        const url = "http://127.0.0.1:8000/load/commoneditdata/";
         axios
           .post(
             url,
             {
               // data: JSON.stringify(row) //data用于post请求
               json_data,
+              // 设置上传到后端的数据库和集合名称
+              colname: this.$store.state.title_message,
+              dbname: this.$store.state.temp_database,
             },
             {
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -527,11 +525,16 @@ export default {
           rows.splice(index, 1);
           let json_data = JSON.stringify(row);
           console.log(json_data);
-          const url = "http://127.0.0.1:8000/load/deletedata/";
+          const url = "http://127.0.0.1:8000/load/commondeletedata/";
           axios
             .post(
               url,
-              { json_data },
+              {
+                json_data,
+                // 设置上传到后端的数据库和集合名称
+                colname: this.$store.state.title_message,
+                dbname: this.$store.state.temp_database,
+              },
               {
                 headers: {
                   "Content-Type": "application/x-www-form-urlencoded",
@@ -560,16 +563,19 @@ export default {
     // 开始搜索
     onSearchSubmit() {
       // this.initAdminList(1);
-      if (this.searchCondition.ZK_num == "") {
+      if (this.searchCondition.filter_key == "") {
         this.$message.warning("查询条件不能为空！");
         return;
       }
-      console.log(this.searchCondition.ZK_num);
-      let ZK_num_data = this.searchCondition.ZK_num;
-      const url = "http://127.0.0.1:8000/load/querydata/";
+      console.log(this.searchCondition.filter_key);
+      let filter_key_data = this.searchCondition.filter_key;
+      const url = "http://127.0.0.1:8000/load/commonquerydata/";
       axios
         .post(url, {
-          ZK_num_data,
+          filter_key_data,
+          // 设置上传到后端的数据库和集合名称
+          colname: this.$store.state.title_message,
+          dbname: this.$store.state.temp_database,
         })
         .then((response) => {
           if (response.data) {

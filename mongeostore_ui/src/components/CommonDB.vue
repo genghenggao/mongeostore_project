@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-19 15:15:31
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-22 22:34:23
+ * @LastEditTime: 2020-11-23 09:43:55
 -->
 
 <template>
@@ -80,7 +80,8 @@
             role="tabpanel"
             aria-labelledby="nav-profile-tab"
           >
-            <SeiTable />
+            <!-- <SeiTable /> -->
+            <CommonMetaTable />
           </div>
           <div
             class="tab-pane fade"
@@ -118,6 +119,7 @@ import SeiTable from "@/components/SeiTable.vue";
 import CommonUploadExcel from "@/components/CommonUploadExcel.vue";
 import CommonData from "@/components/CommonData.vue";
 import CommonUploadMeta from "@/components/CommonUploadMeta.vue";
+import CommonMetaTable from "@/components/CommonMetaTable.vue";
 export default {
   name: "CommonDB",
   components: {
@@ -131,6 +133,7 @@ export default {
     CommonData,
     CommonUploadExcel,
     CommonUploadMeta,
+    CommonMetaTable,
   },
   data() {
     return {

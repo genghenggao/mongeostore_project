@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 20:12:11
+ * @LastEditTime: 2020-11-23 18:42:24
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -139,7 +139,14 @@ const routes = [
     path: "/mongeostore",
     name: "MonGeoStore",
     component: () =>
-      import(/* webpackChunkName: "about" */ "@/views/MonGeoStore.vue")
+      import(/* webpackChunkName: "about" */ "@/views/MonGeoStore.vue"),
+    children: [
+      {
+        path: "/defaultpage",
+        name: "DefaultPage",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/DefaultPage.vue")
+      }]
   },
 ];
 

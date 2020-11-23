@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-19 19:18:54
+ * @LastEditTime: 2020-11-23 18:46:56
 -->
 <!--
  * @Description: henggao_learning
@@ -144,7 +144,7 @@
                 </el-submenu>
               </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="3">
+            <el-submenu index="/defaultpage">
               <template slot="title">
                 <i
                   class="el-icon-menu"

@@ -370,13 +370,22 @@ export default {
       this.$store.state.title_message = obj["label"]; //给标题动态赋值
       this.$store.state.DBorCol = obj["isEdit"]; //设置参数，判断数据库还是集合
       this.$store.state.temp_database = obj["_database"]; //判断集合属于哪个数据库
+      // 点击不同集合，数据动态展示数据
       if (!obj["isEdit"]) {
         const url = "http://127.0.0.1:8000/load/showcommondata/";
         axios
-          .post(url, { colname: obj["label"], dbname: obj["_database"] })
+          .get(url, {
+            params: {
+              // 设置上传到后端的数据库和集合名称
+              colname: this.$store.state.title_message,
+              dbname: this.$store.state.temp_database,
+            },
+          })
           .then((res) => {
             // console.log("success");
-            // console.log(res.data);
+            console.log(res.data);
+            // this.tableData = res.data;
+            this.$store.state.colData = res.data; //将集合数据写入store，组件使用自取
           })
           .catch(() => {
             console.log("error");

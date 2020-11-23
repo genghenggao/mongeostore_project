@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-22 22:43:44
+LastEditTime: 2020-11-23 22:36:11
 '''
 from .views import FileInfoView
 from django.urls import include, path
@@ -31,7 +31,17 @@ urlpatterns = [
     path('deletecollection/', views.DeleteCollection, name="deletecollection"),
     path('editdatabasename/', views.EditDataBase, name="editdatabasename"),
     # mongeostore
-    path('showcommondata/', views.ShowCommonData, name="showcommondata"),
+    path('showcommondata/', views.ShowCommonData,
+         name="showcommondata"),  # Collection展示数据
+    path('commoneditdata/', views.CommonEditData,
+         name="commoneditdata"),  # Collection编辑数据
+    path('commondeletedata/', views.CommonDeleteData,
+         name="commondeletedata"),  # Collection删除表格数据
+    path('commonadd_data/', views.CommonAddData,
+         name="commonadd_data"),  # Collection添加数据
+    path('commonquerydata/', views.CommonQueryData,
+         name="commonquerydata"),  # Collection数据搜索
+
     path('showdrillclination/', DrillInclinationPageView.as_view(),
          name="showdrillclination"),  # 钻孔测斜表
     path('commonuploadexcel/', CommonUploadExcel.as_view(),
@@ -40,6 +50,10 @@ urlpatterns = [
          name="commonuploadcsv"),  # 上传CSV
     path('commonuploadmeta/', CommonUploadMeta.as_view(),
          name="commonuploadmeta"),  # 上传元数据到GridFS
+    path('commonmetashow/', views.CommonMetaShow,
+         name="commonmetashow"),  # GridFS 源数据表格展示，有点小问题
+    path('commonfiledownload/', views.CommonFileDownload,
+         name="commonfiledownload"),  # 下载元数据，还没完成
 
 
 ]
