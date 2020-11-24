@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-23 22:57:40
+LastEditTime: 2020-11-24 20:00:49
 '''
 from rest_framework.pagination import PageNumberPagination
 import time
@@ -893,6 +893,8 @@ def CommonAddData(request):
 
 #  collection数据搜索
 
+# Collection查询数据
+
 
 def CommonQueryData(request):
     """
@@ -914,14 +916,14 @@ def CommonQueryData(request):
         db_coll = db[collection]
         # 根据字段匹配到后端数据
         listkeys = db_coll.find_one().keys()  # <class 'dict_keys'>
-        second_key = list(listkeys)[1]
+        second_key = list(listkeys)[1]  # 这里使用第二个字段进行查询
 
-        datainfo=[]
-        content={}
-        cursors=db_coll.find({second_key: filter_key})
+        datainfo = []
+        content = {}
+        cursors = db_coll.find({second_key: filter_key})
         for cursor in cursors:
             datainfo.append(cursor)
-            content=dumps(datainfo)
+            content = dumps(datainfo)
         # print(content)
         client.close()
         return HttpResponse(content, "application/json")
@@ -939,7 +941,7 @@ class CommonUploadExcel(APIView):
         """
         docstring
         """
-        File=request.FILES.get("file", None)
+        File = request.FILES.get("file", None)
         # print(request.data)
 
         return HttpResponse(File)
@@ -950,7 +952,7 @@ class CommonUploadExcel(APIView):
         docstring
         """
         # 从前端拿到数据
-        File=request.FILES.get("file", None)
+        File = request.FILES.get("file", None)
         # print('post')
         # print(request.data)
         # print(request.data['colname'])
@@ -964,35 +966,35 @@ class CommonUploadExcel(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client=pymongo.MongoClient("192.168.55.110", 20000)
+        client = pymongo.MongoClient("192.168.55.110", 20000)
         # database = "segyfile"
-        database=request.data['dbname']  # 从前端拿到数据库名称
-        db=client[database]  # 连接数据库
+        database = request.data['dbname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
         # collection = "excel_data"
-        collection=request.data['colname']  # 从前端拿到数集合名称
-        db_coll=db[collection]  # 连接集合
+        collection = request.data['colname']  # 从前端拿到数集合名称
+        db_coll = db[collection]  # 连接集合
 
         # 读取Excel文件
-        data=xlrd.open_workbook("./upload/%s" % File.name)
-        list=data.sheet_names()  # 拿到EXcel的sheet名称
+        data = xlrd.open_workbook("./upload/%s" % File.name)
+        list = data.sheet_names()  # 拿到EXcel的sheet名称
         if collection in list:
             print("yes")
             print(list.index(collection))  # 判断元素的位置
-            x=list.index(collection)  # 获取集合的位置
+            x = list.index(collection)  # 获取集合的位置
         else:
-            x=0  # 不存在设置默认第一个sheet
+            x = 0  # 不存在设置默认第一个sheet
         print(x)
-        table=data.sheets()[x]
+        table = data.sheets()[x]
         # 读取excel第一行数据作为存入mongodb的字段名
-        rowstag=table.row_values(0)
-        nrows=table.nrows
-        returnData={}
+        rowstag = table.row_values(0)
+        nrows = table.nrows
+        returnData = {}
 
         for i in range(1, nrows):
             # 将字段名和excel数据存储为字典形式，并转换为json格式
-            returnData[i]=json.dumps(dict(zip(rowstag, table.row_values(i))))
+            returnData[i] = json.dumps(dict(zip(rowstag, table.row_values(i))))
             # 通过编解码还原数据
-            returnData[i]=json.loads(returnData[i])
+            returnData[i] = json.loads(returnData[i])
             print(returnData[i])
             db_coll.insert(returnData[i])
         client.close()
@@ -1009,7 +1011,7 @@ class CommonUploadCSV(APIView):
         """
         docstring
         """
-        File=request.FILES.get("file", None)
+        File = request.FILES.get("file", None)
 
         return HttpResponse(File)
     # @require_http_methods(['POST'])
@@ -1019,7 +1021,7 @@ class CommonUploadCSV(APIView):
         docstring
         """
         # 从前端拿到数据
-        File=request.FILES.get("file", None)
+        File = request.FILES.get("file", None)
         # 保存到本地
         if not os.path.exists('upload/'):
             os.mkdir('upload/')
@@ -1028,25 +1030,25 @@ class CommonUploadCSV(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client=pymongo.MongoClient("192.168.55.110", 20000)
+        client = pymongo.MongoClient("192.168.55.110", 20000)
         # database = "segyfile"
-        database=request.data['dbname']  # 从前端拿到数据库名称
-        db=client[database]  # 连接数据库
+        database = request.data['dbname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
         # collection = "excel_data"
-        collection=request.data['colname']  # 从前端拿到数集合名称
-        db_coll=db[collection]  # 连接集合
+        collection = request.data['colname']  # 从前端拿到数集合名称
+        db_coll = db[collection]  # 连接集合
 
-        with open("./upload/%s" % File.name, 'r', encoding = 'utf-8')as csvfile:
+        with open("./upload/%s" % File.name, 'r', encoding='utf-8')as csvfile:
             # 调用csv中的DictReader函数直接获取数据为字典形式
-            reader=csv.DictReader(csvfile)
+            reader = csv.DictReader(csvfile)
             # 创建一个counts计数一下 看自己一共添加了了多少条数据
-            counts=0
+            counts = 0
             for each in reader:
                 # 将数据中需要转换类型的数据转换类型。原本全是字符串（string）。
-                each['?rank']=int(each['?rank'])
-                each['costMoney']=float(each['costMoney'])
-                each['combat']=float(each['combat'])
-                each['topHeroesCombat']=int(each['topHeroesCombat'])
+                each['?rank'] = int(each['?rank'])
+                each['costMoney'] = float(each['costMoney'])
+                each['combat'] = float(each['combat'])
+                each['topHeroesCombat'] = int(each['topHeroesCombat'])
                 # each['表显里程'] = float(each['表显里程'])
                 # each['排量'] = float(each['排量'])
                 # each['过户数量'] = int(each['过户数量'])
@@ -1066,12 +1068,12 @@ class CommonUploadMeta(APIView):
         docstring
         """
         # print("走的是GET方法")
-        response={}
-        queryset=FileInfo.objects.all()
-        serializer_class=FileInfoSerializer
-        response['code']=200
+        response = {}
+        queryset = FileInfo.objects.all()
+        serializer_class = FileInfoSerializer
+        response['code'] = 200
         # response["Access-Control-Allow-Methods"] = "POST"
-        return HttpResponse(json.dumps(response), content_type = "application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     def post(self, request):
         """
@@ -1079,16 +1081,16 @@ class CommonUploadMeta(APIView):
         """
         # print("走的是POST方法")
         # file = self.request.POST.get('name',None)  # 获取上传的文件，如果没有文件，则默认为None
-        File=request.FILES.get("file", None)  # 注意比较
+        File = request.FILES.get("file", None)  # 注意比较
         # print(File)
         # print(File.name)   #同上
         # print(File.chunks)  # 二进制信息
-        _id=self.request.POST.get('id')
-        filename=self.request.POST.get('filename')
-        type=self.request.POST.get('type')
-        size=self.request.POST.get('size')
-        upload_date=self.request.POST.get('upload_date')
-        publisher=self.request.POST.get('publisher')
+        _id = self.request.POST.get('id')
+        filename = self.request.POST.get('filename')
+        type = self.request.POST.get('type')
+        size = self.request.POST.get('size')
+        upload_date = self.request.POST.get('upload_date')
+        publisher = self.request.POST.get('publisher')
         # print(filename)
         # print(publisher)
 
@@ -1101,24 +1103,24 @@ class CommonUploadMeta(APIView):
             f.close()
 
         #  上传文件到MongoDB中gridfs
-        client=MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
 
         # 如果没有数据库，创建数据库
         # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
         # database = "segyfile"
         # print(request.data)
-        database=request.data['colname']  # 从前端拿到数据库名称
-        db=client[database]  # 连接数据库
+        database = request.data['colname']  # 从前端拿到数据库名称
+        db = client[database]  # 连接数据库
 
         with open("./upload/%s" % File.name, 'rb') as f:
-            _id=self.request.POST.get('id')
-            filename=self.request.POST.get('filename')
-            contentType=self.request.POST.get('type')
-            size=self.request.POST.get('size')
-            upload_date=self.request.POST.get('upload_date')
-            publisher=self.request.POST.get('publisher')
+            _id = self.request.POST.get('id')
+            filename = self.request.POST.get('filename')
+            contentType = self.request.POST.get('type')
+            size = self.request.POST.get('size')
+            upload_date = self.request.POST.get('upload_date')
+            publisher = self.request.POST.get('publisher')
             # print(upload_date)
-            dic={
+            dic = {
                 "_id": _id,
                 "filename": filename,
                 "contentType": contentType,
@@ -1169,11 +1171,13 @@ def CommonFileDownload(request):
     """
     docstring
     """
+
+    print(request.GET.get('dbname'))
     client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
 
     file_id = request.GET.get("_id")
-
-    db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    db = request.GET.get('dbname')  # 获取数据库名称
+    db = client[db]  # 选定数据库，设定数据库名称为segyfile
     fs = GridFS(db, collection='元数据')  # 连接GridFS集合，名称为元数据
 
     # 读取文件
@@ -1187,6 +1191,7 @@ def CommonFileDownload(request):
         f.write(content)
     client.close()
     return HttpResponse("success")
+    # return render(request,"http://localhost:8080/mongeostore")
 
 
 #################MonGeoStore######################

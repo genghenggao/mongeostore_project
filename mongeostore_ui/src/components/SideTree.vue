@@ -1,12 +1,18 @@
 <template>
   <div class="custom-tree-container">
     <div class="block">
+      <el-input placeholder="输入关键字进行过滤" v-model="filterText">
+      </el-input>
       <el-tree
+        class="filter-tree"
         :data="data"
         node-key="id"
+        :props="defaultProps"
         default-expand-all
+        :filter-node-method="filterNode"
         :expand-on-click-node="false"
         @node-click="handleNodeClick"
+        ref="tree"
       >
         <span
           class="custom-tree-node"
@@ -14,7 +20,7 @@
           @mouseenter="mouseenter(data)"
           @mouseleave="mouseleave(data)"
         >
-          <span v-if="data.isEdit"
+          <span v-if="data.isEdit" style="font-weight: bold"
             ><i class="el-icon-folder"></i>{{ node.label }}</span
           >
           <span v-else-if="!data.isEdit"
@@ -60,7 +66,8 @@ import qs from "qs";
 let id = 1000;
 
 export default {
-  name: "Test3",
+  name: "SideTree",
+  inject: ["reload"], //刷新页面
   data() {
     const data = [
       {
@@ -114,15 +121,33 @@ export default {
     ];
     return {
       data: JSON.parse(JSON.stringify(data)),
-      // data: JSON.parse(JSON.stringify(data)),
       sub_message: "", //用于父标题名称
+      filterText: "",
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
     };
+  },
+  components: {
+    // CommonData: () => import("./CommonData.vue"), //子组件
   },
   created() {
     this.showDataBase();
   },
+  watch: {
+    // 树形目录过滤
+    filterText(val) {
+      this.$refs.tree.filter(val);
+    },
+  },
 
   methods: {
+    // 过滤目录
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
+    },
     // 读取数据库信息，返回前端页面展示
     showDataBase() {
       let url = "http://127.0.0.1:8000/load/showdatabase/";
@@ -130,7 +155,7 @@ export default {
       axios
         .get(url, {})
         .then((res) => {
-          // console.log(res.data); //打印后端传过来的数据,string
+          console.log(res.data); //打印后端传过来的数据,string
           // console.log(res.data.length); //打印后端d对象个数
           // console.log(typeof res.data); //打印后端传过来的数据类型
           this.data = res.data;
@@ -371,25 +396,28 @@ export default {
       this.$store.state.DBorCol = obj["isEdit"]; //设置参数，判断数据库还是集合
       this.$store.state.temp_database = obj["_database"]; //判断集合属于哪个数据库
       // 点击不同集合，数据动态展示数据
+      this.reload(); //重载页面
       if (!obj["isEdit"]) {
-        const url = "http://127.0.0.1:8000/load/showcommondata/";
-        axios
-          .get(url, {
-            params: {
-              // 设置上传到后端的数据库和集合名称
-              colname: this.$store.state.title_message,
-              dbname: this.$store.state.temp_database,
-            },
-          })
-          .then((res) => {
-            // console.log("success");
-            console.log(res.data);
-            // this.tableData = res.data;
-            this.$store.state.colData = res.data; //将集合数据写入store，组件使用自取
-          })
-          .catch(() => {
-            console.log("error");
-          });
+        // this.reload(); //重载页面
+        // this.$refs.CommonData.showData();
+        // const url = "http://127.0.0.1:8000/load/showcommondata/";
+        // axios
+        //   .get(url, {
+        //     params: {
+        //       // 设置上传到后端的数据库和集合名称
+        //       colname: this.$store.state.title_message,
+        //       dbname: this.$store.state.temp_database,
+        //     },
+        //   })
+        //   .then((res) => {
+        //     // console.log("success");
+        //     console.log(res.data);
+        //     // this.tableData = res.data;
+        //     this.$store.state.colData = res.data; //将集合数据写入store，组件使用自取
+        //   })
+        //   .catch(() => {
+        //     console.log("error");
+        //   });
       }
     },
   },

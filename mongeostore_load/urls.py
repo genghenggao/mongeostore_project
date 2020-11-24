@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-23 22:36:11
+LastEditTime: 2020-11-24 19:21:20
 '''
 from .views import FileInfoView
 from django.urls import include, path
@@ -53,7 +53,7 @@ urlpatterns = [
     path('commonmetashow/', views.CommonMetaShow,
          name="commonmetashow"),  # GridFS 源数据表格展示，有点小问题
     path('commonfiledownload/', views.CommonFileDownload,
-         name="commonfiledownload"),  # 下载元数据，还没完成
+         name="commonfiledownload"),  # 下载元数据
 
 
 ]

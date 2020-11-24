@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-23 18:46:56
+ * @LastEditTime: 2020-11-24 22:26:45
 -->
 <!--
  * @Description: henggao_learning
@@ -32,7 +32,7 @@
       </div>
       <div class="title_search">
         <el-row class="demo-autocomplete">
-          <el-col :span="15">
+          <!-- <el-col :span="15">
             <el-autocomplete
               class="inline-input"
               v-model="state"
@@ -41,17 +41,23 @@
               :trigger-on-focus="false"
               @select="handleSelect"
             ></el-autocomplete>
-          </el-col>
-          <el-col :span="9"
-            ><el-button
+          </el-col> -->
+          <el-col :span="24">
+            <!-- <el-button
               type=""
               plain
               size="small"
               icon="el-icon-search"
               style="font-size: 15px; color: #b36262"
               >搜索</el-button
-            ></el-col
-          >
+            > -->
+            <div
+              class="grid-content"
+              style="font-size: 18px; color: white; padding-top: 5px"
+            >
+              {{ date }}
+            </div>
+          </el-col>
         </el-row>
       </div>
     </div>
@@ -66,6 +72,7 @@
             class="el-menu-vertical-demo"
             @open="handleOpen"
             @close="handleClose"
+            :default-openeds="openeds"
           >
             <el-submenu index="1">
               <template slot="title">
@@ -167,11 +174,52 @@ export default {
   components: { SideTree },
   data() {
     return {
-      // 搜索框
-      state: "",
+      openeds: ["1"], //默认展开导航
+      // 搜索框数据
+      state: "", //存放所有数据库、集合的名称
+      date: "您好，欢迎访问MeoGeoStore！", //当前时间
     };
   },
+  mounted() {
+    let _this = this; // 声明一个变量指向Vue实例this，保证作用域一致
+    this.timer = setInterval(() => {
+      // _this.date = new Date(); // 修改数据date
+      _this.date = this.getTime(); // 修改数据date
+    }, 1000);
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
+    }
+  },
   methods: {
+    // 格式下时间
+    padDate(value) {
+      return value < 10 ? "0" + value : value;
+    },
+    getTime() {
+      var date1 = new Date();
+      var year = date1.getFullYear();
+      var month = this.padDate(date1.getMonth() + 1);
+      var day = this.padDate(date1.getDate());
+      var hours = this.padDate(date1.getHours());
+      var minutes = this.padDate(date1.getMinutes());
+      // var seconds = date1.getSeconds();
+      var seconds = this.padDate(date1.getSeconds());
+      return (
+        year +
+        "年" +
+        month +
+        "月" +
+        day +
+        "日" +
+        hours +
+        ":" +
+        minutes +
+        ":" +
+        seconds
+      );
+    },
     handleOpen(key, keyPath) {
       // console.log(key, keyPath);
     },

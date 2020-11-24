@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-09-03 21:26:19
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-23 18:34:17
+ * @LastEditTime: 2020-11-24 16:04:43
  */
 import Vue from "vue";
 import Vuex from "vuex";
@@ -18,6 +18,9 @@ export default new Vuex.Store({
     temp_database: "", //当前集合属于哪个数据库，如果是数据库则为空
     colData: "",//存放当前集合的数据
   },
+  // 相当于计算属性
+  getters:{},
+  // 相当于methods
   mutations: {},
   actions: {},
   modules: {}

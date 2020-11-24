@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-20 10:50:47
+ * @LastEditTime: 2020-11-24 17:09:36
 -->
 <template>
   <el-container>
@@ -22,7 +22,7 @@
                 <img src="@/assets/重点实验室logo-removebg.png" alt=""
               /></a></div
           ></el-header>
-          <el-main class="sub_main_content"
+          <el-main class="sub_main_content" v-if="isRouterAlive"
             ><div v-if="!this.$store.state.DBorCol">
               <div
                 v-if="
@@ -65,18 +65,31 @@ import CommonDB from "@/components/CommonDB.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
+  provide() {
+    return {
+      reload: this.reload,
+    };
+  },
   components: { Navbar, SideCatalog, CommonCol, SideTree, CommonDB },
   data() {
     return {
       //   parent_message: "地震大数据管理系统",
       //   parent_message: this.$store.state.title_message,
+      isRouterAlive: true,
     };
   },
   created() {},
   computed: {
     ...mapState(["title_message", "DBorCol", "temp_database"]), //title_message设置动态标题；DBorCol判断是数据库，还是集合；
   },
-  methods: {},
+  methods: {
+    reload() {
+      this.isRouterAlive = false;
+      this.$nextTick(function () {
+        this.isRouterAlive = true;
+      });
+    },
+  },
 };
 </script>
 

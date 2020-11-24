@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-23 09:29:30
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-23 16:44:49
+ * @LastEditTime: 2020-11-24 19:15:31
 -->
 <template>
   <div class="seismictable" style="overflow: scroll; max-height: 775px">
@@ -86,13 +86,10 @@ export default {
   mounted() {
     // this.showFile();
   },
-  watch:{
-
-  },
+  watch: {},
   methods: {
     showFile() {
-      const url =
-        "http://127.0.0.1:8000/load/commonmetashow/";
+      const url = "http://127.0.0.1:8000/load/commonmetashow/";
       axios
         .get(url, {
           params: {
@@ -103,9 +100,10 @@ export default {
         })
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
-        //   console.log(response);
+          //   console.log(response);
           // console.log(response.data.filename);
           var result = response.data.list;
+          let dbname = this.$store.state.title_message;
           this.files = result;
           $(response.data.list).each(function (i, values) {
             const url = "http://127.0.0.1:8000/load/commonfiledownload/?_id=";
@@ -145,6 +143,9 @@ export default {
                 "<a href=" +
                 url +
                 values._id +
+                "&" +
+                "dbname=" +
+                dbname +
                 ">" +
                 "DownLoad" +
                 "</button>" +

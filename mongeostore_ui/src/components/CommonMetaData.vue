@@ -2,6 +2,14 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
+ * @Date: 2020-11-24 18:21:37
+ * @LastEditors: henggao
+ * @LastEditTime: 2020-11-24 18:29:11
+-->
+<!--
+ * @Description: henggao_learning
+ * @version: v1.0.0
+ * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
  * @LastEditTime: 2020-11-24 17:34:11
@@ -339,7 +347,7 @@ export default {
   methods: {
     // 展示数据
     showData() {
-      const url = "http://127.0.0.1:8000/load/showcommondata/";
+      const url = "http://127.0.0.1:8000/load/commonmetashow/";
       axios
         .get(url, {
           // orgCode: 1,
@@ -349,8 +357,7 @@ export default {
           // currentPage: n2
           params: {
             // 设置上传到后端的数据库和集合名称
-            colname: this.$store.state.title_message,
-            dbname: this.$store.state.temp_database,
+            dbname: this.$store.state.title_message,
           },
         })
         .then((response) => {
