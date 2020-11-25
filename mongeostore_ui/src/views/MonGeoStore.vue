@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-24 17:09:36
+ * @LastEditTime: 2020-11-25 17:13:35
 -->
 <template>
   <el-container>
@@ -26,12 +26,14 @@
             ><div v-if="!this.$store.state.DBorCol">
               <div
                 v-if="
-                  this.$store.state.temp_database == '地震数据管理子系统' &&
-                  this.$store.state.title_message == '地质数据'
+                  this.$store.state.temp_database == '钻孔数据管理子系统' &&
+                  this.$store.state.title_message == '测斜表'
                 "
               >
-                {{ title_message }}
-                {{ temp_database }}
+                <!-- {{ title_message }}
+                {{ temp_database }} -->
+                <InclinationData />
+                
               </div>
               <div v-else>
                 <CommonCol />
@@ -62,6 +64,7 @@ import SideCatalog from "@/components/SideCatalog.vue";
 import SideTree from "@/components/SideTree.vue";
 import CommonCol from "@/components/CommonCol.vue";
 import CommonDB from "@/components/CommonDB.vue";
+import InclinationData from "@/components/drill/InclinationData.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -70,7 +73,7 @@ export default {
       reload: this.reload,
     };
   },
-  components: { Navbar, SideCatalog, CommonCol, SideTree, CommonDB },
+  components: { Navbar, SideCatalog, CommonCol, SideTree, CommonDB ,InclinationData},
   data() {
     return {
       //   parent_message: "地震大数据管理系统",

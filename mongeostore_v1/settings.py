@@ -100,6 +100,13 @@ DATABASES = {
             'host': '192.168.55.110:27017',
         }
     },
+    'others': {
+        'ENGINE': 'djongo',
+        'NAME': 'Django的一些参数',
+        'CLIENT': {
+            'host': '192.168.55.110:20000',
+        }
+    },
     'drill': {
         'ENGINE': 'djongo',
         'NAME': '钻孔数据管理子系统',
@@ -131,7 +138,7 @@ DATABASE_APPS_MAPPING = {
     # example:
     # 'app_name':'database_name',
     'mongeostore_app': 'default',
-    # 'mongeostore_load': 'drill', #这里由于数据库用到不同的集合，可以在models中具体配置
+    'mongeostore_load': 'others',  # 这里由于数据库用到不同的集合，可以在models中具体配置
 }
 
 # Password validation
@@ -211,7 +218,7 @@ STATICFILES_DIRS = [  # 添加静态文件路径
 # RESR_FRAMEWORK配置
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 2,
+    'PAGE_SIZE': 2,  # 每页显示多少条数据
     # 用户登录认证方式
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # 取出用户信息放入request.user

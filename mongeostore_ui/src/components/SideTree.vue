@@ -1,7 +1,7 @@
 <template>
   <div class="custom-tree-container">
     <div class="block">
-      <el-input placeholder="输入关键字进行过滤" v-model="filterText">
+      <el-input placeholder="输入关键字进行搜索" v-model="filterText">
       </el-input>
       <el-tree
         class="filter-tree"
@@ -155,7 +155,7 @@ export default {
       axios
         .get(url, {})
         .then((res) => {
-          console.log(res.data); //打印后端传过来的数据,string
+          // console.log(res.data); //打印后端传过来的数据,string
           // console.log(res.data.length); //打印后端d对象个数
           // console.log(typeof res.data); //打印后端传过来的数据类型
           this.data = res.data;

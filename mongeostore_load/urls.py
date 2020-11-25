@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-24 19:21:20
+LastEditTime: 2020-11-25 16:43:59
 '''
+from os import name
 from .views import FileInfoView
 from django.urls import include, path
 
@@ -51,9 +52,10 @@ urlpatterns = [
     path('commonuploadmeta/', CommonUploadMeta.as_view(),
          name="commonuploadmeta"),  # 上传元数据到GridFS
     path('commonmetashow/', views.CommonMetaShow,
-         name="commonmetashow"),  # GridFS 源数据表格展示，有点小问题
+         name="commonmetashow"),  # GridFS 源数据表格展示
     path('commonfiledownload/', views.CommonFileDownload,
          name="commonfiledownload"),  # 下载元数据
-
+    path('drillinclination/', DrillInclinationPageView.as_view(),
+         name='drillinclination'),  # 钻孔数据分页测试
 
 ]

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-25 15:14:09
+ * @LastEditTime: 2020-11-25 22:58:08
 -->
 <template>
   <div class="DataShow">
@@ -64,12 +64,7 @@
           <el-table
             class="tb-edit"
             highlight-current-row
-            :data="
-              tableData.slice(
-                (currentPage - 1) * PageSize,
-                currentPage * PageSize
-              )
-            "
+            :data="tableData"
             style="width: 100%"
             max-height="690px"
             @selection-change="handleSelectionChange"
@@ -78,7 +73,7 @@
             <!-- 选择框设置 -->
             <el-table-column type="selection" width="55"> </el-table-column>
             <!-- 添加_id字段 -->
-            <el-table-column label="_id" prop="_id.$oid"> </el-table-column>
+            <el-table-column label="_id" prop="_id"> </el-table-column>
             <!-- 筛选字段 filters,这只是筛选当页的-->
             <!-- <el-table-column
               fixed="left"
@@ -218,7 +213,7 @@ import qs from "qs";
 
 // import SearchData from "@/components/SearchData.vue";
 export default {
-  name: "CommonData",
+  name: "InclinationData",
   components: {
     // SearchData
   },
@@ -339,31 +334,34 @@ export default {
   methods: {
     // 展示数据,将页码及每页显示的条数以参数传递提交给后台
     showData(n1, n2) {
-      const url = "http://127.0.0.1:8000/load/showcommondata/";
+      const url = "http://127.0.0.1:8000/load/drillinclination/";
       axios
-        .post(
+        .get(
           url,
           {
-            orgCode: 1,
-            // 每页显示的条数
-            PageSize: n1,
-            // 显示第几页
-            currentPage: n2,
             // 设置上传到后端的数据库和集合名称
-            colname: this.$store.state.title_message,
-            dbname: this.$store.state.temp_database,
-          },
-          { emulateJSON: true },
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            // colname: this.$store.state.title_message,
+            // dbname: this.$store.state.temp_database,
+            params: {
+              // 每页显示的条数
+              PageSize: n1,
+              // 显示第几页
+              currentPage: n2,
             },
           }
+          // { emulateJSON: true },
+          // {
+          //   headers: {
+          //     "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+          //   },
+          // }
         )
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
           // console.log(response);
           console.log(response.data);
+          console.log(response.data.data);
+          // console.log(response.data.data.list);
           // console.log("取到单个数据");
           // console.log(typeof response.data);
           // let detailsnew = JSON.parse(JSON.stringify(this.detailslist));
@@ -377,15 +375,17 @@ export default {
           // console.log(typeof this.tableData)
           // this.tableData = datatset;
           // 将数据赋值给tableData
-          this.tableData = response.data;
+          // this.tableData = response.data;
+          this.tableData = response.data.data.list;
           // this.tableData = this.$store.state.colData;
           // this.searchCondition = response.data;
           // 分页所需信息
           // 将数据的长度赋值给totalCount
           // this.totalCount = response.data.length; //分页总数
-          this.totalCount = this.tableData.length; //分页总数
+          // this.totalCount = this.tableData.length; //分页总数
+          this.totalCount = response.data.data.count; //分页总数
           //渲染表格,根据值
-          this.currentChangePage(this.tableData);
+          this.currentChangePage(response.data.data.list);
           //页面初始化数据需要判断是否检索过
           // console.log(this.tableData);
           // console.log(typeof this.tableData);
@@ -407,7 +407,7 @@ export default {
           }
           // console.log(listcol);
           // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
-          listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
+          // listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
           listcol.splice(0, 1); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
           // console.log(listcol);
           // listcol[6].nickname = "sort"; //按字段设置排序
@@ -647,13 +647,30 @@ export default {
       }
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage = 1;
-      this.handleCurrentChange(this.currentPage);
+      // this.handleCurrentChange(this.currentPage);
     },
     // 监听 pageSize 改变的事件，显示第几页
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
       // 改变默认的页数
       this.currentPage = val;
+      // const url = "http://127.0.0.1:8000/load/drillinclination/";
+      // axios
+      //   .get(url, {
+      //     params: {
+      //       // 每页显示的条数
+      //       PageSize: this.PageSize,
+      //       // 显示第几页
+      //       currentPage: val,
+      //     },
+      //   })
+      //   .then((response) => {
+      //     this.tableData = response.data.data.list;
+      //     console.log(this.tableData);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
       // 切换页码时，要获取每页显示的条数
       // console.log(this.pageSize);
       // this.showData(this.PageSize, val * this.pageSize);
@@ -678,6 +695,7 @@ export default {
       for (; from < to; from++) {
         if (list[from]) {
           this.tableData.push(list[from]);
+          console.log("ganshane");
         }
       }
     },

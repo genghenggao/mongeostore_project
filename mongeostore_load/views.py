@@ -4,13 +4,14 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-24 20:00:49
+LastEditTime: 2020-11-25 21:46:28
 '''
 from rest_framework.pagination import PageNumberPagination
 import time
 import collections
 import re
 from bson.objectid import ObjectId
+from rest_framework.response import Response
 import xlrd
 import csv
 from bson.json_util import dumps
@@ -714,47 +715,90 @@ def DeleteCollection(request):
 # 自定义分页类，实现分页功能
 # 创建分页类
 class MyPagination(PageNumberPagination):
-    page_size = 10
-    # 每页显示数据的数量
-    max_page_size = 50
-    # 每页最多可以显示的数据数量
-    page_query_param = 'page'
-    # 获取页码时用的参数
-    page_size_query_param = 'size'
-    # 调整每页显示数量的参数名
+    page_size = 10  # 每页显示数据的数量
 
+    max_page_size = 100   # 每页最多可以显示的数据数量
+
+    page_query_param = 'currentPage'  # 获取页码时用的参数,当前页码
+
+    page_size_query_param = 'PageSize'  # 调整每页显示数量的参数名，每页数据大小
+
+    # 指定返回格式，根据需求返回一个总页数，数据存在results字典里返回
+
+    def get_paginated_response(self, data):
+        """重写get_paginated_response方法"""
+
+        tpl = {
+            'count': self.page.paginator.count,  # 总条数
+            'links': {
+                'next': self.get_next_link(),  # 下一页
+                'previous': self.get_previous_link()  # 上一页
+            }
+        }
+        tpl.update(data)  # 重新定义模板
+        res = {
+            'data': tpl,
+            'retCode': 0,
+            'retMsg': u"成功 | Success"
+        }
+        # 通过渲染器进行返回
+        return Response(res)
+
+
+# 钻孔数据管理子系统---测斜表分页
 
 class DrillInclinationPageView(APIView):
     def get(self, request, *args, **kwargs):
-        drill_obj = DrillInclinationModel.objects.using('drill').all()
-        pg = MyPagination()
-        page = pg.paginate_queryset(
+        # 数据获取，使用using('drill')需要在settings.py中配置
+        print(request.GET)
+
+        page_size = request.GET['PageSize']
+        print(page_size)
+        drill_obj = DrillInclinationModel.objects.using(
+            'drill').all().order_by('_id')  # 一定要排序
+        # totalcount = drill_obj.count()  # 总数据数
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
             queryset=drill_obj, request=request, view=self)
-        serializer = DrillInclinationSerializer(instance=page, many=True)
-        data = pg.get_paginated_response(serializer.data)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = DrillInclinationSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        # print(ser.data)
+        # print(data)
+        # data = page.get_paginated_response(ser.data)
+        # print(data)
         # 自定义的分页类中实例化后使用get_paginated_response方法可以实现显示上下页链接的功能
-        return data
+        # return data   #使用DRF测试http:/r/127.0.0.1:8000/load/drillinclination/
+        # 转换成json格式, ensure_ascii=False 表示显示中文, 默认为True
+        # ret = json.dumps(ser.data, ensure_ascii=False)
+        # print(ret)
+        # return HttpResponse(ret, "application/json")
+        return page.get_paginated_response(data)
 
 # 展示数据
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 def ShowCommonData(request):
     """
     docstring
-    """
-    db = request.GET.get('dbname')  # 获取到前端数据库名称
-    col_name = request.GET.get('colname')  # 获取到前端集合名称
-    # data_json = json.loads(body_data)
-    # print(data_json)
-    # db = data_json['dbname']  # 取到数据库名称
-    # col_name = data_json['colname']  # 取到集合名称
-    # # 连接数据库
+    # """
+    # db = request.GET.get('dbname')  # 获取到前端数据库名称
+    # col_name = request.GET.get('colname')  # 获取到前端集合名称
+    # print(request.body)
+    body_data = request.body
+    data_json = json.loads(body_data)
+    print(data_json)
+    db = data_json['dbname']  # 获取到前端数据库名称
+    col_name = data_json['colname']  # 获取到前端集合名称
+    # 连接数据库
     client = pymongo.MongoClient("192.168.55.110", 20000)
     db = client[db]
     db_coll = db[col_name]
     # # 查询
     content = {}
     datainfo = []
-    for document in db_coll.find().limit(10):
+    for document in db_coll.find().limit(50):
 
         # print(document)
         # print(type(document))
@@ -904,6 +948,7 @@ def CommonQueryData(request):
 
         body_data = request.body  # b'{"ZK_num_data":"ZK1"}'
         data_json = json.loads(body_data)
+        print(data_json)
         filter_key = data_json['filter_key_data']
 
         # 连接数据库
@@ -1192,6 +1237,8 @@ def CommonFileDownload(request):
     client.close()
     return HttpResponse("success")
     # return render(request,"http://localhost:8080/mongeostore")
+
+# 分页
 
 
 #################MonGeoStore######################
