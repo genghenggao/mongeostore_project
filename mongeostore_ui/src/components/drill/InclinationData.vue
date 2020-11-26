@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-25 22:58:08
+ * @LastEditTime: 2020-11-26 21:24:09
 -->
 <template>
   <div class="DataShow">
@@ -66,7 +66,7 @@
             highlight-current-row
             :data="tableData"
             style="width: 100%"
-            max-height="690px"
+            max-height="700px"
             @selection-change="handleSelectionChange"
             lazy
           >
@@ -104,6 +104,8 @@
               </el-table-column>
             </template>
             <el-table-column fixed="right" label="操作" width="160">
+              <h2>防止按钮消失</h2>
+              <!--加入这一行，防止按钮消失-->
               <template slot-scope="scope">
                 <el-button
                   type="primary"
@@ -143,7 +145,7 @@
         <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
         <!-- 添加数据的对话框 -->
         <el-dialog
-          title="添加数据"
+          title="请添加钻孔数据"
           :visible.sync="dialogVisible"
           width="30%"
           @close="addDialogClosed"
@@ -151,7 +153,7 @@
           <!-- 内容的主体区域 -->
           <!--去掉:rules="addFormRules" -->
           <el-form
-            ref="addFormRef"
+            ref="add_to_data"
             :model="add_to_data"
             :rules="addFormRules"
             label-width="100px"
@@ -183,24 +185,26 @@
               <el-input v-model="addForm.mobile"></el-input>
             </el-form-item> -->
             </template>
+            <!-- 底部区域 -->
+            <el-form-item>
+              <!-- <span slot="footer" class="dialog-footer"> -->
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button
+                type="primary"
+                :disabled="true"
+                v-if="!add_button_state"
+                @click="addData('add_to_data')"
+                >确 定</el-button
+              >
+              <el-button
+                type="primary"
+                v-else-if="add_button_state"
+                @click="addData('add_to_data')"
+                >确 定</el-button
+              >
+              <!-- </span> -->
+            </el-form-item>
           </el-form>
-          <!-- 底部区域 -->
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              :disabled="true"
-              v-if="!add_button_state"
-              @click="addData"
-              >确 定</el-button
-            >
-            <el-button
-              type="primary"
-              v-else-if="add_button_state"
-              @click="addData"
-              >确 定</el-button
-            >
-          </span>
         </el-dialog>
       </el-main>
     </el-container>
@@ -220,14 +224,14 @@ export default {
   data() {
     // 校验添加信息
     let checkKey_word = (rule, value, callback) => {
-      // const regZK_num = /^ZK[0-9]{1,6}/;
-      const regKey_word = /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/;
+      const regKey_word = /^ZK[0-9]{1,6}/;
+      // const regKey_word = /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/;
       if (regKey_word.test(value)) {
         // 验证通过，合法
         return callback();
       }
       // 验证不通过，不合法
-      callback(new Error("请输入正确的信息"));
+      callback(new Error("请输入正确的孔号"));
     };
 
     return {
@@ -280,7 +284,7 @@ export default {
       PageSize: 10,
       // 控制添加用户对话框的显示与隐藏，默认为隐藏
       dialogVisible: false,
-      // 添加对象
+      // 添加对象表格的字段名
       addForm: {
         filter_key: "",
         _id: "",
@@ -290,7 +294,7 @@ export default {
       },
       // 添加数据框的字段,用来判断是否为空，确定按钮
       add_to_data: {
-        filter_key: "",
+        ZK_num: "",
         Depth: "",
         Azimuth: "",
         Inclination: "",
@@ -299,9 +303,9 @@ export default {
       add_button_state: false,
       // // 添加表单的验证规则对象
       addFormRules: {
-        filter_key: [
-          { required: true, message: "请输入相关信息", trigger: "blur" },
-          { min: 3, max: 10, message: "数据格式有误", trigger: "blur" },
+        ZK_num: [
+          { required: true, message: "请输入钻孔号", trigger: "blur" },
+          { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
           { validator: checkKey_word, trigger: "blur" },
         ],
       },
@@ -318,8 +322,13 @@ export default {
   watch: {
     add_to_data: {
       handler(curval, oldval) {
-        // console.log(curval);
-        if (curval[0] != "") {
+        // console.log(Object.keys(curval)[0]);
+        if (
+          curval.ZK_num != "" &&
+          curval.Depth != "" &&
+          curval.Azimuth != "" &&
+          curval.Inclination != ""
+        ) {
           this.add_button_state = true;
         } else {
           this.add_button_state = false;
@@ -330,7 +339,9 @@ export default {
   },
   created() {
     this.showData(this.PageSize, this.currentPage); //展示Collection表格数据
+    // this.onSearchSubmit(this.PageSize, this.currentPage); //展示Collection表格数据
   },
+  mounted() {},
   methods: {
     // 展示数据,将页码及每页显示的条数以参数传递提交给后台
     showData(n1, n2) {
@@ -385,7 +396,7 @@ export default {
           // this.totalCount = this.tableData.length; //分页总数
           this.totalCount = response.data.data.count; //分页总数
           //渲染表格,根据值
-          this.currentChangePage(response.data.data.list);
+          // this.currentChangePage(response.data.data.list);
           //页面初始化数据需要判断是否检索过
           // console.log(this.tableData);
           // console.log(typeof this.tableData);
@@ -437,7 +448,7 @@ export default {
 
     // 重置Collection表格数据
     resetData() {
-      (this.flag = false), this.showData();
+      (this.flag = false), this.showData(10, 1);
     },
     // 选择框
     handleSelectionChange(val) {
@@ -450,37 +461,53 @@ export default {
     },
 
     // 点击按钮，添加数据
-    addData() {
+    addData(formName) {
       // this.addForm.visible = true;
       // 发送添加数据的网络请求
-      const url = "http://127.0.0.1:8000/load/commonadd_data/";
-      let tmp_data = this.add_to_data;
-      console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
-      axios
-        .post(url, {
-          tmp_data,
-          // 设置上传到后端的数据库和集合名称
-          colname: this.$store.state.title_message,
-          dbname: this.$store.state.temp_database,
-        })
-        .then((res) => {
-          console.log("Success");
-        });
+      console.log(this.add_to_data["ZK_num"]);
+      const t = this;
+      // console.log(t);
+      t.$refs[formName].validate((valid) => {
+        if (valid) {
+          // alert("submit!");
+          // console.log(this.add_to_data);
+          const url = "http://127.0.0.1:8000/load/commonadd_data/";
+          let tmp_data = this.add_to_data;
+          console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
+          axios
+            .post(url, {
+              tmp_data,
+              // 设置上传到后端的数据库和集合名称
+              colname: this.$store.state.title_message,
+              dbname: this.$store.state.temp_database,
+            })
+            .then((res) => {
+              console.log("Success");
+            });
 
-      // 隐藏添加用户的对话框
-      this.dialogVisible = false;
-      // 重新获取用户列表数据
-      // this.showData();
-      //通过flag判断,刷新数据
-      if (!this.flag) {
-        this.showData();
-      } else {
-        this.onSearchSubmit();
-      }
+          // 隐藏添加用户的对话框
+          this.dialogVisible = false;
+          // 重新获取用户列表数据
+          // this.showData();
+          //通过flag判断,刷新数据
+          if (!this.flag) {
+            this.showData(this.PageSize, this.currentPage);
+          } else {
+            this.onSearchSubmit(this.PageSize, this.currentPage);
+          }
+        } else {
+          // console.log("error submit!!");
+          this.$message({
+            message: "输入数据有误，请重新输入",
+            type: "warning",
+          });
+          return false;
+        }
+      });
     },
-    // 监听添加用户对话框的关闭事件
+    // 监听添加对话框的关闭事件
     addDialogClosed() {
-      this.$refs.addFormRef.resetFields();
+      this.$refs.add_to_data.resetFields();
     },
     // 编辑（修改）按钮
     handleEdit(index, row) {
@@ -500,7 +527,7 @@ export default {
         // console.log(row["id"]);
         let json_data = JSON.stringify(row);
 
-        const url = "http://127.0.0.1:8000/load/commoneditdata/";
+        const url = "http://127.0.0.1:8000/load/editinclination/";
         axios
           .post(
             url,
@@ -540,7 +567,7 @@ export default {
           rows.splice(index, 1);
           let json_data = JSON.stringify(row);
           console.log(json_data);
-          const url = "http://127.0.0.1:8000/load/commondeletedata/";
+          const url = "http://127.0.0.1:8000/load/deleteinclination/";
           axios
             .post(
               url,
@@ -562,9 +589,9 @@ export default {
               // this.showData();
               //通过flag判断,刷新数据
               if (!this.flag) {
-                this.showData();
+                this.showData(this.PageSize, this.currentPage);
               } else {
-                this.onSearchSubmit();
+                this.onSearchSubmit(this.PageSize, this.currentPage);
               }
             });
         })
@@ -577,56 +604,41 @@ export default {
     },
     // 开始搜索
     onSearchSubmit(n1, n2) {
+      this.currentPage = n2;
       // this.initAdminList(1);
       if (this.searchCondition.filter_key == "") {
         this.$message.warning("查询条件不能为空！");
         return;
+      } else {
+        // console.log(this.searchCondition.filter_key);
+        // console.log(this.$store.state.temp_database);
+        let filter_key_data = this.searchCondition.filter_key;
+        const url = "http://127.0.0.1:8000/load/inclinationsearch/";
+        axios
+          .get(url, {
+            params: {
+              // 每页显示的条数
+              PageSize: n1,
+              // 显示第几页
+              currentPage: n2,
+              // 搜索字段
+              ZK_num: filter_key_data,
+            },
+          })
+          .then((response) => {
+            if (response.data.data.list) {
+              this.tableData = response.data.data.list; //返回查询的数据
+
+              this.totalCount = response.data.data.count; //搜索后分页总数;
+            } else {
+              // alert("输入有误或数据不存在");
+              this.$message.warning("输入有误或数据不存在");
+              return;
+            }
+            //页面初始化数据需要判断是否检索过
+            this.flag = true;
+          });
       }
-      console.log(this.searchCondition.filter_key);
-      let filter_key_data = this.searchCondition.filter_key;
-      const url = "http://127.0.0.1:8000/load/commonquerydata/";
-      axios
-        .post(url, {
-          // 每页显示的条数
-          PageSize: this.pageSize,
-          // 显示第几页
-          currentPage: this.currentPage,
-          filter_key_data,
-          // 设置上传到后端的数据库和集合名称
-          colname: this.$store.state.title_message,
-          dbname: this.$store.state.temp_database,
-        })
-        .then((response) => {
-          if (response.data) {
-            this.tableData = response.data; //返回查询的数据
-            console.log(response.data);
-            // console.log(this.tableData);
-            // 总共数据
-            var count = Object.keys(response.data).length;
-            console.log(count);
-            this.totalCount = count;
-            // tmp_count = (count%10+1)*10
-            // let countarr = [];
-            // for (let i = 0; i < (count % 10) + 1; i++) {
-            //   const tencount = (i + 1) * 10;
-            //   countarr.push(tencount);
-            // }
-            // // 个数选择器（可修改）
-            // // console.log(countarr);
-            // this.pageSizes = countarr; //有个小意外，这个地方设置了，变不回去了
-            // this.orgCode = 1;
-            // // 每页显示的条数
-            // this.PageSize = 10;
-            // // 显示第几页
-            // this.currentPage = 1;
-          } else {
-            // alert("输入有误或数据不存在");
-            this.$message.warning("输入有误或数据不存在");
-            return;
-          }
-          //页面初始化数据需要判断是否检索过
-          this.flag = true;
-        });
     },
 
     handleDelete(index, row) {
@@ -654,51 +666,25 @@ export default {
       console.log(`当前页: ${val}`);
       // 改变默认的页数
       this.currentPage = val;
-      // const url = "http://127.0.0.1:8000/load/drillinclination/";
-      // axios
-      //   .get(url, {
-      //     params: {
-      //       // 每页显示的条数
-      //       PageSize: this.PageSize,
-      //       // 显示第几页
-      //       currentPage: val,
-      //     },
-      //   })
-      //   .then((response) => {
-      //     this.tableData = response.data.data.list;
-      //     console.log(this.tableData);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
-      // 切换页码时，要获取每页显示的条数
-      // console.log(this.pageSize);
-      // this.showData(this.PageSize, val * this.pageSize);
+
       if (!this.flag) {
         this.showData(this.PageSize, val); // this.pageSize是undefined，使用选定的或默认值
       } else {
         this.onSearchSubmit(this.pageSize, val);
       }
-      //需要判断是否检索
-      // if (!this.flag) {
-      //   //tableDataBegin不能写成tableDataEnd，不然在没有进行搜索功能的时候，不能进行分页操作，数据丢失
-      //   this.currentChangePage(this.tableDataBegin);
-      // } else {
-      //   this.currentChangePage(this.filterTableDataEnd);
-      // }
     },
     //组件自带监控当前页码
-    currentChangePage(list) {
-      let from = (this.currentPage - 1) * this.pageSize;
-      let to = this.currentPage * this.pageSize;
-      // this.tableData = [];
-      for (; from < to; from++) {
-        if (list[from]) {
-          this.tableData.push(list[from]);
-          console.log("ganshane");
-        }
-      }
-    },
+    // currentChangePage(list) {
+    //   let from = (this.currentPage - 1) * this.pageSize;
+    //   let to = this.currentPage * this.pageSize;
+    //   // this.tableData = [];
+    //   for (; from < to; from++) {
+    //     if (list[from]) {
+    //       this.tableData.push(list[from]);
+    //       console.log("ganshane");
+    //     }
+    //   }
+    // },
   },
 };
 </script>

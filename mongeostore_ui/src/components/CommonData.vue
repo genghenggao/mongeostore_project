@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 21:39:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-25 15:14:09
+ * @LastEditTime: 2020-11-26 21:21:02
 -->
 <template>
   <div class="DataShow">
@@ -109,6 +109,8 @@
               </el-table-column>
             </template>
             <el-table-column fixed="right" label="操作" width="160">
+              <h2>防止按钮消失</h2>
+              <!--加入这一行，防止按钮消失-->
               <template slot-scope="scope">
                 <el-button
                   type="primary"
@@ -278,7 +280,7 @@ export default {
       // 分页数据，默认第几页
       currentPage: 1,
       // 总条数，根据接口获取数据长度(注意：这里不能为空)
-      totalCount: 400,
+      totalCount: 100,
       // 个数选择器（可修改）
       pageSizes: [10, 20, 50, 100],
       // 默认每页显示的条数（可修改)
@@ -323,7 +325,9 @@ export default {
   watch: {
     add_to_data: {
       handler(curval, oldval) {
-        // console.log(curval);
+        console.log(curval);
+        // console.log(Object.keys(curval)[0]);
+        console.log(Object.keys(curval));
         if (curval[0] != "") {
           this.add_button_state = true;
         } else {
@@ -363,7 +367,11 @@ export default {
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
           // console.log(response);
-          console.log(response.data);
+          console.log(response.data.length);
+          // 新创建的集合为空，使用默认的数据表展示
+          if (!response.data.length == 0) {
+            this.tableData = response.data;
+          }
           // console.log("取到单个数据");
           // console.log(typeof response.data);
           // let detailsnew = JSON.parse(JSON.stringify(this.detailslist));
@@ -377,7 +385,7 @@ export default {
           // console.log(typeof this.tableData)
           // this.tableData = datatset;
           // 将数据赋值给tableData
-          this.tableData = response.data;
+          // this.tableData = response.data;
           // this.tableData = this.$store.state.colData;
           // this.searchCondition = response.data;
           // 分页所需信息
@@ -432,6 +440,12 @@ export default {
           }
           // console.log(tem_list);
           this.filter_data = tem_list;
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "数据错误",
+          });
         });
     },
 

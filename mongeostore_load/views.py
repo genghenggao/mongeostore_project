@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-25 21:46:28
+LastEditTime: 2020-11-26 21:28:38
 '''
+from rest_framework import filters
 from rest_framework.pagination import PageNumberPagination
 import time
 import collections
@@ -745,15 +746,15 @@ class MyPagination(PageNumberPagination):
         return Response(res)
 
 
-# 钻孔数据管理子系统---测斜表分页
+# 钻孔数据管理子系统---测斜表Inclination分页
 
 class DrillInclinationPageView(APIView):
     def get(self, request, *args, **kwargs):
         # 数据获取，使用using('drill')需要在settings.py中配置
-        print(request.GET)
+        # print(request.GET)
 
-        page_size = request.GET['PageSize']
-        print(page_size)
+        # page_size = request.GET['PageSize']
+        # print(page_size)
         drill_obj = DrillInclinationModel.objects.using(
             'drill').all().order_by('_id')  # 一定要排序
         # totalcount = drill_obj.count()  # 总数据数
@@ -776,6 +777,119 @@ class DrillInclinationPageView(APIView):
         # print(ret)
         # return HttpResponse(ret, "application/json")
         return page.get_paginated_response(data)
+
+
+# 钻孔数据管理子系统---测斜表Inclination搜索
+
+
+class InclinationSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        # 数据获取，使用using('drill')需要在settings.py中配置
+        print(request.GET)
+
+        search_key = request.GET['ZK_num']  # 根据ZK_num字段搜索
+        # print(page_size)
+        drill_obj = DrillInclinationModel.objects.using(
+            'drill').filter(ZK_num=search_key).all().order_by('_id')  # 一定要排序
+        # totalcount = drill_obj.count()  # 总数据数
+        # 创建分页对象
+        page = MyPagination()
+        search_class = filters.SearchFilter()
+        # 需要搜索的字段
+        self.search_fields = ['ZK_num']
+        # 实例化搜索查询器
+        search_query = search_class.filter_queryset(
+            request, drill_obj, self)
+
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=search_query, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = DrillInclinationSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+# 钻孔数据管理子系统---测斜表Inclination删除
+
+
+def DeleteInclination(request):
+    """
+    Delete data
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        front_query_oid = dict_data['_id']
+        # front_query_id = front_query_oid['$oid']
+        # print(front_query_id)
+        # print(data_json['dbname'])
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']  # 从前端拿到数据库名称
+        db_coll = db[collection]
+
+        db_coll.remove({"_id": ObjectId(front_query_oid)})
+        # print("Delete Success")
+        # 关闭连接
+        client.close()
+
+    return HttpResponse("Delete Success")
+
+# 钻孔数据管理子系统---测斜表Inclination删除
+
+
+def EditInclination(request):
+    if request.method == "POST":
+
+        body_data = request.body
+
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+
+        dict_data = json.loads(query_data_json)
+
+        front_query_oid = dict_data['_id']
+
+        # front_query_id = front_query_oid['$oid']
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # print(data_json['colname'])
+        # print(data_json['dbname'])
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']  # 从前端拿到集合名称
+        db_coll = db[collection]
+        # 根据_id匹配到后端数据
+        cursor = db_coll.find_one(filter={"_id": ObjectId(front_query_oid)})
+        # {'_id': ObjectId('5fa7dc070a6d3e479de148d9'), 'ZK_num': 'ZK1', 'Depth': 0.0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(cursor)
+
+        # 删掉_'_id': {'$oid': '5fa7dc070a6d3e479de148d9'}部分
+        dict_data.pop('_id')
+        # {'ZK_num': 'ZK1', 'Depth': 0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(dict_data)
+        # print(type(dict_data))  # <class 'dict'>
+        update_data = db_coll.update_one(
+            cursor, update={"$set": dict_data})
+        # print(update_data)
+        # print(update_data.matched_count)
+        # print(update_data.modified_count)
+        # 关闭连接
+        client.close()
+    return HttpResponse('success')
 
 # 展示数据
 @require_http_methods(['POST'])

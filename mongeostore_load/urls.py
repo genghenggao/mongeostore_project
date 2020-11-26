@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-25 16:43:59
+LastEditTime: 2020-11-26 10:11:02
 '''
 from os import name
 from .views import FileInfoView
@@ -56,6 +56,13 @@ urlpatterns = [
     path('commonfiledownload/', views.CommonFileDownload,
          name="commonfiledownload"),  # 下载元数据
     path('drillinclination/', DrillInclinationPageView.as_view(),
-         name='drillinclination'),  # 钻孔数据分页测试
+         name='drillinclination'),  # 钻孔数据分页
+    path('inclinationsearch/', InclinationSearchView.as_view(),
+         name='inclinationsearch'),  # 钻孔数据搜索
+    path('deleteinclination/', views.DeleteInclination,
+         name="deleteinclination"),  # 钻孔Inclination删除表格数据
+    path('editinclination/', views.EditInclination,
+         name="editinclination"),  # Collection编辑数据
+
 
 ]
