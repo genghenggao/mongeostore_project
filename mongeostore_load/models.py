@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-25 19:06:13
+LastEditTime: 2020-11-27 20:34:05
 '''
 from djongo import models
 
@@ -35,7 +35,7 @@ class DrillInclinationModel(models.Model):
     DrillInclinationData
     '''
     # 要指定自定义主键，只需在其中一个字段上指定primary_key = True即可。如果Django看到你有明确设置Field.primary_key，它将不会添加自动ID列。
-    _id = models.CharField(primary_key=True,max_length=50) #需要设置自定义主键
+    _id = models.CharField(primary_key=True, max_length=50)  # 需要设置自定义主键
     ZK_num = models.CharField(max_length=20)
     Depth = models.FloatField(max_length=20)
     Azimuth = models.FloatField(max_length=30)
@@ -52,3 +52,28 @@ class DrillInclinationModel(models.Model):
         docstring
         """
         return self.ZK_num
+
+
+
+# from django.conf import settings
+from djongo.storage import GridFSStorage
+# grid_fs_storage = GridFSStorage(collection='钻孔元数据', base_url=''.join([settings.BASE_URL, '钻孔元数据/']))
+class InclinationMetaModel(models.Model):
+    '''钻孔数据管理子系统元数据'''
+
+    # _id = models.CharField(max_length=255)
+    filename = models.CharField(max_length=255)
+    # type = models.CharField(max_length=255)
+    size = models.CharField(max_length=30, default=0)
+    upload_date = models.DateTimeField()
+    publisher = models.CharField(max_length=255)
+    # path = models.CharField(max_length=255)
+    md5 = models.CharField(max_length=33, default='')
+    class Meta:
+        verbose_name = "钻孔元数据"
+        verbose_name_plural = verbose_name
+        app_label = 'drill'  # 如果指定将在drill对应的数据库下创建数据表
+        db_table = '钻孔元数据'  # 自定义表名称，即是对应的Collection，如和对应GriDFS
+
+    def __str__(self) -> str:
+        return self.filename

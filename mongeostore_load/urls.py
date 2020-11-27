@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-26 10:11:02
+LastEditTime: 2020-11-27 19:31:35
 '''
 from os import name
 from .views import FileInfoView
@@ -63,6 +63,10 @@ urlpatterns = [
          name="deleteinclination"),  # 钻孔Inclination删除表格数据
     path('editinclination/', views.EditInclination,
          name="editinclination"),  # Collection编辑数据
+    path('listallimg/', views.listAllImgFromDB,
+         name="listallimg"),  # 图片数据流读取
+    path('inclinationmeta/', InclinationMetaView.as_view(),
+         name="inclinationmeta"),  # 钻孔数据管理子系统元数据
 
 
 ]

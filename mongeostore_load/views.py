@@ -4,8 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-26 21:28:38
+LastEditTime: 2020-11-27 20:41:39
 '''
+import base64
+from django.http.request import HttpRequest
 from rest_framework import filters
 from rest_framework.pagination import PageNumberPagination
 import time
@@ -24,7 +26,7 @@ from gridfs import GridFS
 import os
 from django.http import response
 from xlrd.formula import colname
-from .models import DrillInclinationModel, FileInfo
+from .models import DrillInclinationModel, FileInfo, InclinationMetaModel
 from rest_framework.views import APIView
 from .serializers import DrillInclinationSerializer, FileInfoSerializer
 from typing import ClassVar
@@ -780,8 +782,6 @@ class DrillInclinationPageView(APIView):
 
 
 # 钻孔数据管理子系统---测斜表Inclination搜索
-
-
 class InclinationSearchView(APIView):
     def get(self, request, *args, **kwargs):
         # 数据获取，使用using('drill')需要在settings.py中配置
@@ -808,6 +808,43 @@ class InclinationSearchView(APIView):
         ser = DrillInclinationSerializer(instance=page_chapter, many=True)
         data = {'list': ser.data}
         return page.get_paginated_response(data)
+
+# 钻孔数据管理子系统---元数据分页
+
+
+class InclinationMetaView(APIView):
+    def get(self, request, *args, **kwargs):
+        # 数据获取，使用using('drill')需要在settings.py中配置
+        # print(request.GET)
+
+        # print(page_size)
+        # drill_obj = DrillInclinationModel.objects.using(
+        #     'drill').all().order_by('_id')  # 一定要排序
+        # # 创建分页对象
+        # page = MyPagination()
+        # # 实例化查询，获取分页的数据
+        # page_chapter = page.paginate_queryset(
+        #     queryset=drill_obj, request=request, view=self)
+        # # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        # ser = DrillInclinationSerializer(instance=page_chapter, many=True)
+        # data = {'list': ser.data}
+
+        # return page.get_paginated_response(data)
+        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+        fs = GridFS(db, collection='钻孔元数据')  # 连接GridFS集合，名称为mysegy
+        # drill_obj = InclinationMetaModel.objects.using(
+        #     'drill').all().order_by('id')
+        response = {}
+        data = []
+        for grid_out in fs.find():
+            response['uploadDate'] = str(grid_out.upload_date)
+            data.append(grid_out._file)
+            print(data)
+        # print(drill_obj)
+        # print(fs.find())
+        return HttpResponse('success')
+
 
 # 钻孔数据管理子系统---测斜表Inclination删除
 
@@ -1352,7 +1389,24 @@ def CommonFileDownload(request):
     return HttpResponse("success")
     # return render(request,"http://localhost:8080/mongeostore")
 
-# 分页
+
+# 读取图片二进制流
+
+
+def listAllImgFromDB(request):
+    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    # db = client[dbname]  # 选定数据库
+    fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为元数据
+
+    file_id = 'o_1em6kq0js1jmsavl1n8q1nma2ock'
+    # 读取文件
+    image = fs.find_one({"$where": "this._id.match(/.*" + file_id + "/)"})
+    # print(image.name)
+    content = image.read()
+    temp_data = base64.b64encode(content)  # 图片base64
+    # print(temp_data)
+    return HttpResponse(temp_data)
 
 
 #################MonGeoStore######################

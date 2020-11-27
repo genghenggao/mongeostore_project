@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-25 17:13:35
+ * @LastEditTime: 2020-11-27 16:58:43
 -->
 <template>
   <el-container>
@@ -33,7 +33,6 @@
                 <!-- {{ title_message }}
                 {{ temp_database }} -->
                 <InclinationData />
-                
               </div>
               <div v-else>
                 <CommonCol />
@@ -43,9 +42,10 @@
               <!-- <router-link to="/about">about</router-link> <router-view /> -->
 
               <div
-                v-if="this.$store.state.title_message == '地震数据管理子系统'"
+                v-if="this.$store.state.title_message == '钻孔数据管理子系统'"
               >
-                {{ title_message }}
+                <!-- {{ title_message }} -->
+                <InclinationMeta />
               </div>
               <div v-else>
                 <CommonDB />
@@ -65,6 +65,7 @@ import SideTree from "@/components/SideTree.vue";
 import CommonCol from "@/components/CommonCol.vue";
 import CommonDB from "@/components/CommonDB.vue";
 import InclinationData from "@/components/drill/InclinationData.vue";
+import InclinationMeta from "@/components/drill/InclinationMeta.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -73,7 +74,15 @@ export default {
       reload: this.reload,
     };
   },
-  components: { Navbar, SideCatalog, CommonCol, SideTree, CommonDB ,InclinationData},
+  components: {
+    Navbar,
+    SideCatalog,
+    CommonCol,
+    SideTree,
+    CommonDB,
+    InclinationData,
+    InclinationMeta,
+  },
   data() {
     return {
       //   parent_message: "地震大数据管理系统",
