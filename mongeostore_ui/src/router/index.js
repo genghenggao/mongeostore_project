@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-27 10:48:08
+ * @LastEditTime: 2020-11-28 21:05:02
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -97,6 +97,12 @@ const routes = [
     name: "Test5",
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/Test5.vue")
+  },
+  {
+    path: "/test6",
+    name: "Test6",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "@/views/Test6.vue")
   },
   {
     path: "/mapview",

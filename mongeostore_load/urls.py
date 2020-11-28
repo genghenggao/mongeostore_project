@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-27 19:31:35
+LastEditTime: 2020-11-28 21:28:35
 '''
 from os import name
 from .views import FileInfoView
@@ -67,6 +67,5 @@ urlpatterns = [
          name="listallimg"),  # 图片数据流读取
     path('inclinationmeta/', InclinationMetaView.as_view(),
          name="inclinationmeta"),  # 钻孔数据管理子系统元数据
-
 
 ]

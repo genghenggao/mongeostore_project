@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-10-21 14:30:16
  * @LastEditors: henggao
- * @LastEditTime: 2020-10-27 16:26:59
+ * @LastEditTime: 2020-11-28 21:30:33
 -->
 <template>
   <uploader :options="options" class="uploader-example">

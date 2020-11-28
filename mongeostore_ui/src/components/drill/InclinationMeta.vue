@@ -4,82 +4,91 @@
  * @Author: henggao
  * @Date: 2020-11-27 16:37:40
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-27 20:34:42
+ * @LastEditTime: 2020-11-28 19:32:45
 -->
 <template>
-  <el-container>
-    <el-header><h2>钻孔元数据</h2></el-header>
-    <el-main>
-      <div>
-        <el-table
-          :data="
-            tableData.filter(
-              (data) =>
-                !search ||
-                data.filename.toLowerCase().includes(search.toLowerCase())
-            )
-          "
-          style="width: 100%"
-        >
-          <el-table-column label="文件ID" prop="_id"> </el-table-column>
-          <el-table-column label="文件名" prop="filename"> </el-table-column>
-          <el-table-column label="文件大小" prop="length"> </el-table-column>
-          <el-table-column label="文件类型" prop="contentType">
-          </el-table-column>
-          <el-table-column label="上传人员" prop="publisher"> </el-table-column>
-          <el-table-column label="上传时间" prop="uploadDate">
-          </el-table-column>
-          <el-table-column label="备注" prop="aliases"> </el-table-column>
-          <el-table-column label="展示" prop=""
-            ><el-image
-              style="width: 100px; height: 100px"
-              :src="imgurl"
-              :preview-src-list="srcList"
+  <el-container style="min-width: 1100px; overflow: hidden">
+    <el-header>
+      <h2
+        style="
+          font-size: 30px;
+          padding-top: 10px;
+          color: #870000;
+          min-width: 1100px;
+          overflow: hidden;
+          text-align: left;
+        "
+      >
+        <i class="el-icon-caret-right" /> 钻孔编号：{{ ZK_num }}
+      </h2>
+    </el-header>
+    <el-main style="padding-top: 10px; min-width: 1100px; overflow: hidden">
+      <!-- <div style="">
+        <h3>钻孔编号：{{ ZK_num }}</h3>
+      </div> -->
+      <el-row :gutter="20" style="margin: 0">
+        <el-col :span="16" :offset="4">
+          <el-tabs :tab-position="tabPosition">
+            <el-tab-pane label="钻孔信息">
+              <div class="drillinfo">
+                <table style="width: 100%" class="myTable">
+                  <el-scrollbar style="height: 700px">
+                    <!-- 滚动条 -->
+                    <tr v-for="(value, keyword) in tableData" :key="keyword">
+                      <div v-if="keyword == '钻孔柱状图'">
+                        <td class="column" style="">钻孔柱状图</td>
+                        <td class="column">
+                          <el-image
+                            style="width: 60px; height: 60px"
+                            :src="url"
+                            :preview-src-list="srcList"
+                          >
+                          </el-image>
+                        </td>
+                      </div>
+                      <div v-else>
+                        <td class="column">{{ keyword }}</td>
+                        <td class="column">{{ value }}</td>
+                      </div>
+                    </tr>
+                  </el-scrollbar>
+                </table>
+              </div></el-tab-pane
             >
-            </el-image>
-          </el-table-column>
-          <el-table-column align="right">
-            <!-- <template slot="header" slot-scope="scope"> -->
-            <template slot="header" slot-scope="{}">
-              <el-input
-                v-model="search"
-                size="mini"
-                placeholder="输入文件名搜索"
-              />
-            </template>
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="primary"
-                plain
-                @click="handleDown(scope.$index, scope.row)"
-                >Down</el-button
-              >
-              <el-button
-                size="mini"
-                type="danger"
-                plain
-                @click="handleDelete(scope.$index, scope.row)"
-                >Delete</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <!-- 分页 -->
-      <div class="block" style="overflow: hidden">
-        <el-pagination
-          small
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-sizes="pageSizes"
-          :page-size="PageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalCount"
-        >
-        </el-pagination>
-      </div>
+            <el-tab-pane label="项目信息"
+              ><div>
+                <table style="width: 100%" class="myTable">
+                  <el-scrollbar style="height: 700px">
+                    <tr
+                      v-for="(value, keyword) in ProjectInformation"
+                      :key="keyword"
+                    >
+                      <td class="column">{{ keyword }}</td>
+                      <td class="column">{{ value }}</td>
+                    </tr>
+                  </el-scrollbar>
+                </table>
+              </div></el-tab-pane
+            >
+            <el-tab-pane label="单位信息"
+              ><div>
+                <table style="width: 100%" class="myTable">
+                  <el-scrollbar style="height: 700px">
+                    <tr
+                      v-for="(value, keyword) in FileInformation"
+                      :key="keyword"
+                    >
+                      <td class="column">{{ keyword }}</td>
+                      <td class="column">{{ value }}</td>
+                    </tr>
+                  </el-scrollbar>
+                </table>
+              </div></el-tab-pane
+            >
+            <el-tab-pane label="其他信息">其他信息</el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
     </el-main>
   </el-container>
 </template>
@@ -90,35 +99,45 @@ export default {
   name: "InclinationMeta",
   data() {
     return {
-      tableData: [
-        {
-          _id: "xxxxxxxxxxx.xxxxx",
-          filename: "钻孔1",
-          length: "5MB",
-          contentType: "jpg",
-          publisher: "publisher",
-          uploadDate: "2016-05-02",
-          aliases: "xx工区",
-        },
-        {
-          _id: "xxxxxxxxxxx.xxxxx",
-          filename: "钻孔1",
-          length: "5MB",
-          contentType: "jpg",
-          publisher: "publisher",
-          uploadDate: "2016-05-02",
-          aliases: "xx工区",
-        },
-        {
-          _id: "xxxxxxxxxxx.xxxxx",
-          filename: "钻孔1",
-          length: "5MB",
-          contentType: "jpg",
-          publisher: "publisher",
-          uploadDate: "2016-05-02",
-          aliases: "xx工区",
-        },
+      ZK_num: "ZK2", //小标题
+      // 柱状图
+      url:
+        "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
+      srcList: [
+        "https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg",
+        "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
       ],
+      tabPosition: "right", //标签页位置设置
+      tableData: {
+        钻孔编号: "	ZK2",
+        // 钻孔柱状图: "浏览",
+        钻孔柱状图: "浏览",
+        原始资料档号: "2010091",
+        勘探线号: "1-1",
+        钻孔名称: "ZK2",
+        钻孔类型: "灾害地质勘查钻孔",
+        钻孔位置: "广元市剑阁县上寺乡",
+        孔口高程H: "608.6",
+        终孔深度Z: "	16.94",
+        终孔日期: "2010/4/2",
+        施工单位: "重庆长江工程勘察设计研究院",
+        测井报告: "无",
+        原始地质记录表: "有",
+        钻孔岩心: "无",
+      },
+      ProjectInformation: {
+        项目名称: "广元市剑阁县上寺乡望牛石不稳定斜坡（滑坡）应急勘查",
+        资料名称: "广元市剑阁县上寺乡望牛石不稳定斜坡（滑坡）应急勘查报告",
+        成果资料档号: "	aa548",
+        项目结束时间: "	2010/4/25",
+      },
+      FileInformation: {
+        上传人员: "ghg",
+        上传日期: "2020/11/11",
+        单位名称: "中国矿业大学（北京）",
+        通讯地址: "北京市海淀区学院路丁11号",
+      },
+
       search: "", //搜索框
       // 分页数据，默认第几页
       currentPage: 1,
@@ -138,93 +157,51 @@ export default {
     };
   },
   created() {
-    this.showMetaData(this.PageSize, this.currentPage);
+    this.showMetaData();
+    // this.tableData = JSON.parse(JSON.stringify(this.tableData));
   },
   methods: {
-    showMetaData(n1, n2) {
-      let url = "http://127.0.0.1:8000/load/commonmetashow/";
-      axios
-        .get(url, {
-          params: {
-            // 每页显示的条数
-            PageSize: n1,
-            // 显示第几页
-            currentPage: n2,
-          },
-        })
-        .then((res) => {
-          console.log("success");
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log("err");
-        });
-    },
-    handleDown(index, row) {
-      console.log(index, row);
-    },
-    handleDelete(index, row) {
-      console.log(index, row);
-      // 添加确认删除框
-      this.$confirm("永久删除，是否继续？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          // 删除操作
-          rows.splice(index, 1);
-          let json_data = JSON.stringify(row);
-          console.log(json_data);
-          const url = "http://127.0.0.1:8000/load/deleteinclination/";
-          axios
-            .post(
-              url,
-              {
-                json_data,
-                // 设置上传到后端的数据库和集合名称
-                colname: this.$store.state.title_message,
-                dbname: this.$store.state.temp_database,
-              },
-              {
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded",
-                },
-              }
-            )
-            .then((res) => {
-              console.log("删除成功");
-              // 重新获取用户列表数据
-              // this.showData();
-              //通过flag判断,刷新数据
-              if (!this.flag) {
-                this.showData(this.PageSize, this.currentPage);
-              } else {
-                this.onSearchSubmit(this.PageSize, this.currentPage);
-              }
-            });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消删除",
-          });
-        });
-    },
-    //   分页
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-      // 改变每页显示的条数
-      this.PageSize = val;
-      this.showData(val, 1); // this.pageSize是undefined，使用选定的或默认值
-      // 注意：在改变每页显示的条数时，要将页码显示到第一页
-      this.currentPage = 1;
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      this.currentPage = val;
-      this.showMetaData(this.PageSize, val);
+    showMetaData() {
+      console.log(typeof this.tableData);
+      console.log(this.tableData);
+      // let url = "http://127.0.0.1:8000/load/commonmetashow/";
+      // axios
+      //   .get(url, {
+      //     params: {
+      //       // 每页显示的条数
+      //       PageSize: n1,
+      //       // 显示第几页
+      //       currentPage: n2,
+      //     },
+      //   })
+      //   .then((res) => {
+      //     console.log("success");
+      //     console.log(res.data);
+      //   })
+      //   .catch((err) => {
+      //     console.log("err");
+      //   });
     },
   },
 };
 </script>
+
+<style  lang='scss'>
+.myTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.myTable td,
+.myTable th {
+  border: 1px solid #cad9ea;
+  color: #666;
+  height: 60px;
+  width: 450px;
+  padding-top: 20px; //设置文字居中
+}
+.el-scrollbar__wrap {
+  overflow-x: hidden; //设置滚动条隐藏
+}
+</style>

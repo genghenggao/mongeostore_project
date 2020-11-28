@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-27 20:41:39
+LastEditTime: 2020-11-28 21:31:58
 '''
 import base64
 from django.http.request import HttpRequest
@@ -818,8 +818,9 @@ class InclinationMetaView(APIView):
         # print(request.GET)
 
         # print(page_size)
-        # drill_obj = DrillInclinationModel.objects.using(
-        #     'drill').all().order_by('_id')  # 一定要排序
+        drill_obj = InclinationMetaModel.objects.using(
+            'drill').all().order_by('id')  # 一定要排序
+        print(drill_obj)
         # # 创建分页对象
         # page = MyPagination()
         # # 实例化查询，获取分页的数据
@@ -830,19 +831,34 @@ class InclinationMetaView(APIView):
         # data = {'list': ser.data}
 
         # return page.get_paginated_response(data)
-        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
-        db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
-        fs = GridFS(db, collection='钻孔元数据')  # 连接GridFS集合，名称为mysegy
-        # drill_obj = InclinationMetaModel.objects.using(
-        #     'drill').all().order_by('id')
-        response = {}
-        data = []
-        for grid_out in fs.find():
-            response['uploadDate'] = str(grid_out.upload_date)
-            data.append(grid_out._file)
-            print(data)
+        # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+        # fs = GridFS(db, collection='钻孔元数据')  # 连接GridFS集合，名称为mysegy
+        # response = {}
+        # data = []
+        # for grid_out in fs.find():
+        #     response['uploadDate'] = str(grid_out.upload_date)
+        #     data.append(grid_out._file)
+        #     print(data)
         # print(drill_obj)
         # print(fs.find())
+        def post(request):
+            from django.db import DatabaseError
+            try:
+                InclinationMetaModel.objects.create(
+
+                    zk_num='1',
+                    zk_type='123',
+                    final_depth=1,
+                    final_date='2020-11-28',
+                    depth=1,
+                    project_name='henggao',
+                    company_name='gao',
+                    uploader='henggao',
+                    zk_histogram='xxxxx',
+                )
+            except DatabaseError:
+                return HttpResponse("error")
         return HttpResponse('success')
 
 

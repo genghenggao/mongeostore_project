@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-27 16:58:43
+ * @LastEditTime: 2020-11-28 19:37:25
 -->
 <template>
   <el-container>
@@ -32,7 +32,9 @@
               >
                 <!-- {{ title_message }}
                 {{ temp_database }} -->
-                <InclinationData />
+                <!-- <InclinationData /> -->
+                <!-- <Inclination /> -->
+                <CommonCol />
               </div>
               <div v-else>
                 <CommonCol />
@@ -45,7 +47,8 @@
                 v-if="this.$store.state.title_message == '钻孔数据管理子系统'"
               >
                 <!-- {{ title_message }} -->
-                <InclinationMeta />
+                <!-- <InclinationMeta /> -->
+                <Inclination />
               </div>
               <div v-else>
                 <CommonDB />
@@ -66,6 +69,7 @@ import CommonCol from "@/components/CommonCol.vue";
 import CommonDB from "@/components/CommonDB.vue";
 import InclinationData from "@/components/drill/InclinationData.vue";
 import InclinationMeta from "@/components/drill/InclinationMeta.vue";
+import Inclination from "@/components/drill/Inclination.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -82,6 +86,7 @@ export default {
     CommonDB,
     InclinationData,
     InclinationMeta,
+    Inclination,
   },
   data() {
     return {
@@ -114,7 +119,8 @@ header.el-header {
 // 侧边aside
 aside.el-aside {
   width: 280px !important;
-  height: 881px;
+  // height: 881px;
+  height: 100%;
 }
 .el-menu-item-group__title {
   padding: 0px 0 0px 0px;

@@ -4,15 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-24 22:26:45
--->
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
- * @Date: 2020-10-05 11:09:49
- * @LastEditors: henggao
- * @LastEditTime: 2020-11-18 11:00:06
+ * @LastEditTime: 2020-11-28 16:38:30
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -64,105 +56,108 @@
 
     <div class="mentree_content">
       <!-- <div class="menutree infinite-list" style="overflow:auto"> -->
-      <el-row class="tac">
-        <el-col :span="24">
-          <el-menu
-            :default-active="$route.path"
-            @select="handleSelect"
-            class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
-            :default-openeds="openeds"
-          >
-            <el-submenu index="1">
-              <template slot="title">
-                <i
-                  class="el-icon-menu"
-                  style="font-size: 17px; color: #870000"
-                ></i>
-                <span>地震大数据采集系统</span>
-              </template>
-              <el-menu-item-group>
-                <SideTree />
-              </el-menu-item-group>
-            </el-submenu>
-            <el-submenu index="2">
-              <template slot="title">
-                <i
-                  class="el-icon-menu"
-                  style="font-size: 17px; color: #870000"
-                ></i>
-                <span>钻孔数据管理子系统</span>
-              </template>
-              <el-menu-item-group>
-                <el-submenu index="2-1">
-                  <template slot="title">
-                    <i class="el-icon-folder-opened"></i>
-                    <span>柠条塔工区</span>
-                  </template>
-                  <el-menu-item index="2-1-1"
-                    ><i class="el-icon-document"></i>定位表</el-menu-item
-                  >
-                  <el-menu-item index="2-1-2"
-                    ><i class="el-icon-document"></i>测斜表</el-menu-item
-                  >
-                  <el-menu-item index="2-1-3"
-                    ><i class="el-icon-document"></i>化验表</el-menu-item
-                  >
-                  <el-menu-item index="2-1-4"
-                    ><i class="el-icon-document"></i>岩性表</el-menu-item
-                  >
-                </el-submenu>
-                <el-submenu index="2-2">
-                  <template slot="title">
-                    <i class="el-icon-folder-opened"></i>
-                    <span>哈勒噶提工区</span></template
-                  >
-                  <el-menu-item index="2-2-1"
-                    ><i class="el-icon-document"></i>哈勒噶提区域</el-menu-item
-                  >
-                </el-submenu>
-                <el-submenu index="2-3">
-                  <template slot="title">
-                    <i class="el-icon-folder-opened"></i>
-                    <span>钻孔数据管理子系统</span></template
-                  >
-                  <el-menu-item index="2-3-1"
-                    ><i class="el-icon-document"></i>钻孔数据</el-menu-item
-                  >
-                  <el-menu-item index="2-3-2"
-                    ><i class="el-icon-document"></i>DEM数据</el-menu-item
-                  >
-                  <el-menu-item index="2-3-3"
-                    ><i class="el-icon-document"></i>地质剖面</el-menu-item
-                  >
-                  <el-menu-item index="2-3-4"
-                    ><i class="el-icon-document"></i>空间索引</el-menu-item
-                  >
-                </el-submenu>
-                <el-submenu index="2-4">
-                  <template slot="title">
-                    <i class="el-icon-menu"></i>
-                    <span>地震历史数据子系统</span></template
-                  >
-                  <el-menu-item index="1-4-1"
-                    ><i class="el-icon-document"></i>选项1</el-menu-item
-                  >
-                </el-submenu>
-              </el-menu-item-group>
-            </el-submenu>
-            <el-submenu index="/defaultpage">
-              <template slot="title">
-                <i
-                  class="el-icon-menu"
-                  style="font-size: 17px; color: #870000"
-                ></i>
-                <span>地质数据管理子系统</span>
-              </template>
-            </el-submenu>
-          </el-menu>
-        </el-col>
-      </el-row>
+      <el-scrollbar style="height: 100%">
+        <el-row class="tac">
+          <el-col :span="24">
+            <el-menu
+              :default-active="$route.path"
+              @select="handleSelect"
+              class="el-menu-vertical-demo"
+              @open="handleOpen"
+              @close="handleClose"
+              :default-openeds="openeds"
+            >
+              <el-submenu index="1">
+                <template slot="title">
+                  <i
+                    class="el-icon-menu"
+                    style="font-size: 17px; color: #870000"
+                  ></i>
+                  <span>地震大数据采集系统</span>
+                </template>
+                <el-menu-item-group>
+                  <SideTree />
+                </el-menu-item-group>
+              </el-submenu>
+              <el-submenu index="2">
+                <template slot="title">
+                  <i
+                    class="el-icon-menu"
+                    style="font-size: 17px; color: #870000"
+                  ></i>
+                  <span>钻孔数据管理子系统</span>
+                </template>
+                <el-menu-item-group>
+                  <el-submenu index="2-1">
+                    <template slot="title">
+                      <i class="el-icon-folder-opened"></i>
+                      <span>柠条塔工区</span>
+                    </template>
+                    <el-menu-item index="2-1-1"
+                      ><i class="el-icon-document"></i>定位表</el-menu-item
+                    >
+                    <el-menu-item index="2-1-2"
+                      ><i class="el-icon-document"></i>测斜表</el-menu-item
+                    >
+                    <el-menu-item index="2-1-3"
+                      ><i class="el-icon-document"></i>化验表</el-menu-item
+                    >
+                    <el-menu-item index="2-1-4"
+                      ><i class="el-icon-document"></i>岩性表</el-menu-item
+                    >
+                  </el-submenu>
+                  <el-submenu index="2-2">
+                    <template slot="title">
+                      <i class="el-icon-folder-opened"></i>
+                      <span>哈勒噶提工区</span></template
+                    >
+                    <el-menu-item index="2-2-1"
+                      ><i class="el-icon-document"></i
+                      >哈勒噶提区域</el-menu-item
+                    >
+                  </el-submenu>
+                  <el-submenu index="2-3">
+                    <template slot="title">
+                      <i class="el-icon-folder-opened"></i>
+                      <span>钻孔数据管理子系统</span></template
+                    >
+                    <el-menu-item index="2-3-1"
+                      ><i class="el-icon-document"></i>钻孔数据</el-menu-item
+                    >
+                    <el-menu-item index="2-3-2"
+                      ><i class="el-icon-document"></i>DEM数据</el-menu-item
+                    >
+                    <el-menu-item index="2-3-3"
+                      ><i class="el-icon-document"></i>地质剖面</el-menu-item
+                    >
+                    <el-menu-item index="2-3-4"
+                      ><i class="el-icon-document"></i>空间索引</el-menu-item
+                    >
+                  </el-submenu>
+                  <el-submenu index="2-4">
+                    <template slot="title">
+                      <i class="el-icon-menu"></i>
+                      <span>地震历史数据子系统</span></template
+                    >
+                    <el-menu-item index="1-4-1"
+                      ><i class="el-icon-document"></i>选项1</el-menu-item
+                    >
+                  </el-submenu>
+                </el-menu-item-group>
+              </el-submenu>
+              <el-submenu index="/defaultpage">
+                <template slot="title">
+                  <i
+                    class="el-icon-menu"
+                    style="font-size: 17px; color: #870000"
+                  ></i>
+                  <span>地质数据管理子系统</span>
+                </template>
+              </el-submenu>
+            </el-menu>
+          </el-col>
+        </el-row>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -263,7 +258,8 @@ button.el-button.el-button--small.is-plain {
 // 侧边主要内容
 .mentree_content {
   width: 280px;
-  height: 775px;
+  // height: 775px;
+  height: 810px;
   overflow: auto; //超出内容部分有下拉框
 }
 
@@ -299,5 +295,8 @@ button.el-button.el-button--small.is-plain {
   vertical-align: middle;
   margin-right: 3px;
   margin-bottom: 5px;
+}
+.el-scrollbar__wrap {
+  overflow-x: hidden; //设置滚动条隐藏
 }
 </style>

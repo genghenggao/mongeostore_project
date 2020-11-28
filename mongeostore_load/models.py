@@ -4,8 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-27 20:34:05
+LastEditTime: 2020-11-28 20:43:59
 '''
+from djongo.storage import GridFSStorage
+from django.conf import settings
 from djongo import models
 
 # Create your models here.
@@ -54,21 +56,29 @@ class DrillInclinationModel(models.Model):
         return self.ZK_num
 
 
+grid_fs_storage = GridFSStorage(
+    collection='钻孔元数据', base_url=''.join(['192.168.55.110:20000', '钻孔元数据/']))
+# grid_fs_storage = GridFSStorage(
+#     collection='钻孔元数据', base_url=''.join([settings.BASE_URL, '钻孔元数据/']))
 
-# from django.conf import settings
-from djongo.storage import GridFSStorage
-# grid_fs_storage = GridFSStorage(collection='钻孔元数据', base_url=''.join([settings.BASE_URL, '钻孔元数据/']))
+
 class InclinationMetaModel(models.Model):
     '''钻孔数据管理子系统元数据'''
 
     # _id = models.CharField(max_length=255)
-    filename = models.CharField(max_length=255)
+    zk_num = models.CharField(max_length=255)
     # type = models.CharField(max_length=255)
-    size = models.CharField(max_length=30, default=0)
-    upload_date = models.DateTimeField()
-    publisher = models.CharField(max_length=255)
-    # path = models.CharField(max_length=255)
-    md5 = models.CharField(max_length=33, default='')
+    zk_type = models.CharField(max_length=30)
+    final_depth = models.CharField(max_length=255)
+    final_date = models.DateTimeField()
+    depth = models.CharField(max_length=255)
+    project_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=255)
+    uploader = models.CharField(max_length=255)
+    zk_histogram = models.ImageField(upload_to='InclinationMetaModels')
+    zk_histogram = models.ImageField(
+        upload_to='InclinationMetaModels', storage=grid_fs_storage)
+
     class Meta:
         verbose_name = "钻孔元数据"
         verbose_name_plural = verbose_name
