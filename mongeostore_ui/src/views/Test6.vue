@@ -11,7 +11,7 @@
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="活动时间">
+      <el-form-item label="上传时间">
         <el-col :span="11">
           <el-date-picker
             type="date"
@@ -96,6 +96,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -118,6 +119,15 @@ export default {
   methods: {
     onSubmit() {
       console.log("submit!");
+      let url = "http://127.0.0.1:8000/load/inclinationmeta/";
+      axios
+        .post(url, { data })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log("err");
+        });
     },
     // 上传
     handleRemove(file) {

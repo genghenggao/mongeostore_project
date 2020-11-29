@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-28 21:31:58
+LastEditTime: 2020-11-29 10:45:17
 '''
 import base64
 from django.http.request import HttpRequest
@@ -761,12 +761,15 @@ class DrillInclinationPageView(APIView):
             'drill').all().order_by('_id')  # 一定要排序
         # totalcount = drill_obj.count()  # 总数据数
         # 创建分页对象
+        # print(drill_obj)
         page = MyPagination()
         # 实例化查询，获取分页的数据
         page_chapter = page.paginate_queryset(
             queryset=drill_obj, request=request, view=self)
+        # print(page_chapter)
         # 序列化及结果返回，将分页后返回的数据, 进行序列化
         ser = DrillInclinationSerializer(instance=page_chapter, many=True)
+        # print(ser)
         data = {'list': ser.data}
         # print(ser.data)
         # print(data)
