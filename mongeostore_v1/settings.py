@@ -138,7 +138,11 @@ DATABASE_APPS_MAPPING = {
     # example:
     # 'app_name':'database_name',
     'mongeostore_app': 'default',
-    'mongeostore_load': 'others',  # 这里由于数据库用到不同的集合，可以在models中具体配置
+    'mongeostore_load': 'drill',  # 这里由于数据库用到不同的集合，可以在models中具体配置
+    # 如果想要同一个app使用不同的数据库，可以套用不同App创建不同数据库，创建空app；
+    # 'drill_database', 'geological_database'需加到INSTALLED_APPS中，它们是通过startapp创建的两个空app
+    # 'drill_database': 'drill',
+    # 'geological_database': 'geological'
 }
 
 # Password validation

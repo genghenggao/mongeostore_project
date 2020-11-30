@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-28 20:43:59
+LastEditTime: 2020-11-30 21:05:17
 '''
 from djongo.storage import GridFSStorage
 from django.conf import settings
@@ -56,34 +56,38 @@ class DrillInclinationModel(models.Model):
         return self.ZK_num
 
 
-grid_fs_storage = GridFSStorage(
-    collection='钻孔元数据', base_url=''.join(['192.168.55.110:20000', '钻孔元数据/']))
 # grid_fs_storage = GridFSStorage(
-#     collection='钻孔元数据', base_url=''.join([settings.BASE_URL, '钻孔元数据/']))
+#     collection='钻孔元数据GridFS')  # 这里的base_url设置无效
+# grid_fs_storage = GridFSStorage(
+#     collection='钻孔元数据', base_url=''.join(['', '钻孔元数据/']))
+# Define your GrifFSStorage instance
+grid_fs_storage = GridFSStorage(location='', collection='钻孔信息元数据', base_url=''.join(
+    ['', '']), database='drill')
 
 
-class InclinationMetaModel(models.Model):
+class DrillMetaModel(models.Model):
     '''钻孔数据管理子系统元数据'''
 
-    # _id = models.CharField(max_length=255)
+    _id = models.CharField(max_length=255)
     zk_num = models.CharField(max_length=255)
     # type = models.CharField(max_length=255)
     zk_type = models.CharField(max_length=30)
     final_depth = models.CharField(max_length=255)
     final_date = models.DateTimeField()
+    upload_date = models.DateTimeField()
     depth = models.CharField(max_length=255)
     project_name = models.CharField(max_length=255)
     company_name = models.CharField(max_length=255)
     uploader = models.CharField(max_length=255)
-    zk_histogram = models.ImageField(upload_to='InclinationMetaModels')
+    # zk_histogram = models.ImageField(upload_to='InclinationMetaModels')
     zk_histogram = models.ImageField(
         upload_to='InclinationMetaModels', storage=grid_fs_storage)
 
     class Meta:
-        verbose_name = "钻孔元数据"
+        verbose_name = "钻孔元数据名"
         verbose_name_plural = verbose_name
-        app_label = 'drill'  # 如果指定将在drill对应的数据库下创建数据表
-        db_table = '钻孔元数据'  # 自定义表名称，即是对应的Collection，如和对应GriDFS
+        # app_label = 'mongeostore_load'  # 如果指定将在drill对应的数据库下创建数据表
+        db_table = '钻孔信息'  # 自定义表名称，即是对应的Collection，如何对应GriDFS
 
     def __str__(self) -> str:
-        return self.filename
+        return self.zk_num

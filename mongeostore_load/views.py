@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-29 10:45:17
+LastEditTime: 2020-11-30 22:56:02
 '''
+from rest_framework import viewsets
 import base64
 from django.http.request import HttpRequest
 from rest_framework import filters
@@ -26,9 +27,9 @@ from gridfs import GridFS
 import os
 from django.http import response
 from xlrd.formula import colname
-from .models import DrillInclinationModel, FileInfo, InclinationMetaModel
+from .models import DrillInclinationModel, DrillMetaModel, FileInfo
 from rest_framework.views import APIView
-from .serializers import DrillInclinationSerializer, FileInfoSerializer
+from .serializers import DrillInclinationSerializer, DrillMetaSerializer, FileInfoSerializer
 from typing import ClassVar
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -814,56 +815,71 @@ class InclinationSearchView(APIView):
 
 # 钻孔数据管理子系统---元数据分页
 
+# 钻孔元数据信息
 
-class InclinationMetaView(APIView):
+
+# class DrillMetaViewSet(viewsets.ModelViewSet):
+class DrillMetaViewSet(APIView):
+
     def get(self, request, *args, **kwargs):
-        # 数据获取，使用using('drill')需要在settings.py中配置
-        # print(request.GET)
+        queryset = DrillMetaModel.objects.all()
+        # queryset = InclinationMetaModel.objects.using('drill').all()
+        serializer_class = DrillMetaSerializer
 
-        # print(page_size)
-        drill_obj = InclinationMetaModel.objects.using(
-            'drill').all().order_by('id')  # 一定要排序
-        print(drill_obj)
-        # # 创建分页对象
-        # page = MyPagination()
-        # # 实例化查询，获取分页的数据
-        # page_chapter = page.paginate_queryset(
-        #     queryset=drill_obj, request=request, view=self)
-        # # 序列化及结果返回，将分页后返回的数据, 进行序列化
-        # ser = DrillInclinationSerializer(instance=page_chapter, many=True)
-        # data = {'list': ser.data}
+        # return HttpResponse(json.dumps(serializer_class), content_type="application/json")
+        return HttpResponse(queryset)
 
-        # return page.get_paginated_response(data)
-        # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
-        # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
-        # fs = GridFS(db, collection='钻孔元数据')  # 连接GridFS集合，名称为mysegy
-        # response = {}
-        # data = []
-        # for grid_out in fs.find():
-        #     response['uploadDate'] = str(grid_out.upload_date)
-        #     data.append(grid_out._file)
-        #     print(data)
-        # print(drill_obj)
-        # print(fs.find())
-        def post(request):
-            from django.db import DatabaseError
-            try:
-                InclinationMetaModel.objects.create(
+    def post(self, request):
+        """
+        docstring
+        """
+        # print("走的是POST方法")
+        # file = self.request.POST.get('name',None)  # 获取上传的文件，如果没有文件，则默认为None
+        zk_histogram = request.FILES.get("file", None)  # 注意比较
+        # print(File)
+        # print(File.name)   #同上
+        # print(File.chunks)  # 二进制信息
+        print(request.data['upload_date'])  # DRF才有request.data
+        print(request.POST)  # Django只有request.POST、request.GET
+        _id = self.request.POST.get('id')
+        zk_num = request.data['zk_num'],  # 取出来竟是个元组，QAQ
+        zk_type = request.data['zk_type'],
+        final_depth = request.data['final_depth'],
+        final_date = request.data['final_date'],
+        depth = request.data['depth'],
+        project_name = request.data['project_name'],
+        company_name = request.data['company_name'],
+        uploader = request.data['uploader'],
+        upload_date = request.data['uploaddate'],  # 这个字段前端会冲突，另起
+        print(zk_num[0])
+        print(final_depth[0])
+        print(type(upload_date[0]))
+        print(upload_date[0])
+        print(final_date[0])
 
-                    zk_num='1',
-                    zk_type='123',
-                    final_depth=1,
-                    final_date='2020-11-28',
-                    depth=1,
-                    project_name='henggao',
-                    company_name='gao',
-                    uploader='henggao',
-                    zk_histogram='xxxxx',
-                )
-            except DatabaseError:
-                return HttpResponse("error")
+        # test = DrillMetaModel(zk_num='ZK1')
+        # test.save()
+        # # DrillMetaModel.objects.create(zk_num="ZK1")
+        # DrillMetaModel.objects.create(_id=_id,
+        #                               zk_num=zk_num[0],
+        #                               zk_type=zk_type[0], final_depth=final_depth[0], final_date=final_date[0],
+        #                               depth=depth[0],
+        #                               project_name=project_name[0], company_name=company_name[0], uploader=uploader[0], upload_date=upload_date[0], zk_histogram=zk_histogram)
+        # DrillMetaModel.objects.create(zk_type=zk_type[0])
+        # DrillMetaModel.objects.create(final_depth=final_depth[0])
+        # DrillMetaModel.objects.create(final_date=final_date[0])
+        # DrillMetaModel.objects.create(depth=depth[0])
+        # DrillMetaModel.objects.create(
+        # project_name=project_name[0])
+        # DrillMetaModel.objects.create(
+        #     company_name=company_name[0])
+        # DrillMetaModel.objects.create(uploader=uploader[0])
+        # DrillMetaModel.objects.create(upload_date=upload_date[0])
+
+        # DrillMetaModel.objects.create(
+        #     zk_histogram=request.FILES.get("file", None))
+
         return HttpResponse('success')
-
 
 # 钻孔数据管理子系统---测斜表Inclination删除
 

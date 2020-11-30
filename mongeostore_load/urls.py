@@ -4,16 +4,20 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-28 21:28:35
+LastEditTime: 2020-11-30 19:59:39
 '''
 from os import name
-from .views import FileInfoView
+from .views import DrillMetaViewSet
 from django.urls import include, path
 
 from . import views
 from .views import *
+from rest_framework import routers
+router = routers.DefaultRouter()
+# router.register(r'drillmeta', DrillMetaViewSet)
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('uploadfile/', views.uploadfile, name="uploadefile"),
     path('fileinfo/', FileInfoView.as_view(), name="fileinfo"),
     path('fileshow/', views.FileShow, name="fileshow"),
@@ -42,7 +46,6 @@ urlpatterns = [
          name="commonadd_data"),  # Collection添加数据
     path('commonquerydata/', views.CommonQueryData,
          name="commonquerydata"),  # Collection数据搜索
-
     path('showdrillclination/', DrillInclinationPageView.as_view(),
          name="showdrillclination"),  # 钻孔测斜表
     path('commonuploadexcel/', CommonUploadExcel.as_view(),
@@ -65,7 +68,7 @@ urlpatterns = [
          name="editinclination"),  # Collection编辑数据
     path('listallimg/', views.listAllImgFromDB,
          name="listallimg"),  # 图片数据流读取
-    path('inclinationmeta/', InclinationMetaView.as_view(),
-         name="inclinationmeta"),  # 钻孔数据管理子系统元数据
+    path('drillmeta/', DrillMetaViewSet.as_view(),
+         name='drillmeta'),  # 钻孔数据分页
 
 ]
