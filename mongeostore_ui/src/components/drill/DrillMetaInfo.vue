@@ -2,9 +2,9 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-11-28 09:03:38
+ * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 08:54:30
+ * @LastEditTime: 2020-12-01 22:55:42
 -->
 
 <template>
@@ -81,8 +81,9 @@
             aria-labelledby="nav-profile-tab"
           >
             <!-- <CommonData /> -->
+            <DrillMetaData />
             <!-- 钻孔的数据列表 -->
-            <InclinationData />
+            <!-- <InclinationData /> -->
           </div>
           <div
             class="tab-pane fade"
@@ -91,6 +92,7 @@
             aria-labelledby="nav-metadata-tab"
           >
             <!-- <SeiTable /> -->
+            <router-view></router-view>
             <DrillDetails />
           </div>
           <div
@@ -102,8 +104,9 @@
             <!-- <UploadFile /> -->
             <!-- <UploadCSV /> -->
             <!-- <UploadExcel /> -->
-            <CommonUploadExcel />
-            <CommonUploadCSV />
+            <!-- <CommonUploadExcel /> -->
+            <!-- <CommonUploadCSV /> -->
+            <DrillUpload />
           </div>
         </div>
       </el-main>
@@ -123,8 +126,10 @@ import CommonUploadExcel from "@/components/CommonUploadExcel.vue";
 import CommonUploadCSV from "@/components/CommonUploadCSV.vue";
 import InclinationData from "@/components/drill/InclinationData.vue";
 import DrillDetails from "@/components/drill/DrillDetails.vue";
+import DrillMetaData from "@/components/drill/DrillMetaData.vue";
+import DrillUpload from "@/components/drill/DrillUpload.vue";
 export default {
-  name: "Inclination",
+  name: "DrillMetaInfo",
   components: {
     MapView,
     Home,
@@ -137,6 +142,8 @@ export default {
     CommonUploadCSV,
     InclinationData,
     DrillDetails,
+    DrillMetaData,
+    DrillUpload,
   },
   data() {
     return {
@@ -152,9 +159,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.maincontent {
-  height: 821px;
-}
+// .maincontent {
+//   // height: 821px;
+//   // height: 850px;
+// }
 /* 导航子标题 */
 .maincontent_header {
   /* 固定高度 */
@@ -175,7 +183,8 @@ export default {
 .maincontent div#nav-tab a {
   color: #b45c5c;
 }
-div#nav-tabContent {
-  height: 775px;
-}
+// div#nav-tabContent {
+//   // height: 775px;
+//   // height: 780px;
+// }
 </style>

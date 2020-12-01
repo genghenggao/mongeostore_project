@@ -2,9 +2,9 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-11-27 16:37:40
+ * @Date: 2020-12-01 10:13:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-28 19:32:45
+ * @LastEditTime: 2020-12-01 11:06:53
 -->
 <template>
   <el-container style="min-width: 1100px; overflow: hidden">
@@ -19,7 +19,7 @@
           text-align: left;
         "
       >
-        <i class="el-icon-caret-right" /> 钻孔编号：{{ ZK_num }}
+        <i class="el-icon-caret-right" /> 相关信息上传
       </h2>
     </el-header>
     <el-main style="padding-top: 10px; min-width: 1100px; overflow: hidden">
@@ -29,63 +29,16 @@
       <el-row :gutter="20" style="margin: 0">
         <el-col :span="16" :offset="4">
           <el-tabs :tab-position="tabPosition">
-            <el-tab-pane label="钻孔信息">
-              <div class="drillinfo">
-                <table style="width: 100%" class="myTable">
-                  <el-scrollbar style="height: 700px">
-                    <!-- 滚动条 -->
-                    <tr v-for="(value, keyword) in tableData" :key="keyword">
-                      <div v-if="keyword == '钻孔柱状图'">
-                        <td class="column" style="">钻孔柱状图</td>
-                        <td class="column">
-                          <el-image
-                            style="width: 60px; height: 60px"
-                            :src="url"
-                            :preview-src-list="srcList"
-                          >
-                          </el-image>
-                        </td>
-                      </div>
-                      <div v-else>
-                        <td class="column">{{ keyword }}</td>
-                        <td class="column">{{ value }}</td>
-                      </div>
-                    </tr>
-                  </el-scrollbar>
-                </table>
-              </div></el-tab-pane
-            >
-            <el-tab-pane label="项目信息"
-              ><div>
-                <table style="width: 100%" class="myTable">
-                  <el-scrollbar style="height: 700px">
-                    <tr
-                      v-for="(value, keyword) in ProjectInformation"
-                      :key="keyword"
-                    >
-                      <td class="column">{{ keyword }}</td>
-                      <td class="column">{{ value }}</td>
-                    </tr>
-                  </el-scrollbar>
-                </table>
-              </div></el-tab-pane
-            >
-            <el-tab-pane label="单位信息"
-              ><div>
-                <table style="width: 100%" class="myTable">
-                  <el-scrollbar style="height: 700px">
-                    <tr
-                      v-for="(value, keyword) in FileInformation"
-                      :key="keyword"
-                    >
-                      <td class="column">{{ keyword }}</td>
-                      <td class="column">{{ value }}</td>
-                    </tr>
-                  </el-scrollbar>
-                </table>
-              </div></el-tab-pane
-            >
-            <el-tab-pane label="其他信息">其他信息</el-tab-pane>
+            <el-tab-pane label="钻孔信息上传">
+              <DrillMetaUpload />
+            </el-tab-pane>
+            <el-tab-pane label="项目信息上传">
+              <ProjectInfoUpload />
+            </el-tab-pane>
+            <el-tab-pane label="单位信息上传">
+              <CompanyInfoUpload />
+            </el-tab-pane>
+            <el-tab-pane label="其他信息上传">其他信息上传</el-tab-pane>
           </el-tabs>
         </el-col>
       </el-row>
@@ -95,11 +48,18 @@
 
 <script>
 import axios from "axios";
+import DrillMetaUpload from "@/components/drill/DrillMetaUpload.vue";
+import ProjectInfoUpload from "@/components/drill/ProjectInfoUpload.vue";
+import CompanyInfoUpload from "@/components/drill/CompanyInfoUpload.vue";
 export default {
-  name: "InclinationMeta",
+  name: "DrillUpload",
+  components: {
+    DrillMetaUpload,
+    ProjectInfoUpload,
+    CompanyInfoUpload,
+  },
   data() {
     return {
-      ZK_num: "ZK2", //小标题
       // 柱状图
       url:
         "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",

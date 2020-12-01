@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-11-22 16:04:04
 LastEditors: henggao
-LastEditTime: 2020-11-30 23:09:46
+LastEditTime: 2020-12-01 16:16:26
 '''
 # coding=utf-8
 
@@ -19,14 +19,15 @@ dd = "Fri Nov 09 2018 14:41:35 GMT+0800 (CST)"
 GMT_FORMAT = '%a %b %d %Y %H:%M:%S GMT+0800 (CST)'
 # print(datetime.strptime(t, GMT_FORMAT))
 
-#coding:UTF-8
-import time
+# coding:UTF-8
 
-timestamp = 1462451334
+# timestamp = 1462451334
+timestamp = 1604332800
 
-#转换成localtime
+# 转换成localtime
 time_local = time.localtime(timestamp)
-#转换成新的时间格式(2016-05-05 20:28:54)
-dt = time.strftime("%Y-%m-%d %H:%M:%S",time_local)
+# 转换成新的时间格式(2016-05-05 20:28:54)
+# dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+dt = time.strftime("%Y-%m-%d", time_local)
 
-print (dt)
+print(dt)

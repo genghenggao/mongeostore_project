@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-30 21:05:17
+LastEditTime: 2020-12-01 18:35:58
 '''
 from djongo.storage import GridFSStorage
 from django.conf import settings
@@ -73,9 +73,10 @@ class DrillMetaModel(models.Model):
     # type = models.CharField(max_length=255)
     zk_type = models.CharField(max_length=30)
     final_depth = models.CharField(max_length=255)
-    final_date = models.DateTimeField()
-    upload_date = models.DateTimeField()
-    depth = models.CharField(max_length=255)
+    # final_date = models.DateTimeField()
+    # upload_date = models.DateTimeField()
+    final_date = models.DateField()
+    upload_date = models.DateField()
     project_name = models.CharField(max_length=255)
     company_name = models.CharField(max_length=255)
     uploader = models.CharField(max_length=255)

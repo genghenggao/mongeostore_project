@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-28 21:05:02
+ * @LastEditTime: 2020-12-01 20:26:56
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -158,7 +158,21 @@ const routes = [
         name: "DefaultPage",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/DefaultPage.vue")
-      }]
+      },
+      {
+        path: "/drillmetainfo",
+        name: "DrillMetaInfo",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillMetaInfo.vue"),
+        children: [
+          {
+            path: "/drilldetails",
+            name: "DrillDetails",
+            component: () =>
+              import(/* webpackChunkName: "about" */ "@/components/drill/DrillDetails.vue")
+          },]
+      },
+    ]
   },
 ];
 

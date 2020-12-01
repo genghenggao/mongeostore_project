@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-11-30 22:56:02
+LastEditTime: 2020-12-01 18:37:54
 '''
 from rest_framework import viewsets
 import base64
@@ -815,19 +815,35 @@ class InclinationSearchView(APIView):
 
 # 钻孔数据管理子系统---元数据分页
 
-# 钻孔元数据信息
 
+# 钻孔信息上传 DrillMetaInfo.vue
 
 # class DrillMetaViewSet(viewsets.ModelViewSet):
+
 class DrillMetaViewSet(APIView):
 
     def get(self, request, *args, **kwargs):
-        queryset = DrillMetaModel.objects.all()
+        drill_obj = DrillMetaModel.objects.all().order_by('_id')  # 一定要排序
         # queryset = InclinationMetaModel.objects.using('drill').all()
-        serializer_class = DrillMetaSerializer
+        # drill_obj2 = DrillMetaModel.objects.get(_id='o_1eoekb1rb5191s631sp871115ccd')
+        # print(drill_obj2)
+        # print(drill_obj2.zk_histogram)
+        # print(drill_obj[0].zk_histogram)
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=drill_obj, request=request, view=self)
+        print(page_chapter[0].zk_histogram)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = DrillMetaSerializer(instance=page_chapter, many=True)
+        # 存入data,发送给前端
+        data = {'list': ser.data}
+        # print(data)
 
         # return HttpResponse(json.dumps(serializer_class), content_type="application/json")
-        return HttpResponse(queryset)
+        # return HttpResponse(queryset)
+        return page.get_paginated_response(data)
 
     def post(self, request):
         """
@@ -846,25 +862,33 @@ class DrillMetaViewSet(APIView):
         zk_type = request.data['zk_type'],
         final_depth = request.data['final_depth'],
         final_date = request.data['final_date'],
-        depth = request.data['depth'],
         project_name = request.data['project_name'],
         company_name = request.data['company_name'],
         uploader = request.data['uploader'],
         upload_date = request.data['uploaddate'],  # 这个字段前端会冲突，另起
-        print(zk_num[0])
-        print(final_depth[0])
-        print(type(upload_date[0]))
-        print(upload_date[0])
-        print(final_date[0])
-
+        # print(zk_num[0])
+        # print(final_depth[0])
+        # print(type(upload_date[0]))
+        # print(upload_date[0])
+        # print(final_date[0])
+        temp_time1 = int(final_date[0])/1000
+        temp_time2 = int(upload_date[0])/1000
+        # 转换成localtime
+        time_local1 = time.localtime(temp_time1)
+        time_local2 = time.localtime(temp_time2)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        # dt1 = time.strftime("%Y-%m-%d %H:%M:%S", time_local1)
+        # dt2 = time.strftime("%Y-%m-%d %H:%M:%S", time_local2)
+        dt1 = time.strftime("%Y-%m-%d", time_local1)
+        dt2 = time.strftime("%Y-%m-%d", time_local2)
         # test = DrillMetaModel(zk_num='ZK1')
-        # test.save()
+        # test.save() # update时,使用save方法
         # # DrillMetaModel.objects.create(zk_num="ZK1")
-        # DrillMetaModel.objects.create(_id=_id,
-        #                               zk_num=zk_num[0],
-        #                               zk_type=zk_type[0], final_depth=final_depth[0], final_date=final_date[0],
-        #                               depth=depth[0],
-        #                               project_name=project_name[0], company_name=company_name[0], uploader=uploader[0], upload_date=upload_date[0], zk_histogram=zk_histogram)
+        DrillMetaModel.objects.create(_id=_id,
+                                      zk_num=zk_num[0],
+                                      zk_type=zk_type[0], final_depth=final_depth[0], final_date=dt1,
+                                      project_name=project_name[0], company_name=company_name[0], uploader=uploader[0],
+                                      upload_date=dt2, zk_histogram=zk_histogram)
         # DrillMetaModel.objects.create(zk_type=zk_type[0])
         # DrillMetaModel.objects.create(final_depth=final_depth[0])
         # DrillMetaModel.objects.create(final_date=final_date[0])

@@ -241,12 +241,12 @@ export default {
           zk_num: this.form["zk_num"],
           zk_type: this.form["zk_type"],
           final_depth: this.form["final_depth"],
-          final_date: this.form["final_date"], //时间转为时间戳方便后端解析 对比toLocaleString()
+          final_date: this.form["final_date"].getTime(), //时间转为时间戳方便后端解析 对比toLocaleString()
           depth: this.form["depth"],
           project_name: this.form["project_name"],
           company_name: this.form["company_name"],
           uploader: this.form["uploader"],
-          uploaddate: this.form["uploaddate"],
+          uploaddate: this.form["uploaddate"].getTime(),
           filename: val.name,
           publisher: val.publisher,
           type: val.type,

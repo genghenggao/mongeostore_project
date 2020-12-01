@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-24 09:45:03
 LastEditors: henggao
-LastEditTime: 2020-11-30 16:33:07
+LastEditTime: 2020-12-01 18:40:07
 '''
 from django.db.models import fields
 from rest_framework import serializers

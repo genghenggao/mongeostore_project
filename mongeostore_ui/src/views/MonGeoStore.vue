@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-28 19:37:25
+ * @LastEditTime: 2020-12-01 21:14:15
 -->
 <template>
   <el-container>
@@ -27,14 +27,14 @@
               <div
                 v-if="
                   this.$store.state.temp_database == '钻孔数据管理子系统' &&
-                  this.$store.state.title_message == '测斜表'
+                  this.$store.state.title_message == '钻孔信息'
                 "
               >
                 <!-- {{ title_message }}
                 {{ temp_database }} -->
                 <!-- <InclinationData /> -->
                 <!-- <Inclination /> -->
-                <CommonCol />
+                <DrillMetaInfo />
               </div>
               <div v-else>
                 <CommonCol />
@@ -68,8 +68,8 @@ import SideTree from "@/components/SideTree.vue";
 import CommonCol from "@/components/CommonCol.vue";
 import CommonDB from "@/components/CommonDB.vue";
 import InclinationData from "@/components/drill/InclinationData.vue";
-import InclinationMeta from "@/components/drill/InclinationMeta.vue";
 import Inclination from "@/components/drill/Inclination.vue";
+import DrillMetaInfo from "@/components/drill/DrillMetaInfo.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -85,8 +85,8 @@ export default {
     SideTree,
     CommonDB,
     InclinationData,
-    InclinationMeta,
     Inclination,
+    DrillMetaInfo,
   },
   data() {
     return {
