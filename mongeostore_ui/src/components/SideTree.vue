@@ -1,7 +1,11 @@
 <template>
   <div class="custom-tree-container">
     <div class="block">
-      <el-input placeholder="输入关键字进行搜索" v-model="filterText">
+      <el-input
+        style="width: 96%"
+        placeholder="输入关键字进行搜索"
+        v-model="filterText"
+      >
       </el-input>
       <el-tree
         class="filter-tree"
@@ -395,9 +399,14 @@ export default {
       this.$store.state.title_message = obj["label"]; //给标题动态赋值
       this.$store.state.DBorCol = obj["isEdit"]; //设置参数，判断数据库还是集合
       this.$store.state.temp_database = obj["_database"]; //判断集合属于哪个数据库
+
+      if (this.$store.state.title_message == "钻孔信息") {
+        this.$router.push({ path: "/mongeostore/drillmetahome" });
+      }
       // 点击不同集合，数据动态展示数据
       this.reload(); //重载页面
       if (!obj["isEdit"]) {
+        // this.$router.push({ path: obj["label"] });
         // this.reload(); //重载页面
         // this.$refs.CommonData.showData();
         // const url = "http://127.0.0.1:8000/load/showcommondata/";
@@ -418,6 +427,8 @@ export default {
         //   .catch(() => {
         //     console.log("error");
         //   });
+      } else {
+        // this.$router.push({ path: obj["label"] });
       }
     },
   },

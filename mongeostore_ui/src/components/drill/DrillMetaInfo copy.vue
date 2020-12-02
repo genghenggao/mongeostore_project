@@ -4,16 +4,16 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-02 20:28:41
+ * @LastEditTime: 2020-12-02 09:08:43
 -->
 
 <template>
   <!-- 主界面-->
-  <div class="maincontent" style="overflow: hidden">
+  <div class="maincontent">
     <!-- 子导航 -->
     <el-container>
       <el-header class="maincontent_header">
-        <!-- <nav>
+        <nav>
           <div
             class="nav nav-tabs"
             id="nav-tab"
@@ -61,32 +61,54 @@
               ><i class="el-icon-top"></i>上传数据</a
             >
           </div>
-        </nav> -->
-        <el-menu
-          router
-          :default-active="activeIndex"
-          class="el-menu-demo"
-          mode="horizontal"
-          @select="handleSelect"
-        >
-          <el-menu-item index="/mongeostore/drillmetahome"
-            ><i class="el-icon-s-home"></i>
-            首页
-          </el-menu-item>
-          <el-menu-item index="/mongeostore/drillmetadata"
-            ><i class="el-icon-s-data"></i>钻孔数据
-          </el-menu-item>
-          <el-menu-item
-            index="/mongeostore/drilldetails/o_1eoekb1rb5191s631sp871115ccd"
-            ><i class="el-icon-document"></i>钻孔信息</el-menu-item
-          >
-          <el-menu-item index="/mongeostore/drillupload"
-            ><i class="el-icon-top"></i>上传数据</el-menu-item
-          >
-        </el-menu>
+        </nav>
       </el-header>
       <el-main>
-        <router-view></router-view>
+        <div class="tab-content" id="nav-tabContent">
+          <div
+            class="tab-pane fade show active"
+            id="nav-home"
+            role="tabpanel"
+            aria-labelledby="nav-home-tab"
+          >
+            <Home />
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="nav-profile"
+            role="tabpanel"
+            aria-labelledby="nav-profile-tab"
+          >
+            <!-- <CommonData /> -->
+            <DrillMetaData />
+            <!-- 钻孔的数据列表 -->
+            <!-- <InclinationData /> -->
+          </div>
+          <div
+            class="tab-pane fade"
+            id="nav-metadata"
+            role="tabpanel"
+            aria-labelledby="nav-metadata-tab"
+          >
+            <!-- <SeiTable /> -->
+            <!-- <router-view></router-view> -->
+            <DrillDetails />
+          </div>
+          <div
+            class="tab-pane fade"
+            id="nav-uploadfile"
+            role="tabpanel"
+            aria-labelledby="nav-uploadfile-tab"
+          >
+            <!-- <UploadFile /> -->
+            <!-- <UploadCSV /> -->
+            <!-- <UploadExcel /> -->
+            <!-- <CommonUploadExcel /> -->
+            <!-- <CommonUploadCSV /> -->
+            <DrillUpload />
+          </div>
+        </div>
       </el-main>
     </el-container>
   </div>
@@ -104,7 +126,6 @@ import CommonUploadExcel from "@/components/CommonUploadExcel.vue";
 import CommonUploadCSV from "@/components/CommonUploadCSV.vue";
 import InclinationData from "@/components/drill/InclinationData.vue";
 import DrillDetails from "@/components/drill/DrillDetails.vue";
-import DrillMetaHome from "@/components/drill/DrillMetaHome.vue";
 import DrillMetaData from "@/components/drill/DrillMetaData.vue";
 import DrillUpload from "@/components/drill/DrillUpload.vue";
 export default {
@@ -123,17 +144,11 @@ export default {
     DrillDetails,
     DrillMetaData,
     DrillUpload,
-    DrillMetaHome,
   },
   data() {
     return {
-      activeIndex: "",
+      activeIndex: "1",
     };
-  },
-  mounted() {
-    //  _this.activeIndex=window.location.href.split('/')[4];
-    //  console.log(window.location.href.split('/'));
-    this.activeIndex = "/mongeostore/drillmetahome";
   },
   methods: {
     handleSelect(key, keyPath) {
@@ -166,29 +181,10 @@ export default {
 }
 /* maincontent子导航 字体 */
 .maincontent div#nav-tab a {
-  color: #ac8585;
-}
-.maincontent .el-menu-item i {
-  color: #ac8585;
-  font-size: 25px;
-  padding-bottom: 6px;
+  color: #b45c5c;
 }
 // div#nav-tabContent {
 //   // height: 775px;
 //   // height: 780px;
 // }
-.el-menu-demo {
-  height: 46px;
-  background-color: #870000;
-}
-.el-menu-demo .el-menu-item {
-  font-size: 20px;
-  color: #b47777;
-}
-.el-menu--horizontal > .el-menu-item {
-  float: left;
-  height: 46px;
-  line-height: 46px;
-  margin: 0;
-}
 </style>

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-27 16:37:40
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 14:36:46
+ * @LastEditTime: 2020-12-02 18:45:49
 -->
 <template>
   <el-container style="min-width: 1100px; overflow: hidden">
@@ -22,7 +22,7 @@
         <i class="el-icon-caret-right" /> 钻孔编号：{{ ZK_num }}
       </h2>
     </el-header>
-    <el-main style="padding-top: 10px; min-width: 1100px; overflow: hidden">
+    <el-main style="padding-top: 10px; min-width: 1100px; overflow-y: hidden">
       <!-- <div style="">
         <h3>钻孔编号：{{ ZK_num }}</h3>
       </div> -->
@@ -30,7 +30,7 @@
         <el-col :span="16" :offset="4">
           <el-tabs :tab-position="tabPosition">
             <el-tab-pane label="钻孔信息">
-              <div class="drillinfo">
+              <div class="drillinfo" style="min-width: 900px">
                 <table style="width: 100%" class="myTable">
                   <el-scrollbar style="height: 700px">
                     <!-- 滚动条 -->
@@ -38,12 +38,19 @@
                       <div v-if="keyword == '钻孔柱状图'">
                         <td class="column" style="">钻孔柱状图</td>
                         <td class="column">
-                          <el-image
+                          <!-- <el-image
                             style="width: 60px; height: 60px"
                             :src="url"
                             :preview-src-list="srcList"
                           >
-                          </el-image>
+                          </el-image> -->
+                          <img
+                            :src="'data:image/png;base64,' + ico"
+                            class="avatar"
+                            height="60"
+                            alt="图片名"
+                            v-viewer
+                          />
                         </td>
                       </div>
                       <div v-else>
@@ -53,8 +60,8 @@
                     </tr>
                   </el-scrollbar>
                 </table>
-              </div></el-tab-pane
-            >
+              </div>
+            </el-tab-pane>
             <el-tab-pane label="项目信息"
               ><div>
                 <table style="width: 100%" class="myTable">
@@ -99,17 +106,12 @@ export default {
   name: "DrillDetails",
   data() {
     return {
-      ZK_num: "ZK2", //小标题
-      // 柱状图
-      url:
-        "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-      srcList: [
-        "https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg",
-        "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-      ],
+      ico: "",
+      _id: "o_1eoekb1rb5191s631sp871115ccd",
+      ZK_num: "ZK1", //小标题
       tabPosition: "right", //标签页位置设置
       tableData: {
-        钻孔编号: "	ZK2",
+        钻孔编号: "	ZK1",
         // 钻孔柱状图: "浏览",
         钻孔柱状图: "浏览",
         原始资料档号: "2010091",
@@ -160,29 +162,51 @@ export default {
   },
   created() {
     this.showMetaData();
+    // this.ZK_num = this.$route.params._id;
     // this.tableData = JSON.parse(JSON.stringify(this.tableData));
   },
   methods: {
     showMetaData() {
-      console.log(typeof this.tableData);
-      console.log(this.tableData);
-      // let url = "http://127.0.0.1:8000/load/commonmetashow/";
-      // axios
-      //   .get(url, {
-      //     params: {
-      //       // 每页显示的条数
-      //       PageSize: n1,
-      //       // 显示第几页
-      //       currentPage: n2,
-      //     },
-      //   })
-      //   .then((res) => {
-      //     console.log("success");
-      //     console.log(res.data);
-      //   })
-      //   .catch((err) => {
-      //     console.log("err");
-      //   });
+      console.log(this.$route.params._id); //查看DrillMetaData.vue路由传过来的参数
+      // console.log(typeof this.tableData);
+      // console.log(this.tableData);
+      let url = "http://127.0.0.1:8000/load/drillhistogram/";
+      axios
+        .get(url, {
+          // responseType: "arraybuffer",
+          params: {
+            // 每页显示的条数
+            // PageSize: n1,
+            // 显示第几页
+            // currentPage: n2,
+            _id: this.$route.params._id,
+          },
+        })
+        .then((res) => {
+          // console.log(res.data);
+          let end_data = res.data[0];
+          // console.log(end_data["pic_data"]);
+          let pic_data = end_data["pic_data"];
+          // console.log(pic_data["$binary"]);
+          // // end_data.splice(0,1)
+          delete end_data["pic_data"]; //删除pic_data这一项,使用splice\shift方法不行
+          this.tableData = end_data;
+          console.log(end_data);
+          this.ico = pic_data["$binary"];
+          this.ZK_num = end_data["钻孔编号"];
+          // let imgUrl =
+          //   "data:image/png;base64," +
+          //   btoa(
+          //     new Uint8Array(res.data.data).reduce(
+          //       (data, byte) => data + String.fromCharCode(byte),
+          //       ""
+          //     )
+          //   );
+          // this.imgUrl = imgUrl;
+        })
+        .catch((err) => {
+          console.log("err");
+        });
     },
   },
 };
@@ -202,6 +226,7 @@ export default {
   height: 60px;
   width: 450px;
   padding-top: 20px; //设置文字居中
+  padding-bottom: 20px;
 }
 .el-scrollbar__wrap {
   overflow-x: hidden; //设置滚动条隐藏

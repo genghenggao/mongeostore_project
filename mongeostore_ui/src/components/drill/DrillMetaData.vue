@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 09:02:25
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 22:40:34
+ * @LastEditTime: 2020-12-02 11:02:23
 -->
 <template>
   <div class="DataShow">
@@ -122,20 +122,30 @@
               class="details"
               style="text-align: center"
             >
-              <!-- <template slot-scope=""> -->
+              <template slot-scope="scope">
                 <!-- <a
-                  :href="'hello123/' + scope.row._id"
+                  :href="'drilldetails/' + scope.row._id"
                   target="_blank"
                   class="buttonText"
                   >查看详情</a
                 > -->
-                <!--  to='/mongeostore/drillmetainfo/drilldetails' -->
+                <!-- to='/mongeostore/drilldetails' -->
+                <!-- <router-link
+                  tag="a"
+                  :to="{
+                    path: '/mongeostore/drilldetails/',
+                    query: { _id: scope.row._id },
+                  }"
+                  >查看详情</router-link
+                > -->
                 <router-link
                   tag="a"
-                  to='/mongeostore'
+                  :to="{
+                    path: '/mongeostore/drilldetails/' + scope.row._id,
+                  }"
                   >查看详情</router-link
                 >
-              <!-- </template> -->
+              </template>
             </el-table-column>
             <el-table-column fixed="right" label="操作" width="160">
               <h2>防止按钮消失</h2>

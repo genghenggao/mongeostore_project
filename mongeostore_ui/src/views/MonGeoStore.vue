@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 21:14:15
+ * @LastEditTime: 2020-12-02 18:21:54
 -->
 <template>
   <el-container>
@@ -22,7 +22,10 @@
                 <img src="@/assets/重点实验室logo-removebg.png" alt=""
               /></a></div
           ></el-header>
-          <el-main class="sub_main_content" v-if="isRouterAlive"
+          <el-main
+            class="sub_main_content"
+            style="min-width: 1100px"
+            v-if="isRouterAlive"
             ><div v-if="!this.$store.state.DBorCol">
               <div
                 v-if="
@@ -34,6 +37,7 @@
                 {{ temp_database }} -->
                 <!-- <InclinationData /> -->
                 <!-- <Inclination /> -->
+                <!-- <router-view></router-view> -->
                 <DrillMetaInfo />
               </div>
               <div v-else>

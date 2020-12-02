@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 20:26:56
+ * @LastEditTime: 2020-12-02 19:33:57
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -154,24 +154,30 @@ const routes = [
       import(/* webpackChunkName: "about" */ "@/views/MonGeoStore.vue"),
     children: [
       {
-        path: "/defaultpage",
-        name: "DefaultPage",
+        path: "drillmetahome",
+        name: "DrillMetaHome",
         component: () =>
-          import(/* webpackChunkName: "about" */ "@/components/DefaultPage.vue")
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillMetaHome.vue")
       },
       {
-        path: "/drillmetainfo",
-        name: "DrillMetaInfo",
+        path: "drillmetadata",
+        name: "DrillMetaData",
         component: () =>
-          import(/* webpackChunkName: "about" */ "@/components/drill/DrillMetaInfo.vue"),
-        children: [
-          {
-            path: "/drilldetails",
-            name: "DrillDetails",
-            component: () =>
-              import(/* webpackChunkName: "about" */ "@/components/drill/DrillDetails.vue")
-          },]
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillMetaData.vue")
       },
+      {
+        path: "drilldetails/:_id",
+        name: "DrillDetails",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillDetails.vue")
+      },
+      {
+        path: "drillupload",
+        name: "DrillUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillUpload.vue")
+      },
+
     ]
   },
 ];

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-01 18:37:54
+LastEditTime: 2020-12-02 21:07:31
 '''
 from rest_framework import viewsets
 import base64
@@ -816,10 +816,43 @@ class InclinationSearchView(APIView):
 # 钻孔数据管理子系统---元数据分页
 
 
+
+# 钻孔详细信息展示,DrillDetails.vue
+class DrillHistogramView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        # drill_obj = DrillMetaModel.objects.all().order_by('_id')  # 一定要排序
+        # queryset = InclinationMetaModel.objects.using('drill').all()
+        print(request.GET)
+        query_id = request.GET['_id']
+        # drill_obj2 = DrillMetaModel.objects.get(
+        #     _id='o_1eoemr4ij3iq1t0h12helgk9t11l')
+        drill_obj = DrillMetaModel.objects.get(
+            _id=query_id)
+        print(drill_obj)
+        content = drill_obj.zk_histogram.read()
+        # pic_data = base64.b64encode(content)  # 图片base64
+
+        info = {
+            'pic_data': content, # 图片
+            '钻孔编号': drill_obj.zk_num,
+            '钻孔柱状图': '',
+            '钻孔类型': drill_obj.zk_type,
+            '终孔深度': drill_obj.final_depth,
+            '终孔时间': str(drill_obj.final_date),
+            '项目名称': drill_obj.project_name,
+            '单位名称': drill_obj.company_name,
+            '上传时间': str(drill_obj.upload_date),
+            '上传人员': drill_obj.uploader,
+        },
+
+        data = dumps(info)  # 这个地方要用字符串传到前端去
+        return HttpResponse(data)
+    # return HttpResponse(drill_obj2)
+
 # 钻孔信息上传 DrillMetaInfo.vue
 
 # class DrillMetaViewSet(viewsets.ModelViewSet):
-
 class DrillMetaViewSet(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -842,7 +875,7 @@ class DrillMetaViewSet(APIView):
         # print(data)
 
         # return HttpResponse(json.dumps(serializer_class), content_type="application/json")
-        # return HttpResponse(queryset)
+        # return HttpResponse(drill_obj2.zk_histogram)
         return page.get_paginated_response(data)
 
     def post(self, request):

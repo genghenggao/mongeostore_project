@@ -70,5 +70,7 @@ urlpatterns = [
          name="listallimg"),  # 图片数据流读取
     path('drillmeta/', DrillMetaViewSet.as_view(),
          name='drillmeta'),  # 钻孔数据分页
+    path('drillhistogram/', DrillHistogramView.as_view(),
+         name='drillhistogram'),  # 钻孔柱状图
 
 ]

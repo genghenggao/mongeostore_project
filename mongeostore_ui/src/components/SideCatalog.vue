@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 22:05:26
+ * @LastEditTime: 2020-12-02 22:59:58
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -79,7 +79,7 @@
                   <SideTree />
                 </el-menu-item-group>
               </el-submenu>
-              <el-submenu index="2">
+              <el-submenu index="2" class="elcatalog2">
                 <template slot="title">
                   <i
                     class="el-icon-menu"
@@ -136,7 +136,7 @@
                   </el-submenu>
                   <el-submenu index="2-4">
                     <template slot="title">
-                      <i class="el-icon-menu"></i>
+                      <i class="el-icon-folder-opened"></i>
                       <span>地震历史数据子系统</span></template
                     >
                     <el-menu-item index="1-4-1"
@@ -145,13 +145,13 @@
                   </el-submenu>
                 </el-menu-item-group>
               </el-submenu>
-              <el-submenu index="/defaultpage">
+              <el-submenu index="3">
                 <template slot="title">
                   <i
-                    class="el-icon-menu"
+                    class="el-icon-phone"
                     style="font-size: 17px; color: #870000"
                   ></i>
-                  <span>地质数据管理子系统</span>
+                  <span>联系我们</span>
                 </template>
               </el-submenu>
             </el-menu>
@@ -261,6 +261,20 @@ button.el-button.el-button--small.is-plain {
   // height: 775px;
   height: 810px;
   overflow: auto; //超出内容部分有下拉框
+}
+// 导航子目录
+.elcatalog2 i {
+  color: #870000;
+}
+.elcatalog2 .el-menu-item-group {
+  padding-left: 20px;
+}
+.elcatalog2 .el-menu-item {
+  padding-left: 20px !important;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  color: #870000;
 }
 
 // 调整目录
