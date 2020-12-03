@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-02 21:07:31
+LastEditTime: 2020-12-03 11:47:38
 '''
 from rest_framework import viewsets
 import base64
@@ -816,8 +816,7 @@ class InclinationSearchView(APIView):
 # 钻孔数据管理子系统---元数据分页
 
 
-
-# 钻孔详细信息展示,DrillDetails.vue
+# 钻孔详细信息展示,DrillDetails.vue /showdata
 class DrillHistogramView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -834,7 +833,7 @@ class DrillHistogramView(APIView):
         # pic_data = base64.b64encode(content)  # 图片base64
 
         info = {
-            'pic_data': content, # 图片
+            'pic_data': content,  # 图片
             '钻孔编号': drill_obj.zk_num,
             '钻孔柱状图': '',
             '钻孔类型': drill_obj.zk_type,
@@ -850,9 +849,147 @@ class DrillHistogramView(APIView):
         return HttpResponse(data)
     # return HttpResponse(drill_obj2)
 
+# 钻孔数据管理子系统---钻孔信息搜索
+
+
+class DrillHistogramSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        # 数据获取，使用using('drill')需要在settings.py中配置
+        # print(request.GET)
+
+        search_key = request.GET['ZK_num']  # 根据ZK_num字段搜索
+        # print(page_size)
+        drill_obj = DrillMetaModel.objects.filter(
+            zk_num=search_key).all().order_by('_id')  # 一定要排序
+        # totalcount = drill_obj.count()  # 总数据数
+        # 创建分页对象
+        page = MyPagination()
+        search_class = filters.SearchFilter()
+        # 需要搜索的字段
+        self.search_fields = ['zk_num']
+        # 实例化搜索查询器
+        search_query = search_class.filter_queryset(
+            request, drill_obj, self)
+
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=search_query, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = DrillMetaSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+        # return HttpResponse('success')
+
+# 钻孔详细信息删除,DrillDetails.vue /delteRow
+
+
+def DeleteDrillHistogram(request):
+    """
+    Delete data
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        query_data_json = data_json['json_data']
+        # print(query_data_json)
+        dict_data = json.loads(query_data_json)
+        front_query_oid = dict_data['_id']
+        # print(front_query_oid)
+        # front_query_id = front_query_oid['$oid']
+        # print(front_query_id)
+        # print(data_json['dbname'])
+        query_obj = DrillMetaModel.objects.get(
+            _id=front_query_oid)
+        # print(query_obj.zk_histogram)
+        # query_obj.delete()  #报错id为None的错误,
+        histogram = str(query_obj.zk_histogram)
+
+        list_name = histogram.split('\\')
+        histogram_name = list_name[1]
+        print(histogram_name)
+        drill_obj = DrillMetaModel.objects.filter(
+            _id=front_query_oid)  # 这里使用get的方法会报错id为None的错误,
+        drill_obj.delete()  # 删除表里的数据
+
+        # 连接数据库,删除GridFS对应的柱状图
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        # collection = data_json['colname']  # 从前端拿到数据库名称
+        # db_coll = db[collection]
+        fs = gridfs.GridFS(db, '钻孔信息元数据.InclinationMetaModels')
+        print(fs)
+        # db_coll.remove({"_id": ObjectId(front_query_oid)})
+        filename = fs.find_one({"filename": histogram_name})  # z这里获取_id是自定义的
+        print(filename._id)
+        fs.delete(ObjectId(filename._id))  # 删除GridFS中的数据,只能用_id删除
+        # print("Delete Success")
+        # 关闭连接
+        client.close()
+
+    return HttpResponse("Delete Success")
+
+
+# 钻孔详细信息编辑,DrillDetails.vue /delteRow
+
+
+def EditDrillHistogram(request):
+    if request.method == "POST":
+
+        body_data = request.body
+
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+
+        dict_data = json.loads(query_data_json)
+
+        front_query_oid = dict_data['_id']
+
+        # front_query_id = front_query_oid['$oid']
+
+        # 连接数据库
+        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # print(data_json['colname'])
+        # print(data_json['dbname'])
+        # database = "segyfile"
+        database = data_json['dbname']  # 从前端拿到数据库名称
+        db = client[database]
+        # collection = "excel_data"
+        collection = data_json['colname']  # 从前端拿到集合名称
+        db_coll = db[collection]
+        # 根据_id匹配到后端数据
+        # cursor = db_coll.find_one(filter={"_id": ObjectId(front_query_oid)})
+        cursor = db_coll.find_one(filter={"_id": front_query_oid})
+        # {'_id': ObjectId('5fa7dc070a6d3e479de148d9'), 'ZK_num': 'ZK1', 'Depth': 0.0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(cursor)
+
+        # 删掉_'_id': {'$oid': '5fa7dc070a6d3e479de148d9'}部分
+        dict_data.pop('_id')
+        dict_data.pop('zk_histogram')  # 去掉这俩个字段,防止柱状图数据丢失
+        # {'ZK_num': 'ZK1', 'Depth': 0, 'Azimuth': 131.29, 'Inclination': -86.4}
+        # print(dict_data)
+        # print(type(dict_data))  # <class 'dict'>
+        update_data = db_coll.update_one(
+            cursor, update={"$set": dict_data})
+        # print(update_data)
+        # print(update_data.matched_count)
+        # print(update_data.modified_count)
+        # 关闭连接
+        client.close()
+    return HttpResponse('success')
+
+
 # 钻孔信息上传 DrillMetaInfo.vue
 
 # class DrillMetaViewSet(viewsets.ModelViewSet):
+
+
 class DrillMetaViewSet(APIView):
 
     def get(self, request, *args, **kwargs):

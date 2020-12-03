@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-02 22:59:58
+ * @LastEditTime: 2020-12-03 16:02:34
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -145,7 +145,7 @@
                   </el-submenu>
                 </el-menu-item-group>
               </el-submenu>
-              <el-submenu index="3">
+              <el-submenu index="3" class="elcatalog3">
                 <template slot="title">
                   <i
                     class="el-icon-phone"
@@ -153,6 +153,29 @@
                   ></i>
                   <span>联系我们</span>
                 </template>
+                <el-menu-item-group>
+                  <el-menu-item index="3-1" style="padding-left: 0px"
+                    ><i
+                      class="el-icon-user-solid"
+                      style="font-size: 17px; color: #870000"
+                    ></i
+                    >关于我们</el-menu-item
+                  >
+                  <el-menu-item index="3-2" style="padding-left: 0px"
+                    ><i
+                      class="el-icon-message"
+                      style="font-size: 17px; color: #870000"
+                    ></i
+                    >提供建议</el-menu-item
+                  >
+                  <el-menu-item index="3-3" style="padding-left: 0px"
+                    ><i
+                      class="el-icon-link"
+                      style="font-size: 17px; color: #870000"
+                    ></i
+                    >友情链接</el-menu-item
+                  >
+                </el-menu-item-group>
               </el-submenu>
             </el-menu>
           </el-col>
@@ -270,6 +293,13 @@ button.el-button.el-button--small.is-plain {
   padding-left: 20px;
 }
 .elcatalog2 .el-menu-item {
+  padding-left: 20px !important;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  color: #870000;
+}
+.elcatalog3 .el-menu-item {
   padding-left: 20px !important;
   text-align: left;
   font-size: 14px;

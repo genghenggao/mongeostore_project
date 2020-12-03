@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-11-30 19:59:39
+LastEditTime: 2020-12-03 09:24:20
 '''
 from os import name
 from .views import DrillMetaViewSet
@@ -70,7 +70,13 @@ urlpatterns = [
          name="listallimg"),  # 图片数据流读取
     path('drillmeta/', DrillMetaViewSet.as_view(),
          name='drillmeta'),  # 钻孔数据分页
-    path('drillhistogram/', DrillHistogramView.as_view(),
-         name='drillhistogram'),  # 钻孔柱状图
 
+    path('drillhistogram/', DrillHistogramView.as_view(),
+         name='drillhistogram'),  # 钻孔元数据展示
+    path('drillhistogramsearch/', DrillHistogramSearchView.as_view(),
+         name='drillhistogramsearch'),  # 钻孔元数据展示
+    path('deletedrillhistogram/', views.DeleteDrillHistogram,
+         name="deletedrillhistogram"),  # 钻孔元数据删除
+    path('editdrillhistogram/', views.EditDrillHistogram,
+         name="editdrillhistogram"),  # 钻孔元数据编辑
 ]

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 09:02:25
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-02 11:02:23
+ * @LastEditTime: 2020-12-03 10:08:24
 -->
 <template>
   <div class="DataShow">
@@ -62,9 +62,9 @@
               <el-button
                 type="info"
                 plain
-                icon="el-icon-edit"
-                @click="dialogVisible = true"
-                >新增</el-button
+                icon="el-icon-upload"
+                @click="uploadDrillMeta"
+                >上传</el-button
               >
             </el-form-item>
           </el-form>
@@ -186,70 +186,6 @@
           >
           </el-pagination>
         </div>
-        <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
-        <!-- 添加数据的对话框 -->
-        <el-dialog
-          title="请添加钻孔数据"
-          :visible.sync="dialogVisible"
-          width="30%"
-          @close="addDialogClosed"
-        >
-          <!-- 内容的主体区域 -->
-          <!--去掉:rules="addFormRules" -->
-          <el-form
-            ref="add_to_data"
-            :model="add_to_data"
-            :rules="addFormRules"
-            label-width="100px"
-          >
-            <template v-for="(item, key) of addForm">
-              <!-- <el-form-item
-                v-if="key == '_id'"
-                :label="key"
-                :prop="key"
-                :key="key"
-              >
-                <el-input v-model="addForm[key]"></el-input>
-              </el-form-item> -->
-              <el-form-item
-                v-if="key !== '_id'"
-                :label="key"
-                :prop="key"
-                :key="key"
-              >
-                <el-input v-model="add_to_data[key]"></el-input>
-              </el-form-item>
-              <!-- <el-form-item label="密码" prop="password">
-              <el-input v-model="addForm.password"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="addForm.email"></el-input>
-            </el-form-item>
-            <el-form-item label="手机号" prop="mobile">
-              <el-input v-model="addForm.mobile"></el-input>
-            </el-form-item> -->
-            </template>
-            <!-- 底部区域 -->
-            <el-form-item>
-              <!-- <span slot="footer" class="dialog-footer"> -->
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button
-                type="primary"
-                :disabled="true"
-                v-if="!add_button_state"
-                @click="addData('add_to_data')"
-                >确 定</el-button
-              >
-              <el-button
-                type="primary"
-                v-else-if="add_button_state"
-                @click="addData('add_to_data')"
-                >确 定</el-button
-              >
-              <!-- </span> -->
-            </el-form-item>
-          </el-form>
-        </el-dialog>
       </el-main>
     </el-container>
   </div>
@@ -419,7 +355,7 @@ export default {
             { label: "钻孔编号", prop: "zk_num" },
             { label: "钻孔类型", prop: "zk_type" },
             { label: "终孔深度", prop: "final_depth" },
-            { label: "终孔日期", prop: "final_depth" },
+            { label: "终孔日期", prop: "final_date" },
             { label: "上传日期", prop: "upload_date" },
             { label: "项目名称", prop: "project_name" },
             { label: "单位名称", prop: "company_name" },
@@ -478,54 +414,13 @@ export default {
       return row[property] === value;
     },
 
-    // 点击按钮，添加数据
-    addData(formName) {
-      // this.addForm.visible = true;
-      // 发送添加数据的网络请求
-      console.log(this.add_to_data["ZK_num"]);
-      const t = this;
-      // console.log(t);
-      t.$refs[formName].validate((valid) => {
-        if (valid) {
-          // alert("submit!");
-          // console.log(this.add_to_data);
-          const url = "http://127.0.0.1:8000/load/commonadd_data/";
-          let tmp_data = this.add_to_data;
-          console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
-          axios
-            .post(url, {
-              tmp_data,
-              // 设置上传到后端的数据库和集合名称
-              colname: this.$store.state.title_message,
-              dbname: this.$store.state.temp_database,
-            })
-            .then((res) => {
-              console.log("Success");
-            });
-
-          // 隐藏添加用户的对话框
-          this.dialogVisible = false;
-          // 重新获取用户列表数据
-          // this.showData();
-          //通过flag判断,刷新数据
-          if (!this.flag) {
-            this.showData(this.PageSize, this.currentPage);
-          } else {
-            this.onSearchSubmit(this.PageSize, this.currentPage);
-          }
-        } else {
-          // console.log("error submit!!");
-          this.$message({
-            message: "输入数据有误，请重新输入",
-            type: "warning",
-          });
-          return false;
-        }
-      });
-    },
     // 监听添加对话框的关闭事件
     addDialogClosed() {
       this.$refs.add_to_data.resetFields();
+    },
+    // 上传
+    uploadDrillMeta() {
+      this.$router.push({ path: "/mongeostore/drillupload" });
     },
     // 编辑（修改）按钮
     handleEdit(index, row) {
@@ -545,7 +440,7 @@ export default {
         // console.log(row["id"]);
         let json_data = JSON.stringify(row);
 
-        const url = "http://127.0.0.1:8000/load/editinclination/";
+        const url = "http://127.0.0.1:8000/load/editdrillhistogram/";
         axios
           .post(
             url,
@@ -585,7 +480,7 @@ export default {
           rows.splice(index, 1);
           let json_data = JSON.stringify(row);
           console.log(json_data);
-          const url = "http://127.0.0.1:8000/load/deleteinclination/";
+          const url = "http://127.0.0.1:8000/load/deletedrillhistogram/";
           axios
             .post(
               url,
@@ -631,7 +526,7 @@ export default {
         // console.log(this.searchCondition.filter_key);
         // console.log(this.$store.state.temp_database);
         let filter_key_data = this.searchCondition.filter_key;
-        const url = "http://127.0.0.1:8000/load/inclinationsearch/";
+        const url = "http://127.0.0.1:8000/load/drillhistogramsearch/";
         axios
           .get(url, {
             params: {

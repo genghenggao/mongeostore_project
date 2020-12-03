@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-28 09:03:38
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 08:54:30
+ * @LastEditTime: 2020-12-03 10:09:14
 -->
 
 <template>
@@ -58,7 +58,7 @@
               role="tab"
               aria-controls="nav-uploadfile"
               aria-selected="false"
-              ><i class="el-icon-top"></i>上传数据</a
+              ><i class="el-icon-upload"></i>上传数据</a
             >
           </div>
         </nav>

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-01 18:35:58
+LastEditTime: 2020-12-03 11:17:26
 '''
 from djongo.storage import GridFSStorage
 from django.conf import settings
@@ -67,7 +67,6 @@ grid_fs_storage = GridFSStorage(location='', collection='钻孔信息元数据',
 
 class DrillMetaModel(models.Model):
     '''钻孔数据管理子系统元数据'''
-
     _id = models.CharField(max_length=255)
     zk_num = models.CharField(max_length=255)
     # type = models.CharField(max_length=255)

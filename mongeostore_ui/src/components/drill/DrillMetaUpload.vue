@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:36:23
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-01 16:08:17
+ * @LastEditTime: 2020-12-03 11:14:45
 -->
 <template>
   <el-row :gutter="20">
@@ -291,7 +291,7 @@ export default {
           zk_type: this.form["zk_type"],
           final_depth: this.form["final_depth"],
           final_date: this.form["final_date"].getTime(), //时间转为时间戳方便后端解析 对比toLocaleString()
-          depth: this.form["depth"],
+          // depth: this.form["depth"],
           project_name: this.form["project_name"],
           company_name: this.form["company_name"],
           uploader: this.form["uploader"],

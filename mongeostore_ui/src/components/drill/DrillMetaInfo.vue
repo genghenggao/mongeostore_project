@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-02 20:28:41
+ * @LastEditTime: 2020-12-03 10:10:23
 -->
 
 <template>
@@ -81,7 +81,7 @@
             ><i class="el-icon-document"></i>钻孔信息</el-menu-item
           >
           <el-menu-item index="/mongeostore/drillupload"
-            ><i class="el-icon-top"></i>上传数据</el-menu-item
+            ><i class="el-icon-upload"></i>上传数据</el-menu-item
           >
         </el-menu>
       </el-header>
