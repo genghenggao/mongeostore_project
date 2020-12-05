@@ -4,12 +4,13 @@
  * @Author: henggao
  * @Date: 2020-09-28 20:19:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-11-07 19:02:39
+ * @LastEditTime: 2020-12-05 18:49:40
 -->
 <template>
   <div class="sticky-top">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">MonGeoStore</a>
+      <!-- <a class="navbar-brand" href="#">MonGeoStore</a> -->
+      <a class="navbar-brand" href="/mongeostorehome">MonGeoStore</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -25,7 +26,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#"
+            <a class="nav-link" href="/mongeostore"
               >Home <span class="sr-only">(current)</span></a
             >
           </li>
@@ -79,7 +80,7 @@
 
 <script>
 export default {
-  name: "Navbar"
+  name: "Navbar",
 };
 </script>
 

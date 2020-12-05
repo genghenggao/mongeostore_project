@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-04 23:07:25
+ * @LastEditTime: 2020-12-05 19:45:25
 -->
 <template>
   <div class="mongoestore_home">
@@ -12,15 +12,16 @@
       <el-header style="padding: 0; height: 56px"><Navbar /></el-header>
       <el-main style="padding: 0">
         <el-container class="act_one wow fadeInUp" data-wow-duration="0.5s">
-          <el-row :gutter="10" style="margin-right: auto; margin-left: auto">
+          <!-- <el-row :gutter="10" style="margin-right: auto; margin-left: auto"> -->
+          <el-row :gutter="10" style="margin: auto">
             <!-- <el-col :xl="24" :offset="10"> -->
             <!-- <el-col :xl="8">&nbsp;</el-col> -->
             <!-- <el-col :xl="8">1</el-col> -->
             <el-col :xl="24">
-              <h1>MongoGeoStore系统简介</h1>
+              <h1>MonGeoStore系统简介</h1>
               <p>
-                系统主要使用SpringBoot框架，整合MongoDB数据库。<br />
-                该系统主要用于解决海量地学数据的高性能存储，为地质工作者提供更好的服务。
+                系统主要使用Django框架，整合MongoDB数据库。<br />
+                该系统主要用于解决海量地震数据的存储、管理，为地质工作者提供更好的服务。
               </p>
               <img src="@/assets/images/yanshitu.jpg" alt="" />
             </el-col>
@@ -106,7 +107,7 @@
           </el-row>
         </el-container>
 
-        <el-container class="act_four wow fadeInUp" data-wow-duration="0.5s">
+        <el-container class="act_four wow fadeInUp" data-wow-duration="1s">
           <el-row
             :gutter="120"
             style="margin-right: auto; margin-left: auto; width: 60%"
@@ -289,7 +290,7 @@
             style="margin-right: auto; margin-left: auto; width: 60%"
           >
             <el-col :xl="12" class="act_six_tips">
-              <h2>MongoGeoStore移动App下载</h2>
+              <h2>MonGeoStore移动App下载</h2>
               <p>
                 MongoGeoStore,一种基于MongoDB的地学数据存储管理系统，
                 使用MongoDB作为数据库，很好的用于解决地学数据的结构化、半结构化和非结构化数据存储问题。
@@ -391,7 +392,7 @@
             <el-col :xl="24">
               <p>
                 Copyright
-                &nbsp;©&nbsp;2018-2022&nbsp;&nbsp;www.mongogeostore.com&nbsp;&nbsp;
+                &nbsp;©&nbsp;2018-2020&nbsp;&nbsp;www.mongeostore.com&nbsp;&nbsp;
                 京公网安备：110402430067号
               </p>
             </el-col>
@@ -436,15 +437,35 @@ export default {
 </script>
 
 <style lang='scss'>
+// 导航栏设置
+.sticky-top {
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
 .act_one {
   // margin-top: 70px;
   background: url("../assets/images/home-bg.jpg");
   background-size: cover;
 
   width: 100%;
-  padding: 0;
+  // padding: 0;
   color: #ffffff;
   text-align: center;
+}
+.act_one h1 {
+  font-weight: bold;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+// 图片自适应
+.act_one p {
+  line-height: 35px;
+}
+.act_one img {
+  width: 100%;
+  height: 100%;
 }
 .act_two {
   // padding: 20px 30px 50px 380px;
