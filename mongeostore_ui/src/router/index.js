@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-03 17:02:37
+ * @LastEditTime: 2020-12-06 09:59:38
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -153,6 +153,13 @@ const routes = [
     name: "SideCatalog",
     component: () =>
       import(/* webpackChunkName: "about" */ "../components/SideCatalog.vue")
+  },
+  // 关于SpatialIndex 天地图
+  {
+    path: "/spatialindex",
+    name: "SpatialIndex",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../components/drill/SpatialIndex.vue")
   },
   {
     path: "/mongeostore",
