@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-06 09:59:38
+ * @LastEditTime: 2020-12-07 22:08:17
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -16,7 +16,7 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/home",
     name: "Home",
     component: Home
   },
@@ -142,7 +142,8 @@ const routes = [
   },
   // 关于MonGeoStore设置
   {
-    path: "/mongeostorehome",
+    // path: "/mongeostorehome",
+    path: "/",
     name: "MonGeoStoreHome",
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/MonGeoStoreHome.vue")

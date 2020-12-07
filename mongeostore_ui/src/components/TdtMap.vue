@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 10:26:42
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-06 14:39:45
+ * @LastEditTime: 2020-12-07 17:48:47
 -->
 <template>
   <div>
@@ -210,6 +210,7 @@ export default {
       // 开始定位
       lo.getCurrentPosition(fn);
     },
+    
   },
 };
 </script>
