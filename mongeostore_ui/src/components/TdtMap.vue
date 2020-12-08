@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 10:26:42
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-07 17:48:47
+ * @LastEditTime: 2020-12-08 15:28:43
 -->
 <template>
   <div>
@@ -83,7 +83,7 @@ export default {
       var menu = new T.ContextMenu({
         width: 140,
       });
-
+      // 添加数据点
       // 添加右键菜单
       var txtMenuItem = [
         {
@@ -210,6 +210,8 @@ export default {
       // 开始定位
       lo.getCurrentPosition(fn);
     },
+
+    
     
   },
 };

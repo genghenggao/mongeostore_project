@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-03 19:01:00
+ * @LastEditTime: 2020-12-08 17:25:45
  */
 import Vue from "vue";
 import Vuex from 'vuex'  // 引入 vuex
@@ -39,6 +39,7 @@ import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
 // wowjs动态加载
 import 'wowjs/css/libs/animate.css'
+import importJS from "@/utils/importJs"
 
 Vue.use(Vuex) // 引入
 // 滑动验证码
