@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-03 11:47:38
+LastEditTime: 2020-12-09 11:10:12
 '''
 from rest_framework import viewsets
 import base64
@@ -1637,5 +1637,20 @@ def listAllImgFromDB(request):
     # print(temp_data)
     return HttpResponse(temp_data)
 
+
+class DrillLocationView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        print(request.GET)
+        return
+
+    def post(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        print(request.POST)
+        pass
 
 #################MonGeoStore######################

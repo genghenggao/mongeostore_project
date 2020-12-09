@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-03 11:17:26
+LastEditTime: 2020-12-09 09:58:05
 '''
 from djongo.storage import GridFSStorage
 from django.conf import settings
@@ -90,4 +90,36 @@ class DrillMetaModel(models.Model):
         db_table = '钻孔信息'  # 自定义表名称，即是对应的Collection，如何对应GriDFS
 
     def __str__(self) -> str:
+        return self.zk_num
+
+
+class DrillCoordniteModel(models.Model):
+    """
+    docstring
+    """
+    coordinate_E = models.FloatField(max_length=50)
+    coordinate_N = models.FloatField(max_length=50)
+    coordinate_R = models.FloatField(max_length=50)
+
+    class Meta:
+        abstract = True
+
+
+class DrillLocationModel(models.Model):
+    '''钻孔定位表'''
+    _id = models.CharField(max_length=100)
+    zk_num = models.CharField(max_length=50)
+    coordinate_E = models.FloatField(max_length=50)
+    coordinate_N = models.FloatField(max_length=50)
+    coordinate_R = models.FloatField(max_length=50)
+    coordniate = models.ArrayField(model_container=DrillCoordniteModel)
+
+    class Meta:
+        verbose_name = "钻孔定位表"
+        verbose_name_plural = verbose_name
+
+    def __str__(self) -> str:
+        """
+        docstring
+        """
         return self.zk_num

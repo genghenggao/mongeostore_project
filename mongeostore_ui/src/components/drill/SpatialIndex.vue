@@ -4,18 +4,27 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-08 23:08:49
+ * @LastEditTime: 2020-12-09 23:06:34
 -->
 <template>
-  <!-- <div> -->
-  <!-- 使用组件 -->
-  <!-- <TdtMap ref="tdtmap" /> -->
-  <!-- </div> -->
   <div>
     <div id="mapDiv"></div>
     <div>
       <input type="button" @click="openHeatmap()" value="显示热力图" />
       <input type="button" @click="closeHeatmap()" value="关闭热力图" />
+      <!-- <input type="button" @Click="openPolygonTool()" value="多边形工具" /> -->
+    </div>
+    <div>
+      <!-- <input type="button" id="button1" onClick="button_zoomIn()" value="放大地图" /> -->
+      <!-- <input type="button" id="button2" onClick="zoomOut()" value="缩小地图" /> -->
+      <button @click="button_zoomIn()">放大</button>
+      <button @click="button_zoomOut()">缩小</button>
+      <button @click="openPolygonTool()">多边形工具</button>
+      <button @click="openCircleTool()()">画圆工具</button>
+      <button @click="clearOverLays()()">清除所有</button>
+      <button @click="addMapClick()()">注册</button>
+      <button @click="removeMapClick()()">移除</button>
+      <!-- <button @click="closeHeatmap()">关闭热力图</button> -->
     </div>
     <!-- <remote-script
       src="http://lbs.tianditu.gov.cn/api/js4.0/opensource/data/points-sample-data.js"
@@ -38,8 +47,22 @@ export default {
   data() {
     return {
       // data: data,
-      heatmapOverlay: "",
-      // HeatmapOverlay: T.HeatmapOverlay,
+      heatmapOverlay: "", //热力图
+      map: "", //地图底图
+      points: "", //热力图点数据
+      isMobile: false,
+      lddialogwidth: "30%",
+      locatInfo: {
+        location: "暂无数据",
+        locatTime: "暂无数据",
+        lng: "暂无数据",
+        lat: "暂无数据",
+      },
+      zoom: 12,
+      detailLocation: "",
+      locationDialogVisible: false,
+      locationNow: false,
+      PolygonList: [], //返回多边形数据
     };
   },
   created() {},
@@ -54,25 +77,176 @@ export default {
 
     // this.onLoad();
     //一定要先让地图加载出来才加载热力图，我这里做演示直接写个setTimeout了
-    setTimeout(() => {
-      this.getHeatmap();
-    }, 2000);
+    // setTimeout(() => {
+    //   this.getHeatmap();
+    // }, 2000);
+    this.loadMap();
   },
   watch: {},
   methods: {
-    // onLoad() {
-    //   var map;
-    //   var zoom = 4;
-    //   // var heatmapOverlay;
-    //   map = new T.Map("mapDiv");
-    //   map.centerAndZoom(new T.LngLat(108.95, 34.27), zoom);
-    // },
-    getHeatmap() {
+    //加载基本地图和导航
+    loadMap() {
       var map;
       var zoom = 4;
       var heatmapOverlay;
-      map = new T.Map("mapDiv");
-      map.centerAndZoom(new T.LngLat(108.95, 34.27), zoom);
+      // 天地图key
+      const mapKey = "9c117468801c8405aaddff93da98c1e6";
+      // 初始化地图对象
+      map = new T.Map("mapDiv"); //初始化地图对象
+      this.map = map;
+      // 设置显示地图的中心点和级别
+      map.centerAndZoom(new T.LngLat(116.40969, 38.89945), zoom); //中国
+
+      // 创建地图类型控件对象
+      var _mapType = new T.Control.MapType();
+
+      // 添加地图类型控件
+      map.addControl(_mapType);
+
+      // 创建缩放平移控件对象
+      var _zoomControl = new T.Control.Zoom();
+
+      // 添加缩放平移控件
+      map.addControl(_zoomControl);
+
+      // 创建缩放平移控件对象
+      _zoomControl.setPosition(T_ANCHOR_TOP_LEFT);
+
+      // 创建定位对象lo
+      var lo = new T.Geolocation();
+
+      // 创建右键菜单对象
+      var menu = new T.ContextMenu({
+        width: 140,
+      });
+      // 添加数据点
+      // 添加右键菜单
+      var txtMenuItem = [
+        {
+          text: "放大",
+          callback: () => {
+            map.zoomIn();
+          },
+        },
+        {
+          text: "缩小",
+          callback: () => {
+            map.zoomOut();
+          },
+        },
+        {
+          text: "放置到最大级",
+          callback: () => {
+            map.setZoom(18);
+          },
+        },
+        {
+          text: "查看全国",
+          callback: () => {
+            map.setZoom(4);
+          },
+        },
+        {
+          text: "获得右键点击处坐标",
+          isDisable: false,
+          callback: (lnglat) => {
+            alert(lnglat.getLng() + "," + lnglat.getLat());
+          },
+        },
+      ];
+
+      for (var i = 0; i < txtMenuItem.length; i++) {
+        // 添加菜单项
+        var item = new T.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback);
+        // item.disable();
+        menu.addItem(item);
+        if (i === 1 || i === 3) {
+          // 添加分割线
+          menu.addSeparator();
+        }
+      }
+
+      // 装载菜单
+      map.addContextMenu(menu);
+
+      // 定位结果回调函数
+      function fn(e) {
+        // 当前为移动端时
+        if (this.getStatus() === 0) {
+          map.centerAndZoom(e.lnglat, 15);
+          console.log(e);
+          // 获取地理位置信息并设置到标注
+          getDetailLocation(e.lnglat, e.lnglat);
+        }
+
+        // 当前为PC端时
+        if (this.getStatus() === 1) {
+          map.centerAndZoom(e.lnglat, e.level);
+          console.log(e);
+          // 获取地理位置信息并设置到标注
+          getDetailLocation(e.lnglat, e.lnglat);
+        }
+      }
+
+      // 设置标注
+      function setMarker(e, d) {
+        var marker = new T.Marker(e);
+        map.addOverLay(marker);
+        var markerInfoWin = new T.InfoWindow("" + d);
+        marker.addEventListener("click", function () {
+          marker.openInfoWindow(markerInfoWin);
+        });
+      }
+
+      // 暂存this
+      const _this = this;
+
+      // 通过经纬度获取详细地址
+      function getDetailLocation(lnglat_lng, lnglat_lat) {
+        axios
+          .get("https://api.tianditu.gov.cn/geocoder", {
+            params: {
+              tk: mapKey,
+              type: "geocode",
+              postStr:
+                "{'lon':" +
+                lnglat_lng.lng +
+                ",'lat':" +
+                lnglat_lat.lat +
+                ",'ver':1}",
+            },
+          })
+          .then((data) => {
+            var addressdata = data.data;
+            // console.log(addressdata);
+            var detaillocation = addressdata.result.formatted_address;
+            // console.log(detaillocation);
+
+            // // 截取地址信息显示
+            _this.locatInfo.location = addressdata.result.formatted_address;
+            // 获取定位时间
+            _this.locatInfo.locatTime = new Date().toLocaleDateString();
+            _this.locatInfo.lng = lnglat_lng.lng;
+            _this.locatInfo.lat = lnglat_lat.lat;
+            console.log(new Date().toLocaleDateString());
+            // console.log(lnglat_lng.lng);
+            // console.log(lnglat_lat.lat);
+            if (addressdata.msg == "ok" && addressdata.status == 0) {
+              // 将位置信息设置到标注
+              setMarker(lnglat_lat, detaillocation);
+            } else {
+              // 错误处理
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
+      // 开始定位
+      lo.getCurrentPosition(fn);
+
+      // 热力图数据1
       var data = [
         { name: "海门", value: 9 },
         { name: "鄂尔多斯", value: 12 },
@@ -264,7 +438,7 @@ export default {
         { name: "武汉", value: 273 },
         { name: "大庆", value: 279 },
       ];
-
+      // 热力图数据2
       var geoCoordMap = {
         海门: [121.15, 31.89],
         招远: [120.38, 37.35],
@@ -471,41 +645,112 @@ export default {
         }
         return res;
       };
-      var points = convertData(data);
-      // console.log(points);
+      //一定要先让地图加载出来才加载热力图，这里直接写个setTimeout了
+      setTimeout(function () {
+        // map.panTo(new T.LngLat(116.64899, 40.12948)); //两秒后移动到北京顺义
 
-      heatmapOverlay = new T.HeatmapOverlay({
-        radius: 30,
-      });
-      console.log(heatmapOverlay);
-      map.addOverLay(heatmapOverlay);
-      heatmapOverlay.setDataSet({ data: points, max: 300 });
+        var points = convertData(data);
+        this.points = points; //数据注入，提供openHeatmap()方法使用
+        // console.log(this.points);
+        heatmapOverlay = new T.HeatmapOverlay({
+          radius: 30,
+        });
+        // console.log(heatmapOverlay);
+        this.heatmapOverlay = heatmapOverlay;
+        map.addOverLay(heatmapOverlay);
+        heatmapOverlay.setDataSet({ data: points, max: 300 });
+        // this.hide = heatmapOverlay.hide();
+        // this.show = heatmapOverlay.show();
+      }, 2000);
     },
+    // 热力图显示
     isSupportCanvas() {
       var elem = document.createElement("canvas");
       return !!(elem.getContext && elem.getContext("2d"));
     },
 
+    // 放大
+    button_zoomIn() {
+      this.map.zoomIn();
+      // console.log("放大");
+    },
+
+    // 缩小
+    button_zoomOut() {
+      this.map.zoomOut();
+    },
+
     //是否显示热力图
     openHeatmap() {
       heatmapOverlay.show();
+      // console.log(points); //注意这里取值不是取this.points和this.heatmapOverlay
+      // console.log(heatmapOverlay);
+      // this.map.addOverLay(heatmapOverlay);
+      // heatmapOverlay.setDataSet({ data: points, max: 300 });
     },
 
+    // 关闭热力图
     closeHeatmap() {
-      heatmapOverlay.hide();
+      heatmapOverlay.hide(); //这里不是用this.heatmapOverlay
+      // this.map.clearOverLays(); //使用删除覆盖物功能
+    },
+
+    // 多边形工具
+    openPolygonTool() {
+      var handler;
+      var config = {
+        showLabel: true,
+        color: "blue",
+        weight: 3,
+        opacity: 0.5,
+        fillColor: "#FFFFFF",
+        fillOpacity: 0.5,
+      };
+
+      //创建标注工具对象
+      let polygonTool = new T.PolygonTool(this.map, config);
+      if (handler) handler.close();
+      handler = new T.PolygonTool(this.map);
+      handler.open();
+      // console.log("多边形");
+      // this.removeMapClick();
+      this.PolygonList = []; //清空数组中数据
+      this.map.removeEventListener("click", this.MapClick);
+      this.map.addEventListener("click", this.MapClick);
+      // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
+    },
+    // 画圆工具
+    openCircleTool() {
+      var handler;
+
+      if (handler) handler.close();
+      handler = new T.CircleTool(this.map, { follow: true });
+      handler.open();
+    },
+    // 清除所有
+    clearOverLays() {
+      this.map.clearOverLays(); //使用删除覆盖物功能
+    },
+    addMapClick() {
+      this.removeMapClick();
+      this.map.addEventListener("click", this.MapClick);
+    },
+    removeMapClick() {
+      this.map.removeEventListener("click", this.MapClick);
+      // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
+    },
+    MapClick(e) {
+      console.log(e.lnglat.getLng() + "," + e.lnglat.getLat());
+      var coordnite = [e.lnglat.getLng(), e.lnglat.getLat()];
+      // console.log(coordnite);
+      this.PolygonList.push(coordnite);
+      console.log(this.PolygonList);
     },
   },
 };
 </script>
 
 <style ang="scss" scoped>
-/* #mapDiv {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 885px;
-} */
-
 body,
 html {
   width: 100%;
@@ -515,7 +760,7 @@ html {
 }
 
 #mapDiv {
-  height: 400px;
+  height: 600px;
   width: 100%;
 }
 
@@ -524,5 +769,13 @@ p {
   margin-top: 10px;
   margin-left: 5px;
   font-size: 14px;
+}
+
+.result {
+  display: none;
+  font-size: 12px;
+  border: 1px solid #999999;
+  line-height: 27px;
+  padding-left: 7px;
 }
 </style>
