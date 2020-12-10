@@ -42,6 +42,8 @@ INSTALLED_APPS = [
 
     # myapp
     'rest_framework',
+    # 使用rmongoengine序列化
+    'rest_framework_mongoengine',
     'rest_framework_jwt',
     'mongeostore_app',
     'captcha',

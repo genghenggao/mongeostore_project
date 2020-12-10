@@ -4,8 +4,14 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-09 09:58:05
+LastEditTime: 2020-12-10 22:38:04
 '''
+# from djongo.models.indexes import TwoDSphereIndex  //模块付费
+from mongoengine import connect
+from mongoengine.context_managers import switch_collection, switch_db
+from mongoengine import *
+from mongoengine.fields import FloatField, IntField, ListField, StringField
+from mongoengine.document import Document
 from djongo.storage import GridFSStorage
 from django.conf import settings
 from djongo import models
@@ -112,7 +118,7 @@ class DrillLocationModel(models.Model):
     coordinate_E = models.FloatField(max_length=50)
     coordinate_N = models.FloatField(max_length=50)
     coordinate_R = models.FloatField(max_length=50)
-    coordniate = models.ArrayField(model_container=DrillCoordniteModel)
+    # coordniate = models.ArrayField(model_container=DrillCoordniteModel)
 
     class Meta:
         verbose_name = "钻孔定位表"
@@ -123,3 +129,21 @@ class DrillLocationModel(models.Model):
         docstring
         """
         return self.zk_num
+
+
+# 设置数据库
+connect(alias='drill_system', db='钻孔数据管理子系统',
+        host='192.168.55.110', port=20000)
+connect(alias='rs_system', db='遥感数据管理子系统', host='192.168.55.110', port=20000)
+
+
+class DrillLocation(Document):
+    '''钻孔定位表'''
+    name = StringField(required=True)
+    locaton = ListField(required=True)
+    # zk_num = StringField(required=True, max_length=200)
+    # coordinate_E = FloatField(required=True, max_length=50)
+    # coordinate_N = FloatField(required=True, max_length=50)
+    # coordinate_R = FloatField(required=True, max_length=50)
+    # coordniate = ListField()
+    meta = {'db_alias': 'drill_system'}

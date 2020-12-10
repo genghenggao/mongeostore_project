@@ -4,8 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-09 11:10:12
+LastEditTime: 2020-12-10 22:54:33
 '''
+from mongoengine.context_managers import switch_collection
+import numpy as np
 from rest_framework import viewsets
 import base64
 from django.http.request import HttpRequest
@@ -27,9 +29,9 @@ from gridfs import GridFS
 import os
 from django.http import response
 from xlrd.formula import colname
-from .models import DrillInclinationModel, DrillMetaModel, FileInfo
+from .models import DrillInclinationModel, DrillLocation, DrillMetaModel, FileInfo
 from rest_framework.views import APIView
-from .serializers import DrillInclinationSerializer, DrillMetaSerializer, FileInfoSerializer
+from .serializers import DrillInclinationSerializer, DrillLocationSerializer, DrillMetaSerializer, FileInfoSerializer
 from typing import ClassVar
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -1643,14 +1645,85 @@ class DrillLocationView(APIView):
         """
         docstring
         """
-        print(request.GET)
-        return
+        # <QueryDict: {'data': ['[[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]']}>
+        # print(request.GET)
+        # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
+        # print(request.GET.get('data'))
+        listdata = request.GET.get('data')
+        # print(type(listdata))  # <class 'str'>
+        a1 = np.array(listdata)
+        # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
+        # print(a1)
+        # print(type(a1))   # <class 'numpy.ndarray'>
+        my_list1 = a1.tolist()
+        # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
+        # print(type(my_list1))  #<class 'str'>
+        # print(my_list1)
+        s = "np.array({})".format(my_list1)
+        a2 = eval(s)
+
+        # [[116.28685  39.9387 ] [116.4489   39.91342] [116.33217  39.86179]]
+        print(a2)
+        print(type(a2))  # <class 'numpy.ndarray'>
+        test = a2.tolist()
+        print(test)
+        print(type(test))  # <class 'list'>
+        # print(a2[1])  # [116.4489   39.91342]
+        # print(type(a2[1]))  # <class 'numpy.ndarray'>
+        a3 = test[0]
+        test.append(a3)  # 由于 geometry方法需要完成闭环，所以list末尾追加一个首位数据
+        print(test)
+        # print(type(a3))  # <class 'list'>
+
+        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        db = client['钻孔数据管理子系统']  # 选定数据库，设定数据库名称为segyfile
+        col = db['GeoJSON']
+        col.create_index([("coordinates", pymongo.GEO2D)])
+        # 下面这里需要首位数据一样，完成闭合，我是用GEO2D和GEOSPHERE 都可以查询到数据
+        # for doc in col.find({"locaton.coordinates": {'$geoWithin':
+        #                                              {'$geometry':
+        #                                               {'type': "Polygon",
+        #                                                'coordinates': [test]
+        #                                                }}}}):
+        #     repr(doc)
+        #     # print(repr(doc))
+        #     print(doc)
+
+        docs = col.find({"locaton.coordinates": {'$geoWithin':
+                                                 {'$geometry':
+                                                  {'type': "Polygon",
+                                                   'coordinates': [test]
+                                                   }}}})
+
+        # print(docs.count())
+        with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+            docstest = DrillLocationTest.objects.all()
+            print(docstest)
+
+            page = MyPagination()
+            # 实例化查询，获取分页的数据
+            page_chapter = page.paginate_queryset(
+                queryset=docstest, request=request, view=self)
+            ser = DrillLocationSerializer(instance=page_chapter, many=True)
+            print(ser)
+        # # 创建分页对象
+        # page = MyPagination()
+        # # 实例化查询，获取分页的数据
+        # page_chapter = page.paginate_queryset(
+        #     queryset=docs, request=request, view=self)
+
+        # # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        # ser = DrillLoactionSerializer(instance=page_chapter, many=True)
+
+        # data = {'list': ser.data}
+        # return page.get_paginated_response(data)
+        return HttpResponse(ser)
 
     def post(self, request, *args, **kwargs):
         """
         docstring
         """
         print(request.POST)
-        pass
+        return HttpResponse('success')
 
 #################MonGeoStore######################

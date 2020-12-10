@@ -4,11 +4,11 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-24 09:45:03
 LastEditors: henggao
-LastEditTime: 2020-12-09 09:52:24
+LastEditTime: 2020-12-10 22:24:18
 '''
 from django.db.models import fields
 from rest_framework import serializers
-from .models import DrillInclinationModel, DrillLocationModel, FileInfo, DrillMetaModel
+from .models import DrillInclinationModel, DrillLocation, FileInfo, DrillMetaModel
 
 
 class FileInfoSerializer(serializers.ModelSerializer):
@@ -28,8 +28,16 @@ class DrillMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DrillMetaModel
         fields = "__all__"
-class DrillLoactionSerializer(serializers.ModelSerializer):
-    '''钻孔数据管理子系统元数据'''
+
+
+# class DrillLoactionSerializer(serializers.ModelSerializer):
+#     '''钻孔数据管理子系统定位表数据'''
+#     class Meta:
+#         model = DrillLocationModel
+#         fields = "__all__"
+from rest_framework_mongoengine.serializers import DocumentSerializer
+class DrillLocationSerializer(DocumentSerializer):
+    '''钻孔数据管理子系统定位表数据'''
     class Meta:
-        model = DrillLocationModel
+        model = DrillLocation
         fields = "__all__"

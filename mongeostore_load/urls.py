@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-12-03 09:24:20
+LastEditTime: 2020-12-10 10:13:15
 '''
 from os import name
 from .views import DrillMetaViewSet
@@ -79,4 +79,6 @@ urlpatterns = [
          name="deletedrillhistogram"),  # 钻孔元数据删除
     path('editdrillhistogram/', views.EditDrillHistogram,
          name="editdrillhistogram"),  # 钻孔元数据编辑
+    path('drilllocationview/', DrillLocationView.as_view(),
+         name="drilllocationview"),  # 钻孔定位表
 ]

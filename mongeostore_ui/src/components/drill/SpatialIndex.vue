@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-09 23:06:34
+ * @LastEditTime: 2020-12-10 16:36:30
 -->
 <template>
   <div>
@@ -17,13 +17,16 @@
     <div>
       <!-- <input type="button" id="button1" onClick="button_zoomIn()" value="放大地图" /> -->
       <!-- <input type="button" id="button2" onClick="zoomOut()" value="缩小地图" /> -->
+      <button @click="addHeatmap()">添加热力图</button>
       <button @click="button_zoomIn()">放大</button>
       <button @click="button_zoomOut()">缩小</button>
       <button @click="openPolygonTool()">多边形工具</button>
-      <button @click="openCircleTool()()">画圆工具</button>
-      <button @click="clearOverLays()()">清除所有</button>
-      <button @click="addMapClick()()">注册</button>
-      <button @click="removeMapClick()()">移除</button>
+      <button @click="openCircleTool()">画圆工具</button>
+      <button @click="clearOverLays()">清除所有</button>
+      <button @click="addMapClick()">注册</button>
+      <button @click="removeMapClick()">移除</button>
+      <button @click="removeMapClick()">移除</button>
+      <button @click="sendPolygon()">发送多边形数据</button>
       <!-- <button @click="closeHeatmap()">关闭热力图</button> -->
     </div>
     <!-- <remote-script
@@ -36,6 +39,7 @@
 /* 导入组件 */
 import TdtMap from "@/components/TdtMap";
 import axios from "axios";
+import qs from "qs";
 // import data from "@/assets/js/data.js";
 
 export default {
@@ -63,6 +67,7 @@ export default {
       locationDialogVisible: false,
       locationNow: false,
       PolygonList: [], //返回多边形数据
+      // PolygonList: {}, //返回多边形数据
     };
   },
   created() {},
@@ -88,7 +93,7 @@ export default {
     loadMap() {
       var map;
       var zoom = 4;
-      var heatmapOverlay;
+
       // 天地图key
       const mapKey = "9c117468801c8405aaddff93da98c1e6";
       // 初始化地图对象
@@ -245,8 +250,11 @@ export default {
 
       // 开始定位
       lo.getCurrentPosition(fn);
-
-      // 热力图数据1
+    },
+    // 添加热力图
+    addHeatmap() {
+      // 热力图数据
+      var heatmapOverlay;
       var data = [
         { name: "海门", value: 9 },
         { name: "鄂尔多斯", value: 12 },
@@ -646,22 +654,23 @@ export default {
         return res;
       };
       //一定要先让地图加载出来才加载热力图，这里直接写个setTimeout了
-      setTimeout(function () {
-        // map.panTo(new T.LngLat(116.64899, 40.12948)); //两秒后移动到北京顺义
+      // setTimeout(function () {
+      // map.panTo(new T.LngLat(116.64899, 40.12948)); //两秒后移动到北京顺义
 
-        var points = convertData(data);
-        this.points = points; //数据注入，提供openHeatmap()方法使用
-        // console.log(this.points);
-        heatmapOverlay = new T.HeatmapOverlay({
-          radius: 30,
-        });
-        // console.log(heatmapOverlay);
-        this.heatmapOverlay = heatmapOverlay;
-        map.addOverLay(heatmapOverlay);
-        heatmapOverlay.setDataSet({ data: points, max: 300 });
-        // this.hide = heatmapOverlay.hide();
-        // this.show = heatmapOverlay.show();
-      }, 2000);
+      var points = convertData(data);
+      this.points = points; //数据注入，提供openHeatmap()方法使用
+      // console.log(this.points);
+      this.map.clearOverLays(); //使用删除覆盖物功能,添加这里防止出现连续点击造成无法关闭热力图
+      heatmapOverlay = new T.HeatmapOverlay({
+        radius: 30,
+      });
+      // console.log(heatmapOverlay);
+      this.heatmapOverlay = heatmapOverlay;
+      this.map.addOverLay(heatmapOverlay);
+      heatmapOverlay.setDataSet({ data: points, max: 300 });
+      // this.hide = heatmapOverlay.hide();
+      // this.show = heatmapOverlay.show();
+      // }, 2000);
     },
     // 热力图显示
     isSupportCanvas() {
@@ -682,17 +691,25 @@ export default {
 
     //是否显示热力图
     openHeatmap() {
-      heatmapOverlay.show();
-      // console.log(points); //注意这里取值不是取this.points和this.heatmapOverlay
-      // console.log(heatmapOverlay);
-      // this.map.addOverLay(heatmapOverlay);
-      // heatmapOverlay.setDataSet({ data: points, max: 300 });
+      if (!this.heatmapOverlay) {
+        console.log("请先添加热力图");
+      } else {
+        this.heatmapOverlay.show();
+        // console.log(points); //注意这里取值不是取this.points和this.heatmapOverlay
+        // console.log(heatmapOverlay);
+        // this.map.addOverLay(heatmapOverlay);
+        // heatmapOverlay.setDataSet({ data: points, max: 300 });
+      }
     },
 
     // 关闭热力图
     closeHeatmap() {
-      heatmapOverlay.hide(); //这里不是用this.heatmapOverlay
-      // this.map.clearOverLays(); //使用删除覆盖物功能
+      if (!this.heatmapOverlay) {
+        console.log("请先添加热力图");
+      } else {
+        this.heatmapOverlay.hide();
+        // this.map.clearOverLays(); //使用删除覆盖物功能
+      }
     },
 
     // 多边形工具
@@ -715,8 +732,11 @@ export default {
       // console.log("多边形");
       // this.removeMapClick();
       this.PolygonList = []; //清空数组中数据
-      this.map.removeEventListener("click", this.MapClick);
-      this.map.addEventListener("click", this.MapClick);
+      // this.PolygonList = {}; //清空数组中数据
+
+      this.map.removeEventListener("click", this.MapClick); //消除单击事件
+      this.map.addEventListener("click", this.MapClick); //监听地图单击事件，获取坐标
+      this.map.addEventListener("dblclick", this.removeMapClick); //监听双击事件，出现双击时，调用removeMapClick()方法，结束单击事件
       // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
     },
     // 画圆工具
@@ -742,9 +762,28 @@ export default {
     MapClick(e) {
       console.log(e.lnglat.getLng() + "," + e.lnglat.getLat());
       var coordnite = [e.lnglat.getLng(), e.lnglat.getLat()];
-      // console.log(coordnite);
+      console.log(coordnite);
       this.PolygonList.push(coordnite);
       console.log(this.PolygonList);
+    },
+    sendPolygon() {
+      if (this.PolygonList.length == 0) {
+        console.log("请先绘制多边形");
+      } else {
+        console.log(this.PolygonList);
+        var data = this.PolygonList;
+        let url = "http://127.0.0.1:8000/load/drilllocationview/";
+        axios
+          .get(url, {
+            // headers: { "content-type":
+            // params: { data: qs.stringify(data) },
+            params: { data: JSON.stringify(data) },
+          })
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {});
+      }
     },
   },
 };
