@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-10 16:36:30
+ * @LastEditTime: 2020-12-11 20:54:44
 -->
 <template>
   <div>
@@ -746,6 +746,23 @@ export default {
       if (handler) handler.close();
       handler = new T.CircleTool(this.map, { follow: true });
       handler.open();
+      handler.on("draw", function (e) {
+        console.log(e.currentCenter);
+        console.log(e.currentRadius);
+      });
+      // this.map.addEventListener("drawend	", this.MapCricleClick); //监听地图单击事件，获取坐标
+      // var circleTool = new T.CircleTool(this.map, {
+      //   color: "blue",
+      //   weight: 3,
+      //   opacity: 0.5,
+      //   fillColor: "#FFFFFF",
+      //   fillOpacity: 0.5,
+      // });
+      // circleTool.open();
+      // circleTool.on("draw", function (e) {
+      //   console.log(e.currentCenter);
+      //   console.log(e.currentRadius);
+      // });
     },
     // 清除所有
     clearOverLays() {
@@ -759,6 +776,7 @@ export default {
       this.map.removeEventListener("click", this.MapClick);
       // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
     },
+    // 监听多边形，记录坐标
     MapClick(e) {
       console.log(e.lnglat.getLng() + "," + e.lnglat.getLat());
       var coordnite = [e.lnglat.getLng(), e.lnglat.getLat()];
@@ -766,9 +784,21 @@ export default {
       this.PolygonList.push(coordnite);
       console.log(this.PolygonList);
     },
+    // 发送图形数据，获取图形里的标注
     sendPolygon() {
       if (this.PolygonList.length == 0) {
-        console.log("请先绘制多边形");
+        // console.log("请先绘制多边形");
+        // this.$message({
+        //   showClose: true,
+        //   message: "请先绘制多边形",
+        //   type: "warning",
+        //   center: true,
+        // });
+        this.$notify.warning({
+          title: "提示",
+          message: "请先绘制多边形",
+          offset: 100,
+        });
       } else {
         console.log(this.PolygonList);
         var data = this.PolygonList;
@@ -781,8 +811,41 @@ export default {
           })
           .then((res) => {
             console.log(res.data);
+            console.log(res.data.data.list);
+            let datainfo = res.data.data.list;
+            if (Array.isArray(datainfo) && datainfo.length === 0) {
+              this.$notify.warning({
+                title: "提示",
+                message: "该区域没有相关数据~！",
+                offset: 100,
+              });
+            } else {
+              for (let i in datainfo) {
+                console.log(datainfo[i].locaton);
+                let temp = datainfo[i].locaton;
+                console.log(temp.coordinates);
+                //创建标注对象
+                var marker = new T.Marker(
+                  new T.LngLat(temp.coordinates[0], temp.coordinates[1])
+                );
+                //向地图上添加标注
+                this.map.addOverLay(marker);
+              }
+            }
           })
-          .catch((err) => {});
+          .catch((err) => {
+            // alert("请勿画交叉线");
+            // this.$message.error("请勿画交叉线");
+            console.log(err);
+            // this.$alert("请勿出现交叉线段！", "友情提示", {
+            //   confirmButtonText: "确定",
+            // });
+            this.$notify.warning({
+              title: "提示",
+              message: "请勿出现交叉线段！",
+              offset: 100,
+            });
+          });
       }
     },
   },

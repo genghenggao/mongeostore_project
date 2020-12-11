@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-10 22:54:33
+LastEditTime: 2020-12-11 15:33:53
 '''
 from mongoengine.context_managers import switch_collection
 import numpy as np
@@ -1675,11 +1675,11 @@ class DrillLocationView(APIView):
         print(test)
         # print(type(a3))  # <class 'list'>
 
-        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
-        db = client['钻孔数据管理子系统']  # 选定数据库，设定数据库名称为segyfile
-        col = db['GeoJSON']
-        col.create_index([("coordinates", pymongo.GEO2D)])
-        # 下面这里需要首位数据一样，完成闭合，我是用GEO2D和GEOSPHERE 都可以查询到数据
+        # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        # db = client['钻孔数据管理子系统']  # 选定数据库，设定数据库名称为segyfile
+        # col = db['GeoJSON']
+        # col.create_index([("coordinates", pymongo.GEO2D)])
+        # # 下面这里需要首位数据一样，完成闭合，我是用GEO2D和GEOSPHERE 都可以查询到数据
         # for doc in col.find({"locaton.coordinates": {'$geoWithin':
         #                                              {'$geometry':
         #                                               {'type': "Polygon",
@@ -1689,35 +1689,46 @@ class DrillLocationView(APIView):
         #     # print(repr(doc))
         #     print(doc)
 
-        docs = col.find({"locaton.coordinates": {'$geoWithin':
-                                                 {'$geometry':
-                                                  {'type': "Polygon",
-                                                   'coordinates': [test]
-                                                   }}}})
+        ##### 采用pymongo，设置分页，统计总数 ##########
+        # docs = col.find({"locaton.coordinates": {'$geoWithin':
+        #                                          {'$geometry':
+        #                                           {'type': "Polygon",
+        #                                            'coordinates': [test]
+        #                                            }}}})
 
         # print(docs.count())
+
+        ###########使用mongoengine #############################
         with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
-            docstest = DrillLocationTest.objects.all()
-            print(docstest)
+            # docstest = DrillLocationTest.objects.all()
+            # print(docstest)
+            try:
+                docloc = DrillLocationTest.objects(locaton__geo_within={"type": "Polygon",
+                                                                        "coordinates": [test]})
+                print(docloc)
 
-            page = MyPagination()
-            # 实例化查询，获取分页的数据
-            page_chapter = page.paginate_queryset(
-                queryset=docstest, request=request, view=self)
-            ser = DrillLocationSerializer(instance=page_chapter, many=True)
-            print(ser)
-        # # 创建分页对象
-        # page = MyPagination()
-        # # 实例化查询，获取分页的数据
-        # page_chapter = page.paginate_queryset(
-        #     queryset=docs, request=request, view=self)
+                ###########进行分页、序列化 ##############################
+                # 创建分页对象
+                page = MyPagination()
+                # 实例化查询，获取分页的数据
+                page_chapter = page.paginate_queryset(
+                    queryset=docloc, request=request, view=self)
 
-        # # 序列化及结果返回，将分页后返回的数据, 进行序列化
-        # ser = DrillLoactionSerializer(instance=page_chapter, many=True)
+                # 序列化及结果返回，将分页后返回的数据, 进行序列化
+                ser = DrillLocationSerializer(instance=page_chapter, many=True)
 
-        # data = {'list': ser.data}
-        # return page.get_paginated_response(data)
-        return HttpResponse(ser)
+                data = {'list': ser.data}
+                return page.get_paginated_response(data)
+
+            except Exception:
+                # response = self.handle_exception(exc)
+                print('报错走这里')
+                # return response
+                return HttpResponse("出错了")
+                # return JsonResponse({'status':'false','message':'出错了'}, status=500) 
+                # return JsonResponse({'status':'false','message':'出错了'}, status=500) 
+        # return HttpResponse(ser)
+        # return HttpResponse('success')
 
     def post(self, request, *args, **kwargs):
         """
