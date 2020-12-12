@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-11 15:33:53
+LastEditTime: 2020-12-12 16:36:12
 '''
+import math
 from mongoengine.context_managers import switch_collection
 import numpy as np
 from rest_framework import viewsets
@@ -1649,30 +1650,111 @@ class DrillLocationView(APIView):
         # print(request.GET)
         # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
         # print(request.GET.get('data'))
-        listdata = request.GET.get('data')
-        # print(type(listdata))  # <class 'str'>
-        a1 = np.array(listdata)
-        # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
-        # print(a1)
-        # print(type(a1))   # <class 'numpy.ndarray'>
-        my_list1 = a1.tolist()
-        # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
-        # print(type(my_list1))  #<class 'str'>
-        # print(my_list1)
-        s = "np.array({})".format(my_list1)
-        a2 = eval(s)
+        # listdata = request.GET
+        # print(listdata)
+        front_data = request.GET.get('data')  # 获取前端数据
+        geometric_info = json.loads(front_data)  # 将json字符串转dict
+        # print(type(geometric_info['data']))
+        if geometric_info['type'] == 'Polygon':
+            # print('polygon')
+            geometric_data = geometric_info['data']
+            # print(geometric_data[0])
+            geometric_data.append(geometric_data[0])  # 将第一个数据追加在末尾，构成闭合
+            print(geometric_data)
+            ###########使用mongoengine #############################
+            with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+                # docstest = DrillLocationTest.objects.all()
+                # print(docstest)
+                try:
+                    docloc = DrillLocationTest.objects(
+                        locaton__geo_within={"type": "Polygon", "coordinates": [geometric_data]})
+                    print(docloc)
 
-        # [[116.28685  39.9387 ] [116.4489   39.91342] [116.33217  39.86179]]
-        print(a2)
-        print(type(a2))  # <class 'numpy.ndarray'>
-        test = a2.tolist()
-        print(test)
-        print(type(test))  # <class 'list'>
-        # print(a2[1])  # [116.4489   39.91342]
-        # print(type(a2[1]))  # <class 'numpy.ndarray'>
-        a3 = test[0]
-        test.append(a3)  # 由于 geometry方法需要完成闭环，所以list末尾追加一个首位数据
-        print(test)
+                    ###########进行分页、序列化 ##############################
+                    # 创建分页对象
+                    page = MyPagination()
+                    # 实例化查询，获取分页的数据
+                    page_chapter = page.paginate_queryset(
+                        queryset=docloc, request=request, view=self)
+
+                    # 序列化及结果返回，将分页后返回的数据, 进行序列化
+                    ser = DrillLocationSerializer(
+                        instance=page_chapter, many=True)
+
+                    data = {'list': ser.data}
+                    return page.get_paginated_response(data)
+
+                except Exception:
+                    # response = self.handle_exception(exc)
+                    print('报错走这里')
+                    # return response
+                    return HttpResponse("出错了")
+
+        elif geometric_info['type'] == 'Circle':
+            # print('Circle')
+            geometric_data = geometric_info['data']
+            print(geometric_data)
+            circle_center = geometric_data[0]
+            radius = geometric_data[1]  # 拿到的半径是距离
+            print(circle_center)
+            print(radius)
+            # 将半径距离转换为对应的弧度，6381372是地球周长
+            arc_adius = (360*radius)/(6381372*math.pi*2)
+            print(arc_adius)
+            # 圆形查询
+            ###########使用mongoengine #############################
+            with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+                # docstest = DrillLocationTest.objects.all()
+                # print(docstest)
+                try:
+                    docloc = DrillLocationTest.objects(locaton__geo_within_center=[
+                                                       (circle_center[0], circle_center[1]), arc_adius])
+
+                    print(docloc)
+
+                    ###########进行分页、序列化 ##############################
+                    # 创建分页对象
+                    page = MyPagination()
+                    # 实例化查询，获取分页的数据
+                    page_chapter = page.paginate_queryset(
+                        queryset=docloc, request=request, view=self)
+
+                    # 序列化及结果返回，将分页后返回的数据, 进行序列化
+                    ser = DrillLocationSerializer(
+                        instance=page_chapter, many=True)
+
+                    data = {'list': ser.data}
+                    return page.get_paginated_response(data)
+
+                except Exception:
+                    # response = self.handle_exception(exc)
+                    print('报错走这里')
+                    # return response
+                    return HttpResponse("出错了")
+
+        # # print(type(listdata))  # <class 'str'>
+        # a1 = np.array(listdata)
+        # # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
+        # # print(a1)
+        # # print(type(a1))   # <class 'numpy.ndarray'>
+        # my_list1 = a1.tolist()
+        # # [[116.28685,39.9387],[116.4489,39.91342],[116.33217,39.86179]]
+        # # print(type(my_list1))  #<class 'str'>
+        # # print(my_list1)
+        # s = "np.array({})".format(my_list1)
+        # a2 = eval(s)
+
+        # # [[116.28685  39.9387 ] [116.4489   39.91342] [116.33217  39.86179]]
+        # print(a2)
+        # print(type(a2))  # <class 'numpy.ndarray'>
+        # test = a2.tolist()
+        # print(test)
+        # print(type(test))  # <class 'list'>
+        # # print(a2[1])  # [116.4489   39.91342]
+        # # print(type(a2[1]))  # <class 'numpy.ndarray'>
+        # a3 = test[0]
+        # test.append(a3)  # 由于 geometry方法需要完成闭环，所以list末尾追加一个首位数据
+        # print(test)
         # print(type(a3))  # <class 'list'>
 
         # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
@@ -1698,37 +1780,37 @@ class DrillLocationView(APIView):
 
         # print(docs.count())
 
-        ###########使用mongoengine #############################
-        with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
-            # docstest = DrillLocationTest.objects.all()
-            # print(docstest)
-            try:
-                docloc = DrillLocationTest.objects(locaton__geo_within={"type": "Polygon",
-                                                                        "coordinates": [test]})
-                print(docloc)
+        # ###########使用mongoengine #############################
+        # with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+        #     # docstest = DrillLocationTest.objects.all()
+        #     # print(docstest)
+        #     try:
+        #         docloc = DrillLocationTest.objects(locaton__geo_within={"type": "Polygon",
+        #                                                                 "coordinates": [test]})
+        #         print(docloc)
 
-                ###########进行分页、序列化 ##############################
-                # 创建分页对象
-                page = MyPagination()
-                # 实例化查询，获取分页的数据
-                page_chapter = page.paginate_queryset(
-                    queryset=docloc, request=request, view=self)
+        #         ###########进行分页、序列化 ##############################
+        #         # 创建分页对象
+        #         page = MyPagination()
+        #         # 实例化查询，获取分页的数据
+        #         page_chapter = page.paginate_queryset(
+        #             queryset=docloc, request=request, view=self)
 
-                # 序列化及结果返回，将分页后返回的数据, 进行序列化
-                ser = DrillLocationSerializer(instance=page_chapter, many=True)
+        #         # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        #         ser = DrillLocationSerializer(instance=page_chapter, many=True)
 
-                data = {'list': ser.data}
-                return page.get_paginated_response(data)
+        #         data = {'list': ser.data}
+        #         return page.get_paginated_response(data)
 
-            except Exception:
-                # response = self.handle_exception(exc)
-                print('报错走这里')
-                # return response
-                return HttpResponse("出错了")
-                # return JsonResponse({'status':'false','message':'出错了'}, status=500) 
-                # return JsonResponse({'status':'false','message':'出错了'}, status=500) 
-        # return HttpResponse(ser)
-        # return HttpResponse('success')
+        #     except Exception:
+        #         # response = self.handle_exception(exc)
+        #         print('报错走这里')
+        #         # return response
+        #         return HttpResponse("出错了")
+        #         # return JsonResponse({'status':'false','message':'出错了'}, status=500)
+        #         # return JsonResponse({'status':'false','message':'出错了'}, status=500)
+        # # return HttpResponse(ser)
+        return HttpResponse('success')
 
     def post(self, request, *args, **kwargs):
         """

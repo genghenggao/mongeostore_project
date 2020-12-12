@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-11 20:54:44
+ * @LastEditTime: 2020-12-12 17:25:29
 -->
 <template>
   <div>
@@ -20,6 +20,7 @@
       <button @click="addHeatmap()">添加热力图</button>
       <button @click="button_zoomIn()">放大</button>
       <button @click="button_zoomOut()">缩小</button>
+      <button @click="openRectangleTool()">矩形工具</button>
       <button @click="openPolygonTool()">多边形工具</button>
       <button @click="openCircleTool()">画圆工具</button>
       <button @click="clearOverLays()">清除所有</button>
@@ -66,8 +67,9 @@ export default {
       detailLocation: "",
       locationDialogVisible: false,
       locationNow: false,
+      GeometricInfo: {}, // 返回几何信息
+      GeometricData: [], // 返回几何数据
       PolygonList: [], //返回多边形数据
-      // PolygonList: {}, //返回多边形数据
     };
   },
   created() {},
@@ -693,6 +695,11 @@ export default {
     openHeatmap() {
       if (!this.heatmapOverlay) {
         console.log("请先添加热力图");
+        this.$notify.warning({
+          title: "提示",
+          message: "请先添加热力图！",
+          offset: 100,
+        });
       } else {
         this.heatmapOverlay.show();
         // console.log(points); //注意这里取值不是取this.points和this.heatmapOverlay
@@ -706,6 +713,11 @@ export default {
     closeHeatmap() {
       if (!this.heatmapOverlay) {
         console.log("请先添加热力图");
+        this.$notify.warning({
+          title: "提示",
+          message: "未添加热力图！",
+          offset: 100,
+        });
       } else {
         this.heatmapOverlay.hide();
         // this.map.clearOverLays(); //使用删除覆盖物功能
@@ -725,19 +737,27 @@ export default {
       };
 
       //创建标注工具对象
-      let polygonTool = new T.PolygonTool(this.map, config);
+      // let polygonTool = new T.PolygonTool(this.map, config);
       if (handler) handler.close();
-      handler = new T.PolygonTool(this.map);
+      handler = new T.PolygonTool(this.map, config);
       handler.open();
       // console.log("多边形");
       // this.removeMapClick();
-      this.PolygonList = []; //清空数组中数据
+      this.GeometricData = []; //清空数组中数据
       // this.PolygonList = {}; //清空数组中数据
 
       this.map.removeEventListener("click", this.MapClick); //消除单击事件
       this.map.addEventListener("click", this.MapClick); //监听地图单击事件，获取坐标
       this.map.addEventListener("dblclick", this.removeMapClick); //监听双击事件，出现双击时，调用removeMapClick()方法，结束单击事件
       // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
+    },
+    // 画矩形
+    openRectangleTool() {
+      var handler;
+      if (handler) handler.close();
+      handler = new T.RectangleTool(this.map, { follow: true });
+      handler.open();
+      handler.on("draw", this.MapRectangle);
     },
     // 画圆工具
     openCircleTool() {
@@ -746,22 +766,18 @@ export default {
       if (handler) handler.close();
       handler = new T.CircleTool(this.map, { follow: true });
       handler.open();
-      handler.on("draw", function (e) {
-        console.log(e.currentCenter);
-        console.log(e.currentRadius);
-      });
-      // this.map.addEventListener("drawend	", this.MapCricleClick); //监听地图单击事件，获取坐标
-      // var circleTool = new T.CircleTool(this.map, {
-      //   color: "blue",
-      //   weight: 3,
-      //   opacity: 0.5,
-      //   fillColor: "#FFFFFF",
-      //   fillOpacity: 0.5,
-      // });
-      // circleTool.open();
-      // circleTool.on("draw", function (e) {
-      //   console.log(e.currentCenter);
-      //   console.log(e.currentRadius);
+      handler.on("draw", this.MapCircle);
+      // handler.on("draw", function (e) {
+      //   this.GeometricData = []; //清空数组中数据
+      //   var coordnite = [e.currentCenter.lng, e.currentCenter.lat]; //获取经纬度
+      //   this.GeometricData.push(coordnite); //写入数组
+      //   this.GeometricData.push(e.currentRadius); //写入数组
+      //   this.GeometricInfo = {
+      //     type: "Circle",
+      //     data: this.GeometricData,
+      //   };
+      //   console.log(this.GeometricInfo);
+      //   console.log(this.GeometricData);
       // });
     },
     // 清除所有
@@ -776,17 +792,59 @@ export default {
       this.map.removeEventListener("click", this.MapClick);
       // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
     },
+
     // 监听多边形，记录坐标
     MapClick(e) {
       console.log(e.lnglat.getLng() + "," + e.lnglat.getLat());
       var coordnite = [e.lnglat.getLng(), e.lnglat.getLat()];
       console.log(coordnite);
-      this.PolygonList.push(coordnite);
-      console.log(this.PolygonList);
+      this.GeometricData.push(coordnite);
+      this.GeometricInfo = {
+        type: "Polygon",
+        data: this.GeometricData,
+      };
+      // console.log(this.GeometricData);
+      // console.log(this.GeometricInfo);
+    },
+    // 监听矩形
+    MapRectangle(e) {
+      this.GeometricData = []; //清空数组中数据
+      console.log(e.currentBounds);
+      console.log(e.currentBounds.Lq.lng);
+      console.log(e.currentBounds.Lq.lat);
+      console.log(e.currentBounds.kq.lng);
+      console.log(e.currentBounds.kq.lat);
+      var coordnite1 = [e.currentBounds.Lq.lng, e.currentBounds.Lq.lat]; //获取经纬度
+      var coordnite2 = [e.currentBounds.Lq.lng, e.currentBounds.kq.lat]; //获取经纬度
+      var coordnite3 = [e.currentBounds.kq.lng, e.currentBounds.kq.lat]; //获取经纬度
+      var coordnite4 = [e.currentBounds.kq.lng, e.currentBounds.Lq.lat]; //获取经纬度
+      this.GeometricData.push(coordnite1, coordnite2, coordnite3, coordnite4);
+      this.GeometricInfo = {
+        type: "Polygon",
+        data: this.GeometricData,
+      };
+      // console.log(e.currentRectangle);
+      console.log(this.GeometricData);
+      console.log(this.GeometricInfo);
+    },
+    // 监听绘制圆，记录坐标
+    MapCircle(e) {
+      this.GeometricData = []; //清空数组中数据
+      var coordnite = [e.currentCenter.lng, e.currentCenter.lat]; //获取经纬度
+      this.GeometricData.push(coordnite); //写入数组
+      this.GeometricData.push(e.currentRadius); //写入数组
+      this.GeometricInfo = {
+        type: "Circle",
+        data: this.GeometricData,
+      };
+      // console.log(this.GeometricInfo);
+      // console.log(this.GeometricData);
     },
     // 发送图形数据，获取图形里的标注
     sendPolygon() {
-      if (this.PolygonList.length == 0) {
+      // console.log(this.GeometricData);
+      // console.log(this.GeometricInfo);
+      if (this.GeometricData.length == 0) {
         // console.log("请先绘制多边形");
         // this.$message({
         //   showClose: true,
@@ -800,8 +858,9 @@ export default {
           offset: 100,
         });
       } else {
-        console.log(this.PolygonList);
-        var data = this.PolygonList;
+        console.log(this.GeometricInfo);
+        // var data = this.GeometricData;
+        var data = this.GeometricInfo;
         let url = "http://127.0.0.1:8000/load/drilllocationview/";
         axios
           .get(url, {
