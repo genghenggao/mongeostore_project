@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-12 17:25:29
+ * @LastEditTime: 2020-12-13 22:31:53
 -->
 <template>
   <div>
@@ -28,6 +28,16 @@
       <button @click="removeMapClick()">移除</button>
       <button @click="removeMapClick()">移除</button>
       <button @click="sendPolygon()">发送多边形数据</button>
+      <el-form ref="locationform" :model="locationform" label-width="80px">
+        <h3>请输入经纬度</h3>
+        <el-form-item label="经度">
+          <el-input v-model="locationform.lng"></el-input>
+        </el-form-item>
+        <el-form-item label="纬度">
+          <el-input v-model="locationform.lat"></el-input>
+        </el-form-item>
+        <el-button @click="addLoaction()">添加</el-button>
+      </el-form>
       <!-- <button @click="closeHeatmap()">关闭热力图</button> -->
     </div>
     <!-- <remote-script
@@ -70,6 +80,11 @@ export default {
       GeometricInfo: {}, // 返回几何信息
       GeometricData: [], // 返回几何数据
       PolygonList: [], //返回多边形数据
+      // 表单数据，查询
+      locationform: {
+        lng: "",
+        lat: "",
+      },
     };
   },
   created() {},
