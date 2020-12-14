@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-27 16:37:40
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-02 18:45:49
+ * @LastEditTime: 2020-12-14 21:37:56
 -->
 <template>
   <el-container style="min-width: 1100px; overflow: hidden">
@@ -19,7 +19,7 @@
           text-align: left;
         "
       >
-        <i class="el-icon-caret-right" /> 钻孔编号：{{ ZK_num }}
+        <i class="el-icon-caret-right" /> 钻孔编号：{{ zk_num }}
       </h2>
     </el-header>
     <el-main style="padding-top: 10px; min-width: 1100px; overflow-y: hidden">
@@ -108,7 +108,7 @@ export default {
     return {
       ico: "",
       _id: "o_1eoekb1rb5191s631sp871115ccd",
-      ZK_num: "ZK1", //小标题
+      zk_num: "ZK1", //小标题
       tabPosition: "right", //标签页位置设置
       tableData: {
         钻孔编号: "	ZK1",
@@ -167,7 +167,8 @@ export default {
   },
   methods: {
     showMetaData() {
-      console.log(this.$route.params._id); //查看DrillMetaData.vue路由传过来的参数
+      // console.log(this.$route.params._id); //查看DrillMetaData.vue路由传过来的参数
+      console.log(this.$route.params.zk_num); //查看DrillMetaData.vue路由传过来的参数
       // console.log(typeof this.tableData);
       // console.log(this.tableData);
       let url = "http://127.0.0.1:8000/load/drillhistogram/";
@@ -179,7 +180,8 @@ export default {
             // PageSize: n1,
             // 显示第几页
             // currentPage: n2,
-            _id: this.$route.params._id,
+            // _id: this.$route.params._id,
+            zk_num: this.$route.params.zk_num,
           },
         })
         .then((res) => {
@@ -193,7 +195,7 @@ export default {
           this.tableData = end_data;
           console.log(end_data);
           this.ico = pic_data["$binary"];
-          this.ZK_num = end_data["钻孔编号"];
+          this.zk_num = end_data["钻孔编号"];
           // let imgUrl =
           //   "data:image/png;base64," +
           //   btoa(

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 21:27:03
+ * @LastEditTime: 2020-12-14 21:33:20
 -->
 
 <template>
@@ -13,55 +13,6 @@
     <!-- 子导航 -->
     <el-container>
       <el-header class="maincontent_header">
-        <!-- <nav>
-          <div
-            class="nav nav-tabs"
-            id="nav-tab"
-            role="tablist"
-            style="min-width: 1100px"
-          >
-            <a
-              class="nav-item nav-link active"
-              id="nav-home-tab"
-              data-toggle="tab"
-              href="#nav-home"
-              role="tab"
-              aria-controls="nav-home"
-              aria-selected="true"
-              ><i class="el-icon-s-home"></i>首页</a
-            >
-            <a
-              class="nav-item nav-link"
-              id="nav-profile-tab"
-              data-toggle="tab"
-              href="#nav-profile"
-              role="tab"
-              aria-controls="nav-profile"
-              aria-selected="false"
-              ><i class="el-icon-s-data"></i>钻孔数据</a
-            >
-            <a
-              class="nav-item nav-link"
-              id="nav-metadata-tab"
-              data-toggle="tab"
-              href="#nav-metadata"
-              role="tab"
-              aria-controls="nav-metadata"
-              aria-selected="false"
-              ><i class="el-icon-document"></i>钻孔信息</a
-            >
-            <a
-              class="nav-item nav-link"
-              id="nav-uploadfile-tab"
-              data-toggle="tab"
-              href="#nav-uploadfile"
-              role="tab"
-              aria-controls="nav-uploadfile"
-              aria-selected="false"
-              ><i class="el-icon-top"></i>上传数据</a
-            >
-          </div>
-        </nav> -->
         <el-menu
           router
           :default-active="activeIndex"
@@ -73,8 +24,8 @@
             ><i class="el-icon-s-home"></i>
             首页
           </el-menu-item>
-          <el-menu-item index="/mongeostore/drillmetadata"
-            ><i class="el-icon-s-data"></i>钻孔数据
+          <el-menu-item index="/mongeostore/drilllocationdata"
+            ><i class="el-icon-s-data"></i>定位表数据
           </el-menu-item>
           <el-menu-item
             index="/mongeostore/drilldetails/ZK1"
@@ -108,7 +59,7 @@ import DrillMetaHome from "@/components/drill/DrillMetaHome.vue";
 import DrillMetaData from "@/components/drill/DrillMetaData.vue";
 import DrillUpload from "@/components/drill/DrillUpload.vue";
 export default {
-  name: "DrillMetaInfo",
+  name: "DrillLocationInfo",
   components: {
     MapView,
     Home,

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-06 09:36:35
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-13 22:31:53
+ * @LastEditTime: 2020-12-14 20:14:18
 -->
 <template>
   <div>
@@ -26,18 +26,56 @@
       <button @click="clearOverLays()">清除所有</button>
       <button @click="addMapClick()">注册</button>
       <button @click="removeMapClick()">移除</button>
-      <button @click="removeMapClick()">移除</button>
       <button @click="sendPolygon()">发送多边形数据</button>
-      <el-form ref="locationform" :model="locationform" label-width="80px">
-        <h3>请输入经纬度</h3>
-        <el-form-item label="经度">
-          <el-input v-model="locationform.lng"></el-input>
+      <el-form
+        ref="locationform"
+        :model="locationform"
+        :rules="locationformrules"
+        label-width="80px"
+      >
+        <h3>请按序输入经纬度(请勿出现交叉线段)</h3>
+        <el-form-item label="经度：" style="width: 40%" prop="lng">
+          <el-input
+            v-model="locationform.lng"
+            placeholder="经度度范围：73.2~135.3"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="纬度">
-          <el-input v-model="locationform.lat"></el-input>
+        <el-form-item label="纬度：" style="width: 40%" prop="lat">
+          <el-input
+            v-model="locationform.lat"
+            placeholder="纬度范围：3.8~53.6"
+          ></el-input>
         </el-form-item>
-        <el-button @click="addLoaction()">添加</el-button>
+
+        <el-form-item>
+          <el-button type="primary" @click="submitForm('locationform')"
+            >添加坐标</el-button
+          >
+        </el-form-item>
+        <el-button @click="searchLoaction()">查询</el-button>
+        <el-button @click="clearLoaction()">清空表格</el-button>
       </el-form>
+      <h2>已经添加的点</h2>
+      <el-table :data="tableData" style="width: 100%" max-height="250">
+        <!-- <el-table-column fixed prop="lnglat" label="数据点" width="150">
+        </el-table-column> -->
+        <el-table-column type="index" width="50"> </el-table-column>
+        <el-table-column prop="lnglat[0]" label="经度" width="120">
+        </el-table-column>
+        <el-table-column prop="lnglat[1]" label="纬度" width="120">
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="120">
+          <template slot-scope="scope">
+            <el-button
+              @click.native.prevent="deleteRow(scope.$index, tableData)"
+              type="text"
+              size="small"
+            >
+              移除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
       <!-- <button @click="closeHeatmap()">关闭热力图</button> -->
     </div>
     <!-- <remote-script
@@ -60,6 +98,42 @@ export default {
     TdtMap,
   },
   data() {
+    // 表单经经度校验
+    var checkLng = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("经度不能为空"));
+      }
+      setTimeout(() => {
+        var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+        if (!re.test(value)) {
+          callback(new Error("请输入数字值"));
+        } else {
+          if (73.2 < value && value < 135.3) {
+            callback();
+          } else {
+            callback(new Error("经度范围：73.2~135.3"));
+          }
+        }
+      }, 1000);
+    };
+    // 表单经纬度校验
+    var checkLat = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("纬度不能为空"));
+      }
+      setTimeout(() => {
+        var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+        if (!re.test(value)) {
+          callback(new Error("请输入数字值"));
+        } else {
+          if (3.8 < value && value < 53.6) {
+            callback();
+          } else {
+            callback(new Error("纬度范围：3.8~53.6"));
+          }
+        }
+      }, 1000);
+    };
     return {
       // data: data,
       heatmapOverlay: "", //热力图
@@ -85,6 +159,22 @@ export default {
         lng: "",
         lat: "",
       },
+      // 判断表单经纬度校验
+      locationformrules: {
+        lng: [{ validator: checkLng, trigger: "blur" }],
+        lat: [{ validator: checkLat, trigger: "blur" }],
+      },
+      tableData: [
+        // {
+        //   lnglat: [116.411794, 39.9068],
+        // },
+        // {
+        //   lnglat: [116.32969, 39.9294],
+        // },
+        // {
+        //   lnglat: [116.385438, 39.9061],
+        // },
+      ],
     };
   },
   created() {},
@@ -799,10 +889,12 @@ export default {
     clearOverLays() {
       this.map.clearOverLays(); //使用删除覆盖物功能
     },
+    // 添加地图单击事件
     addMapClick() {
       this.removeMapClick();
       this.map.addEventListener("click", this.MapClick);
     },
+    // 移除地图单击事件
     removeMapClick() {
       this.map.removeEventListener("click", this.MapClick);
       // this.map.removeEventListener("dblclick", this.MapClick); //鼠标双击事件
@@ -824,11 +916,11 @@ export default {
     // 监听矩形
     MapRectangle(e) {
       this.GeometricData = []; //清空数组中数据
-      console.log(e.currentBounds);
-      console.log(e.currentBounds.Lq.lng);
-      console.log(e.currentBounds.Lq.lat);
-      console.log(e.currentBounds.kq.lng);
-      console.log(e.currentBounds.kq.lat);
+      // console.log(e.currentBounds);
+      // console.log(e.currentBounds.Lq.lng);
+      // console.log(e.currentBounds.Lq.lat);
+      // console.log(e.currentBounds.kq.lng);
+      // console.log(e.currentBounds.kq.lat);
       var coordnite1 = [e.currentBounds.Lq.lng, e.currentBounds.Lq.lat]; //获取经纬度
       var coordnite2 = [e.currentBounds.Lq.lng, e.currentBounds.kq.lat]; //获取经纬度
       var coordnite3 = [e.currentBounds.kq.lng, e.currentBounds.kq.lat]; //获取经纬度
@@ -895,15 +987,24 @@ export default {
               });
             } else {
               for (let i in datainfo) {
-                console.log(datainfo[i].locaton);
-                let temp = datainfo[i].locaton;
-                console.log(temp.coordinates);
+                // console.log(datainfo[i].locaton);
+                // console.log(datainfo[i].name);
+                let temp = datainfo[i].location;
+                // console.log(temp.coordinates);
                 //创建标注对象
                 var marker = new T.Marker(
                   new T.LngLat(temp.coordinates[0], temp.coordinates[1])
                 );
+                // 添加信息
+                var content = datainfo[i].name;
+                var content =
+                  "钻孔号:" +
+                  datainfo[i].zk_name +
+                  "," +
+                  "<a href='https://www.runoob.com/html/html-links.html'>查看详情</a>";
                 //向地图上添加标注
                 this.map.addOverLay(marker);
+                this.addClickHandler(content, marker);
               }
             }
           })
@@ -920,6 +1021,91 @@ export default {
               offset: 100,
             });
           });
+      }
+    },
+    // 点击标注事件
+    addClickHandler(content, marker) {
+      marker.addEventListener("click", function (e) {
+        // this.openInfo(content, e);
+        var markerInfoWin = new T.InfoWindow(content); // 创建信息窗口对象
+        marker.openInfoWindow(markerInfoWin); //开启信息窗口
+      });
+    },
+
+    // 添加坐标数据
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // alert("submit!");
+          this.tableData.push({
+            // lng: this.locationform.lng,
+            // lat: this.locationform.lat,
+
+            lnglat: [
+              parseFloat(this.locationform.lng),
+              parseFloat(this.locationform.lat),
+            ],
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    // 删除一条表格数据
+    deleteRow(index, rows) {
+      rows.splice(index, 1);
+    },
+    // 清空表格数据
+    clearLoaction() {
+      this.tableData = [];
+    },
+    // 查询数据
+    searchLoaction() {
+      // console.log(this.tableData.length);
+      // console.log(this.tableData[0]);
+      // axios.get(url).then().catch()
+      this.GeometricData = []; //清空数组中数据
+      for (let index = 0; index < this.tableData.length; index++) {
+        console.log(this.tableData[index].lnglat);
+        let templnglat = this.tableData[index].lnglat;
+        let coordnite = [templnglat[0], templnglat[1]];
+        this.GeometricData.push(templnglat);
+      }
+      this.GeometricInfo = {
+        type: "Polygon",
+        data: this.GeometricData,
+      };
+      // console.log(this.GeometricData);
+      // console.log(this.GeometricInfo);
+      if (this.GeometricData.length < 3) {
+        this.$notify.warning({
+          title: "提示",
+          message: "输入的点少于3个，不能构成多边形！",
+          offset: 100,
+        });
+      } else {
+        // 1.在地图上绘制多边形
+        var points = [];
+        for (let index = 0; index < this.GeometricData.length; index++) {
+          // console.log(this.GeometricData[index]);
+          // console.log(this.GeometricData[index][0]);
+          points.push(
+            new T.LngLat(
+              this.GeometricData[index][0],
+              this.GeometricData[index][1]
+            )
+          );
+          // points.push(new T.LngLat(116.411794, 39.9068));
+          // points.push(new T.LngLat(116.32969, 39.9294));
+          // points.push(new T.LngLat(116.385438, 39.9061));
+        }
+        //创建面对象
+        let polygon = new T.Polygon(points);
+        //向地图上添加面
+        this.map.addOverLay(polygon);
+        // 2.发送图形数据，获取图形里的标注
+        this.sendPolygon();
       }
     },
   },

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-09 09:13:23
+ * @LastEditTime: 2020-12-14 21:01:19
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -14,6 +14,13 @@ import Login from "@/views/Login.vue";
 
 Vue.use(VueRouter);
 
+// 避冗余导航
+const originalPush = VueRouter.prototype.push
+
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+// 路由
 const routes = [
   {
     path: "/home",
@@ -168,6 +175,7 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/MonGeoStore.vue"),
     children: [
+      // 元数据
       {
         path: "drillmetahome",
         name: "DrillMetaHome",
@@ -181,7 +189,8 @@ const routes = [
           import(/* webpackChunkName: "about" */ "@/components/drill/DrillMetaData.vue")
       },
       {
-        path: "drilldetails/:_id",
+        // path: "drilldetails/:_id",
+        path: "drilldetails/:zk_num",
         name: "DrillDetails",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/drill/DrillDetails.vue")
@@ -191,6 +200,13 @@ const routes = [
         name: "DrillUpload",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/drill/DrillUpload.vue")
+      },
+      // 定位表
+      {
+        path: "drilllocationdata",
+        name: "DrillLocationData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/drill/DrillLocationData.vue")
       },
 
     ]

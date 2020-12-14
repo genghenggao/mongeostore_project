@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-12 16:36:12
+LastEditTime: 2020-12-14 22:15:03
 '''
 import math
 from mongoengine.context_managers import switch_collection
@@ -826,12 +826,16 @@ class DrillHistogramView(APIView):
         # drill_obj = DrillMetaModel.objects.all().order_by('_id')  # 一定要排序
         # queryset = InclinationMetaModel.objects.using('drill').all()
         print(request.GET)
-        query_id = request.GET['_id']
+        # query_id = request.GET['_id']
+        query_name = request.GET['zk_num']
+        # print(query_name)
         # drill_obj2 = DrillMetaModel.objects.get(
         #     _id='o_1eoemr4ij3iq1t0h12helgk9t11l')
+        # drill_obj = DrillMetaModel.objects.get(
+        #     _id=query_id)
         drill_obj = DrillMetaModel.objects.get(
-            _id=query_id)
-        print(drill_obj)
+            zk_num=query_name)
+        # print(drill_obj)
         content = drill_obj.zk_histogram.read()
         # pic_data = base64.b64encode(content)  # 图片base64
 
@@ -1662,16 +1666,17 @@ class DrillLocationView(APIView):
             geometric_data.append(geometric_data[0])  # 将第一个数据追加在末尾，构成闭合
             print(geometric_data)
             ###########使用mongoengine #############################
-            with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+            with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
                 # docstest = DrillLocationTest.objects.all()
                 # print(docstest)
                 try:
                     docloc = DrillLocationTest.objects(
-                        locaton__geo_within={"type": "Polygon", "coordinates": [geometric_data]})
+                        location__geo_within={"type": "Polygon", "coordinates": [geometric_data]})
                     print(docloc)
 
                     ###########进行分页、序列化 ##############################
                     # 创建分页对象
+                    MyPagination.page_size = 100  # 显示的数据个数
                     page = MyPagination()
                     # 实例化查询，获取分页的数据
                     page_chapter = page.paginate_queryset(
@@ -1684,11 +1689,11 @@ class DrillLocationView(APIView):
                     data = {'list': ser.data}
                     return page.get_paginated_response(data)
 
-                except Exception:
-                    # response = self.handle_exception(exc)
-                    print('报错走这里')
-                    # return response
-                    return HttpResponse("出错了")
+                except Exception as exc:
+                    response = self.handle_exception(exc)
+                    # print('报错走这里')
+                    return response
+                    # return HttpResponse("出错了")
 
         elif geometric_info['type'] == 'Circle':
             # print('Circle')
@@ -1703,12 +1708,12 @@ class DrillLocationView(APIView):
             print(arc_adius)
             # 圆形查询
             ###########使用mongoengine #############################
-            with switch_collection(DrillLocation, 'GeoJSON') as DrillLocationTest:
+            with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
                 # docstest = DrillLocationTest.objects.all()
                 # print(docstest)
                 try:
-                    docloc = DrillLocationTest.objects(locaton__geo_within_center=[
-                                                       (circle_center[0], circle_center[1]), arc_adius])
+                    docloc = DrillLocationTest.objects(location__geo_within_center=[
+                        (circle_center[0], circle_center[1]), arc_adius])
 
                     print(docloc)
 
@@ -1726,11 +1731,11 @@ class DrillLocationView(APIView):
                     data = {'list': ser.data}
                     return page.get_paginated_response(data)
 
-                except Exception:
-                    # response = self.handle_exception(exc)
-                    print('报错走这里')
-                    # return response
-                    return HttpResponse("出错了")
+                except Exception as exc:
+                    response = self.handle_exception(exc)
+                    # print('报错走这里')
+                    return response
+                    # return HttpResponse("出错了")
 
         # # print(type(listdata))  # <class 'str'>
         # a1 = np.array(listdata)
@@ -1819,4 +1824,84 @@ class DrillLocationView(APIView):
         print(request.POST)
         return HttpResponse('success')
 
+
+class ShowDrillLocationView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
+            try:
+                drill_location = DrillLocationTest.objects.all().order_by('_id')  # 一定要排序
+                page = MyPagination()
+                # 实例化查询，获取分页的数据
+                page_chapter = page.paginate_queryset(
+                    queryset=drill_location, request=request, view=self)
+                # print(page_chapter)
+                # 序列化及结果返回，将分页后返回的数据, 进行序列化
+                ser = DrillLocationSerializer(
+                    instance=page_chapter, many=True)
+                # print(ser)
+                data = {'list': ser.data}
+            except Exception as exc:
+                response = self.handle_exception(exc)
+                # print('报错走这里')
+                return response
+                # return HttpResponse("出错了")
+            return page.get_paginated_response(data)
+
+
+class DrillLocationSearchView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
+            try:
+                search_key = request.GET['ZK_num']  # 根据ZK_num字段搜索
+                drill_obj = DrillLocationTest.objects.filter(
+                    zk_name=search_key).all().order_by('_id')  # 一定要排序
+                # totalcount = drill_obj.count()  # 总数据数
+                # 创建分页对象
+                page = MyPagination()
+                search_class = filters.SearchFilter()
+                # 需要搜索的字段
+                self.search_fields = ['zk_num']
+                # 实例化搜索查询器
+                search_query = search_class.filter_queryset(
+                    request, drill_obj, self)
+
+                # 实例化查询，获取分页的数据
+                page_chapter = page.paginate_queryset(
+                    queryset=search_query, request=request, view=self)
+                # 序列化及结果返回，将分页后返回的数据, 进行序列化
+                ser = DrillLocationSerializer(instance=page_chapter, many=True)
+                data = {'list': ser.data}
+            except Exception as exc:
+                response = self.handle_exception(exc)
+                # print('报错走这里')
+                return response
+            return page.get_paginated_response(data)
+
+
+def DeleteDrillLocation(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        query_data_json = data_json['json_data']
+        # print(query_data_json)
+        dict_data = json.loads(query_data_json)
+        print(dict_data)
+        front_query_oid = dict_data['id']
+
+        with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
+
+            query_obj = DrillLocationTest.objects.get(
+                id=front_query_oid)
+            print(query_obj)
+            query_obj.delete()
+        return HttpResponse("Delete Success")
 #################MonGeoStore######################

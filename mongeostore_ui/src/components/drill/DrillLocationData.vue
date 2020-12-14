@@ -2,9 +2,9 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-12-01 09:02:25
+ * @Date: 2020-12-14 17:01:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 21:15:11
+ * @LastEditTime: 2020-12-14 22:10:36
 -->
 <template>
   <div class="DataShow">
@@ -19,7 +19,7 @@
           text-align: left;
         "
       >
-        <i class="el-icon-caret-right" /> 钻孔信息表
+        <i class="el-icon-caret-right" /> 钻孔定位表
       </h2>
     </div>
     <el-container>
@@ -141,7 +141,7 @@
                 <router-link
                   tag="a"
                   :to="{
-                    path: '/mongeostore/drilldetails/' + scope.row.zk_num,
+                    path: '/mongeostore/drilldetails/' + scope.row.zk_name,
                   }"
                   >查看详情</router-link
                 >
@@ -325,7 +325,7 @@ export default {
   methods: {
     // 展示数据,将页码及每页显示的条数以参数传递提交给后台
     showData(n1, n2) {
-      const url = "http://127.0.0.1:8000/load/drillmeta/";
+      const url = "http://127.0.0.1:8000/load/showdrilllocation/";
       axios
         .get(url, {
           params: {
@@ -352,14 +352,11 @@ export default {
 
           // cols prop属性值都是作为 tableData的属性
           var newcols = [
-            { label: "钻孔编号", prop: "zk_num" },
-            { label: "钻孔类型", prop: "zk_type" },
-            { label: "终孔深度", prop: "final_depth" },
-            { label: "终孔日期", prop: "final_date" },
-            { label: "上传日期", prop: "upload_date" },
-            { label: "项目名称", prop: "project_name" },
-            { label: "单位名称", prop: "company_name" },
-            { label: "上传人员", prop: "uploader" },
+            { label: "工程号", prop: "zk_name" },
+            { label: "开孔坐标E", prop: "coordinate_E" },
+            { label: "开孔坐标N", prop: "coordinate_N" },
+            { label: "开孔坐标R", prop: "coordinate_R" },
+            { label: "轨迹类型", prop: "track_type" },
             // { label: "钻孔柱状图", prop: "zk_histogram" },
           ];
 
@@ -480,7 +477,7 @@ export default {
           rows.splice(index, 1);
           let json_data = JSON.stringify(row);
           console.log(json_data);
-          const url = "http://127.0.0.1:8000/load/deletedrillhistogram/";
+          const url = "http://127.0.0.1:8000/load/deletedrilllocation/";
           axios
             .post(
               url,
@@ -526,7 +523,7 @@ export default {
         // console.log(this.searchCondition.filter_key);
         // console.log(this.$store.state.temp_database);
         let filter_key_data = this.searchCondition.filter_key;
-        const url = "http://127.0.0.1:8000/load/drillhistogramsearch/";
+        const url = "http://127.0.0.1:8000/load/drilllocationsearch/";
         axios
           .get(url, {
             params: {

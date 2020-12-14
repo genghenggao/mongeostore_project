@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-11 09:56:58
+LastEditTime: 2020-12-14 20:08:02
 '''
 # from djongo.models.indexes import TwoDSphereIndex  //模块付费
 from mongoengine import connect
@@ -141,12 +141,17 @@ connect(alias='geo_example', db='geo_example',
 
 class DrillLocation(Document):
     '''钻孔定位表'''
-    name = StringField(required=True)
-    locaton = PointField()
+    zk_name = StringField(required=True)
+    coordinate_E = FloatField(required=True)
+    coordinate_N = FloatField(required=True)
+    coordinate_R = FloatField(required=True)
+    max_depth = FloatField(required=True)
+    track_type = StringField(required=True)
+    location = PointField()
     # zk_num = StringField(required=True, max_length=200)
     # coordinate_E = FloatField(required=True, max_length=50)
     # coordinate_N = FloatField(required=True, max_length=50)
     # coordinate_R = FloatField(required=True, max_length=50)
     # coordniate = ListField()
     meta = {'db_alias': 'drill_system',
-            'indexes': [[("locaton.coordinates", "2dsphere"), ("datetime", 1)]]}
+            'indexes': [[("location.coordinates", "2dsphere"), ("datetime", 1)]]}
