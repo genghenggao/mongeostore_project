@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 21:33:20
+ * @LastEditTime: 2020-12-15 21:18:30
 -->
 
 <template>
@@ -20,15 +20,14 @@
           mode="horizontal"
           @select="handleSelect"
         >
-          <el-menu-item index="/mongeostore/drillmetahome"
+          <el-menu-item index="/mongeostore/drilllocationhome"
             ><i class="el-icon-s-home"></i>
             首页
           </el-menu-item>
           <el-menu-item index="/mongeostore/drilllocationdata"
             ><i class="el-icon-s-data"></i>定位表数据
           </el-menu-item>
-          <el-menu-item
-            index="/mongeostore/drilldetails/ZK1"
+          <el-menu-item index="/mongeostore/drilldetails/ZK1"
             ><i class="el-icon-document"></i>钻孔信息</el-menu-item
           >
           <el-menu-item index="/mongeostore/drillupload"
@@ -84,7 +83,7 @@ export default {
   mounted() {
     //  _this.activeIndex=window.location.href.split('/')[4];
     //  console.log(window.location.href.split('/'));
-    this.activeIndex = "/mongeostore/drillmetahome";
+    this.activeIndex = "/mongeostore/drilllocationhome";
   },
   methods: {
     handleSelect(key, keyPath) {

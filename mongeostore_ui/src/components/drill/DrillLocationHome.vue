@@ -2,101 +2,253 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-12-06 09:36:35
+ * @Date: 2020-12-15 08:40:24
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-15 14:50:41
+ * @LastEditTime: 2020-12-15 22:11:53
 -->
 <template>
-  <div>
-    <div id="mapDiv"></div>
-    <div>
-      <input type="button" @click="openHeatmap()" value="显示热力图" />
-      <input type="button" @click="closeHeatmap()" value="关闭热力图" />
-      <!-- <input type="button" @Click="openPolygonTool()" value="多边形工具" /> -->
-    </div>
-    <div>
-      <!-- <input type="button" id="button1" onClick="button_zoomIn()" value="放大地图" /> -->
-      <!-- <input type="button" id="button2" onClick="zoomOut()" value="缩小地图" /> -->
-      <button @click="addHeatmap()">添加热力图</button>
-      <button @click="button_zoomIn()">放大</button>
-      <button @click="button_zoomOut()">缩小</button>
-      <button @click="openRectangleTool()">矩形工具</button>
-      <button @click="openPolygonTool()">多边形工具</button>
-      <button @click="openCircleTool()">画圆工具</button>
-      <button @click="clearOverLays()">清除所有</button>
-      <button @click="addMapClick()">注册</button>
-      <button @click="removeMapClick()">移除</button>
-      <button @click="sendPolygon()">发送多边形数据</button>
-      <el-form
-        ref="locationform"
-        :model="locationform"
-        :rules="locationformrules"
-        label-width="80px"
+  <el-container>
+    <el-header>
+      <h2
+        style="
+          font-size: 30px;
+          padding-top: 10px;
+          color: #870000;
+          min-width: 1100px;
+          overflow: hidden;
+          text-align: left;
+        "
       >
-        <h3>请按序输入经纬度(请勿出现交叉线段)</h3>
-        <el-form-item label="经度：" style="width: 40%" prop="lng">
-          <el-input
-            v-model="locationform.lng"
-            placeholder="经度度范围：73.2~135.3"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="纬度：" style="width: 40%" prop="lat">
-          <el-input
-            v-model="locationform.lat"
-            placeholder="纬度范围：3.8~53.6"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" @click="submitForm('locationform')"
-            >添加坐标</el-button
-          >
-        </el-form-item>
-        <el-button @click="searchLoaction()">查询</el-button>
-        <el-button @click="clearLoaction()">清空表格</el-button>
-      </el-form>
-      <h2>已经添加的点</h2>
-      <el-table :data="tableData" style="width: 100%" max-height="250">
-        <!-- <el-table-column fixed prop="lnglat" label="数据点" width="150">
-        </el-table-column> -->
-        <el-table-column type="index" width="50"> </el-table-column>
-        <el-table-column prop="lnglat[0]" label="经度" width="120">
-        </el-table-column>
-        <el-table-column prop="lnglat[1]" label="纬度" width="120">
-        </el-table-column>
-        <el-table-column fixed="right" label="操作" width="120">
-          <template slot-scope="scope">
-            <el-button
-              @click.native.prevent="deleteRow(scope.$index, tableData)"
-              type="text"
-              size="small"
+        <i class="el-icon-caret-right" /> 地图查看
+      </h2></el-header
+    >
+    <el-main style="display: flex">
+      <div id="mapDiv" style="width: 80%"></div>
+      <div id="mapTool" style="width: 20%; min-width: 325px; padding-left: 5px">
+        <h2
+          style="
+            font-size: 20px;
+            font-weight: bold;
+            color: #870000;
+            overflow: hidden;
+            text-align: left;
+          "
+        >
+          <i class="el-icon-s-promotion" /> 地图查看工具
+        </h2>
+        <div class="toolAccordion">
+          <el-collapse v-model="activeName" accordion>
+            <el-collapse-item
+              title="常用工具"
+              name="1"
+              style="color: #870000; overflow: hidden; text-align: left"
             >
-              移除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- <button @click="closeHeatmap()">关闭热力图</button> -->
-    </div>
-    <!-- <remote-script
-      src="http://lbs.tianditu.gov.cn/api/js4.0/opensource/data/points-sample-data.js"
-    ></remote-script> -->
-  </div>
+              <div>
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="button_zoomIn()"
+                  ><i class="el-icon-info" />放大</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="button_zoomOut()"
+                  ><i class="el-icon-info" />缩小</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="clearOverLays()"
+                  ><i class="el-icon-info" />清除所有</el-button
+                >
+              </div>
+            </el-collapse-item>
+            <el-collapse-item
+              title="多边形工具"
+              name="2"
+              style="color: #870000; overflow: hidden; text-align: left"
+            >
+              <div>
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="openRectangleTool()"
+                  ><i class="el-icon-info" />矩形工具</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="openPolygonTool()"
+                  ><i class="el-icon-info" />多边形工具</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="openCircleTool()"
+                  ><i class="el-icon-info" />圆形工具</el-button
+                >
+              </div>
+              <div>
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="sendPolygon()"
+                  ><i class="el-icon-info" />查询数据</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="clearOverLays()"
+                  ><i class="el-icon-info" />清除所有</el-button
+                >
+              </div>
+            </el-collapse-item>
+            <el-collapse-item
+              title="热力图工具"
+              name="3"
+              style="color: #870000; overflow: hidden; text-align: left"
+            >
+              <div>
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="addHeatmap()"
+                  ><i class="el-icon-info" />添加热力图</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="closeHeatmap()"
+                  ><i class="el-icon-info" />关闭</el-button
+                >
+                <el-button
+                  size="small"
+                  style="color: #870000; overflow: hidden; text-align: left"
+                  @click="openHeatmap()"
+                  ><i class="el-icon-info" />显示</el-button
+                >
+              </div>
+            </el-collapse-item>
+            <el-collapse-item title="其他" name="4">
+              <div>
+                <el-form
+                  ref="locationform"
+                  :model="locationform"
+                  :rules="locationformrules"
+                  label-width="58px"
+                  style="color: #870000"
+                >
+                  <div style="display: flex; color: #870000">
+                    <el-form-item
+                      label="经度："
+                      style="width: 48%; font-weight: bold"
+                      prop="lng"
+                    >
+                      <el-input
+                        v-model="locationform.lng"
+                        placeholder="73.2~135.3"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item
+                      label="纬度："
+                      style="width: 48%; font-weight: bold"
+                      prop="lat"
+                    >
+                      <el-input
+                        v-model="locationform.lat"
+                        placeholder="3.8~53.6"
+                      ></el-input>
+                    </el-form-item>
+                  </div>
+                  <div style="display: flex; color: #870000; height: 50px">
+                    <el-form-item>
+                      <el-button
+                        size="small"
+                        style="color: #870000"
+                        @click="submitForm('locationform')"
+                        ><i class="el-icon-info" />添加</el-button
+                      >
+                      <el-button
+                        size="small"
+                        style="
+                          color: #870000;
+                          overflow: hidden;
+                          text-align: left;
+                        "
+                        @click="searchLoaction()"
+                        ><i class="el-icon-info" />查询</el-button
+                      >
+                      <el-button
+                        size="small"
+                        style="
+                          color: #870000;
+                          overflow: hidden;
+                          text-align: left;
+                        "
+                        @click="clearLoaction()"
+                        ><i class="el-icon-info" />清空表格</el-button
+                      >
+                    </el-form-item>
+                  </div>
+                </el-form>
+                <!-- <h2
+                  style="
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #870000;
+                    overflow: hidden;
+                    text-align: left;
+                  "
+                >
+                  已经添加的点
+                </h2> -->
+                <el-table
+                  border
+                  class="addtable"
+                  :data="tableData"
+                  style="width: 100%; color: #870000"
+                  max-height="250"
+                >
+                  <!-- <el-table-column fixed prop="lnglat" label="数据点" width="150">
+        </el-table-column> -->
+                  <el-table-column type="index" width="40"> </el-table-column>
+                  <el-table-column
+                    prop="lnglat[0]"
+                    label="经度"
+                    width="100"
+                    style="color: #870000"
+                  >
+                  </el-table-column>
+                  <el-table-column prop="lnglat[1]" label="纬度" width="100">
+                  </el-table-column>
+                  <el-table-column fixed="right" label="操作" width="60">
+                    <template slot-scope="scope">
+                      <el-button
+                        @click.native.prevent="
+                          deleteRow(scope.$index, tableData)
+                        "
+                        type="text"
+                        size="small"
+                      >
+                        移除
+                      </el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
+      </div></el-main
+    >
+  </el-container>
 </template>
 
 <script>
-/* 导入组件 */
-import TdtMap from "@/components/TdtMap";
 import axios from "axios";
-import qs from "qs";
-// import data from "@/assets/js/data.js";
-
 export default {
-  name: "SpatialIndex",
-  components: {
-    /* 注册组件 */
-    TdtMap,
-  },
+  name: "DrillLocationHome",
   data() {
     // 表单经经度校验
     var checkLng = (rule, value, callback) => {
@@ -111,7 +263,7 @@ export default {
           if (73.2 < value && value < 135.3) {
             callback();
           } else {
-            callback(new Error("经度范围：73.2~135.3"));
+            callback(new Error("73.2~135.3"));
           }
         }
       }, 1000);
@@ -129,13 +281,13 @@ export default {
           if (3.8 < value && value < 53.6) {
             callback();
           } else {
-            callback(new Error("纬度范围：3.8~53.6"));
+            callback(new Error("3.8~53.6"));
           }
         }
       }, 1000);
     };
     return {
-      // data: data,
+      activeName: "1", //工具箱默认打开
       heatmapOverlay: "", //热力图
       map: "", //地图底图
       points: "", //热力图点数据
@@ -164,34 +316,17 @@ export default {
         lng: [{ validator: checkLng, trigger: "blur" }],
         lat: [{ validator: checkLat, trigger: "blur" }],
       },
-      tableData: [
-        // {
-        //   lnglat: [116.411794, 39.9068],
-        // },
-        // {
-        //   lnglat: [116.32969, 39.9294],
-        // },
-        // {
-        //   lnglat: [116.385438, 39.9061],
-        // },
-      ],
+      tableData: [],
     };
   },
   created() {},
   mounted() {
-    // <remote-script src="http://lbs.tianditu.gov.cn/api/js4.0/opensource/openlibrary/HeatmapOverlay.js"></remote-script>;
-
     let script = document.createElement("script");
     script.type = "text/javascript";
     script.src =
       "http://lbs.tianditu.gov.cn/api/js4.0/opensource/openlibrary/HeatmapOverlay.js";
     document.body.appendChild(script);
 
-    // this.onLoad();
-    //一定要先让地图加载出来才加载热力图，我这里做演示直接写个setTimeout了
-    // setTimeout(() => {
-    //   this.getHeatmap();
-    // }, 2000);
     this.loadMap();
   },
   watch: {},
@@ -872,18 +1007,6 @@ export default {
       handler = new T.CircleTool(this.map, { follow: true });
       handler.open();
       handler.on("draw", this.MapCircle);
-      // handler.on("draw", function (e) {
-      //   this.GeometricData = []; //清空数组中数据
-      //   var coordnite = [e.currentCenter.lng, e.currentCenter.lat]; //获取经纬度
-      //   this.GeometricData.push(coordnite); //写入数组
-      //   this.GeometricData.push(e.currentRadius); //写入数组
-      //   this.GeometricInfo = {
-      //     type: "Circle",
-      //     data: this.GeometricData,
-      //   };
-      //   console.log(this.GeometricInfo);
-      //   console.log(this.GeometricData);
-      // });
     },
     // 清除所有
     clearOverLays() {
@@ -997,11 +1120,28 @@ export default {
                 );
                 // 添加信息
                 var content = datainfo[i].name;
+
+                // var content =
+                //   "钻孔号:" +
+                //   datainfo[i].zk_name +
+                //   "," +
+                //   '<template slot-scope="scope">' +
+                //   " <router-link" +
+                //   '                   tag="a"' +
+                //   '                   :to="{' +
+                //   "                     path: '/mongeostore/drilldetails/' + scope.row.zk_num," +
+                //   '                   }"' +
+                //   "                   >查看详情</router-link" +
+                //   "                 >" +
+                //   "               </template>";
                 var content =
                   "钻孔号:" +
                   datainfo[i].zk_name +
                   "," +
-                  "<a href='https://www.runoob.com/html/html-links.html'>查看详情</a>";
+                  "<a href='/mongeostore/drilldetails/" +
+                  datainfo[i].zk_name +
+                  "'" +
+                  ">查看详情</a>";
                 //向地图上添加标注
                 this.map.addOverLay(marker);
                 this.addClickHandler(content, marker);
@@ -1112,32 +1252,53 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-body,
-html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  font-family: "微软雅黑";
-}
-
+<style lang='scss' scoped>
 #mapDiv {
-  height: 600px;
-  width: 100%;
+  height: 755px;
+  //   width: 100%;
+}
+#mapTool {
+  float: right;
 }
 
-input,
-p {
-  margin-top: 10px;
-  margin-left: 5px;
-  font-size: 14px;
+::v-deep .el-collapse-item__header {
+  font-size: 15px;
+  font-weight: bold;
+  color: #870000;
+}
+::v-deep .el-collapse-item__content {
+  padding-bottom: 5px;
 }
 
-.result {
-  display: none;
-  font-size: 12px;
-  border: 1px solid #999999;
-  line-height: 27px;
-  padding-left: 7px;
+// .result {
+//   display: none;
+//   font-size: 12px;
+//   border: 1px solid #999999;
+//   line-height: 27px;
+//   padding-left: 7px;
+// }
+// 表单label
+::v-deep .el-form-item__label {
+  color: #870000;
+  padding: 0;
 }
-</style>
+::v-deep .el-form-item {
+  margin-bottom: 0;
+}
+::v-deep .el-form .el-form-item__error {
+  //   color: #f56c6c;
+  //   font-size: 5px;
+  // line-height: 1;
+  //   padding-top: 40%;
+  //   position: absolute;
+  top: 33px;
+  //   left: 0;
+}
+::v-deep .el-input__inner {
+  height: 32px;
+}
+::v-deep .addtable .cell {
+  color: #870000;
+}
+</style>>
+

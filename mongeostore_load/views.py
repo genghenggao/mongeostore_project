@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-14 22:15:03
+LastEditTime: 2020-12-15 14:24:35
 '''
 import math
 from mongoengine.context_managers import switch_collection
@@ -1904,4 +1904,72 @@ def DeleteDrillLocation(request):
             print(query_obj)
             query_obj.delete()
         return HttpResponse("Delete Success")
+
+
+def EditDrillLocation(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+
+        body_data = request.body
+
+        data_json = json.loads(body_data)
+
+        query_data_json = data_json['json_data']
+
+        dict_data = json.loads(query_data_json)
+
+        front_query_oid = dict_data['id']
+
+        # front_query_id = front_query_oid['$oid']
+        with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
+            query_obj = DrillLocationTest.objects.get(
+                id=front_query_oid)
+
+            print(query_obj.zk_name)
+            print(type(dict_data['coordinate_E']))
+            print(dict_data)
+
+            query_obj.update(**dict_data)
+            query_obj.save()
+
+        # client.close()
+    return HttpResponse('success')
+
+
+def AddDrillLaction(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(type(body_data))  # <class 'bytes'>
+        data_json = json.loads(body_data)
+        print(data_json)
+        query_data_json = data_json['tmp_data']
+
+        with switch_collection(DrillLocation, '定位表') as DrillLocationTest:
+            try:
+
+                DrillLocationTest(zk_name=query_data_json['zk_name'],
+                                  coordinate_E=float(
+                    query_data_json['coordinate_E']),
+                    coordinate_N=float(
+                    query_data_json['coordinate_N']),
+                    coordinate_R=float(
+                    query_data_json['coordinate_R']),
+                    max_depth=float(
+                                      query_data_json['max_depth']),
+                    track_type=query_data_json['track_type'],
+                    location=[float(query_data_json['coordinate_lng']), float(
+                        query_data_json['coordinate_lat'])]
+                ).save()
+
+            except:
+
+                print('添加失败，数据输入有误！')
+                return HttpResponse('添加失败，数据输入有误！')
+
+    return HttpResponse("Add Success")
 #################MonGeoStore######################

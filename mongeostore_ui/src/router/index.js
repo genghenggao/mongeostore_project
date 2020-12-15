@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 21:01:19
+ * @LastEditTime: 2020-12-15 15:25:43
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -201,7 +201,14 @@ const routes = [
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/drill/DrillUpload.vue")
       },
-      // 定位表
+      // 定位表主页
+      {
+        path: "drilllocationhome",
+        name: "DrillLocationHome",
+        component: () =>
+          import("@/components/drill/DrillLocationHome.vue")
+      },
+      // 定位表数据
       {
         path: "drilllocationdata",
         name: "DrillLocationData",

@@ -403,6 +403,9 @@ export default {
       if (this.$store.state.title_message == "钻孔信息") {
         this.$router.push({ path: "/mongeostore/drillmetahome" });
       }
+      if (this.$store.state.title_message == "定位表") {
+        this.$router.push({ path: "/mongeostore/drilllocationhome" });
+      }
       // 点击不同集合，数据动态展示数据
       this.reload(); //重载页面
       if (!obj["isEdit"]) {

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:53:21
 LastEditors: henggao
-LastEditTime: 2020-12-14 22:05:46
+LastEditTime: 2020-12-15 11:08:55
 '''
 from os import name
 from .views import DrillMetaViewSet
@@ -88,4 +88,8 @@ urlpatterns = [
          name='drilllocationsearch'),  # 钻孔定位表数据查询
     path('deletedrilllocation/', views.DeleteDrillLocation,
          name="deletedrilllocation"),  # 钻孔定位数据删除
+    path('editdrilllocation/', views.EditDrillLocation,
+         name="editdrilllocation"),  # 钻孔定位数据删除
+     path('adddrilllocation/', views.AddDrillLaction,
+         name="adddrilllocation"),  # 添加单条定位表数据
 ]

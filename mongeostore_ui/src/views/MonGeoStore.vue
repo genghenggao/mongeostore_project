@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 17:04:37
+ * @LastEditTime: 2020-12-15 22:59:46
 -->
 <template>
   <el-container>
@@ -134,6 +134,7 @@ header.el-header {
 aside.el-aside {
   width: 280px !important;
   // height: 881px;
+  overflow: hidden;
   height: 100%;
 }
 .el-menu-item-group__title {

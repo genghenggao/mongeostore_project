@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-14 17:01:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-14 22:10:36
+ * @LastEditTime: 2020-12-15 18:38:16
 -->
 <template>
   <div class="DataShow">
@@ -58,13 +58,22 @@
                 >重置</el-button
               >
             </el-form-item>
-            <el-form-item id="addNew-item">
+            <!-- <el-form-item id="addNew-item">
               <el-button
                 type="info"
                 plain
                 icon="el-icon-upload"
                 @click="uploadDrillMeta"
                 >上传</el-button
+              >
+            </el-form-item> -->
+            <el-form-item id="addNew-item">
+              <el-button
+                type="info"
+                plain
+                icon="el-icon-edit"
+                @click="dialogVisible = true"
+                >新增</el-button
               >
             </el-form-item>
           </el-form>
@@ -86,19 +95,6 @@
           >
             <!-- 选择框设置 -->
             <el-table-column type="selection" width="55"> </el-table-column>
-            <!-- 添加_id字段 -->
-            <!-- <el-table-column label="_id" prop="_id"> </el-table-column> -->
-            <!-- 筛选字段 filters,这只是筛选当页的-->
-            <!-- <el-table-column
-              fixed="left"
-              label="ZK_num"
-              prop="ZK_num"
-              width="100"
-              :filters="filter_data"
-              :filter-method="filterHandler"
-            ></el-table-column> -->
-            <!-- 生成关键词 cols存放关键词-->
-            <!-- <template v-for="(col, index) in cols"> -->
             <template v-for="col in cols">
               <!-- 设置排序字段 -->
               <el-table-column
@@ -123,21 +119,6 @@
               style="text-align: center"
             >
               <template slot-scope="scope">
-                <!-- <a
-                  :href="'drilldetails/' + scope.row._id"
-                  target="_blank"
-                  class="buttonText"
-                  >查看详情</a
-                > -->
-                <!-- to='/mongeostore/drilldetails' -->
-                <!-- <router-link
-                  tag="a"
-                  :to="{
-                    path: '/mongeostore/drilldetails/',
-                    query: { _id: scope.row._id },
-                  }"
-                  >查看详情</router-link
-                > -->
                 <router-link
                   tag="a"
                   :to="{
@@ -186,6 +167,59 @@
           >
           </el-pagination>
         </div>
+        <!-- 下面这个用来设置点击添加按钮的弹出框，里面可以进行嵌套表格来展示弹出的表格信息,使用下面的:visible.sync来控制显示与否。里面绑定的是我们新设置的值，填写完成后，将我们这个新值塞到页面中所有的数据当中去  -->
+        <!-- 添加数据的对话框 -->
+        <el-dialog
+          title="添加数据"
+          :visible.sync="dialogVisible"
+          width="30%"
+          @close="addDialogClosed"
+        >
+          <!-- 内容的主体区域 -->
+          <!--去掉:rules="addFormRules" -->
+          <el-form
+            ref="addFormRef"
+            :model="add_to_data"
+            :rules="addFormRules"
+            label-width="120px"
+          >
+            <template v-for="(item, key) of addForm">
+              <!-- <el-form-item
+                v-if="key == '_id'"
+                :label="key"
+                :prop="key"
+                :key="key"
+              >
+                <el-input v-model="addForm[key]"></el-input>
+              </el-form-item> -->
+              <el-form-item
+                v-if="key !== 'id' && key !== 'location'"
+                :label="key"
+                :prop="key"
+                :key="key"
+              >
+                <el-input v-model="add_to_data[key]"></el-input>
+              </el-form-item>
+            </template>
+          </el-form>
+          <!-- 底部区域 -->
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button
+              type="primary"
+              :disabled="true"
+              v-if="!add_button_state"
+              @click="addData"
+              >确 定</el-button
+            >
+            <el-button
+              type="primary"
+              v-else-if="add_button_state"
+              @click="addData"
+              >确 定</el-button
+            >
+          </span>
+        </el-dialog>
       </el-main>
     </el-container>
   </div>
@@ -203,15 +237,65 @@ export default {
   },
   data() {
     // 校验添加信息
-    let checkKey_word = (rule, value, callback) => {
-      const regKey_word = /^ZK[0-9]{1,6}/;
+    let checkZk_name = (rule, value, callback) => {
+      const regZk_name = /^ZK[0-9]{1,6}/;
       // const regKey_word = /^[A-Za-z0-9\u4e00-\u9fa5]{3,}$/;
-      if (regKey_word.test(value)) {
+      if (regZk_name.test(value)) {
         // 验证通过，合法
         return callback();
       }
       // 验证不通过，不合法
       callback(new Error("请输入正确的孔号"));
+    };
+    // 校验添加信息
+    let checkCoordinate_E = (rule, value, callback) => {
+      var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+      if (re.test(value)) {
+        // 验证通过，合法
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的参数"));
+    };
+    // 校验添加信息
+    let checkCoordinate_N = (rule, value, callback) => {
+      var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+      if (re.test(value)) {
+        // 验证通过，合法
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的参数"));
+    };
+    // 校验添加信息
+    let checkCoordinate_R = (rule, value, callback) => {
+      var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+      if (re.test(value)) {
+        // 验证通过，合法
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的参数"));
+    };
+    // 校验添加信息
+    let checkMax_depth = (rule, value, callback) => {
+      var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+      if (re.test(value)) {
+        // 验证通过，合法
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的参数"));
+    };
+    // 校验添加信息
+    let checkLocation = (rule, value, callback) => {
+      var re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
+      if (re.test(value)) {
+        // 验证通过，合法
+        return callback();
+      }
+      // 验证不通过，不合法
+      callback(new Error("请输入正确的参数"));
     };
 
     return {
@@ -266,28 +350,71 @@ export default {
       dialogVisible: false,
       // 添加对象表格的字段名
       addForm: {
-        filter_key: "",
-        _id: "",
-        Depth: "",
-        Azimuth: "",
-        Inclination: "",
+        zk_name: "",
+        coordinate_E: "",
+        coordinate_N: "",
+        coordinate_R: "",
+        max_depth: "",
+        track_type: "曲",
+        coordinate_lng: "",
+        coordinate_lat: "",
+        // location: {
+        //   type: "Point",
+        //   coordinates: [],
+        // },
       },
       // 添加数据框的字段,用来判断是否为空，确定按钮
       add_to_data: {
-        ZK_num: "",
-        Depth: "",
-        Azimuth: "",
-        Inclination: "",
+        zk_name: "",
+        coordinate_E: "",
+        coordinate_N: "",
+        coordinate_R: "",
+        max_depth: "",
+        track_type: "曲",
+        coordinate_lng: "",
+        coordinate_lat: "",
+        // location: {
+        //   type: "Point",
+        //   coordinates: [],
+        // },
       },
       // 通过add_button_state值判断确定按钮是否激活
       add_button_state: false,
       // // 添加表单的验证规则对象
       addFormRules: {
-        ZK_num: [
+        zk_name: [
           { required: true, message: "请输入钻孔号", trigger: "blur" },
           { min: 3, max: 10, message: "数据格式为'ZK1'", trigger: "blur" },
-          { validator: checkKey_word, trigger: "blur" },
+          { validator: checkZk_name, trigger: "blur" },
         ],
+        coordinate_E: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkCoordinate_E, trigger: "blur" },
+        ],
+        coordinate_N: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkCoordinate_N, trigger: "blur" },
+        ],
+        coordinate_R: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkCoordinate_R, trigger: "blur" },
+        ],
+        max_depth: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkMax_depth, trigger: "blur" },
+        ],
+        track_type: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+        ],
+        coordinate_lng: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkMax_depth, trigger: "blur" },
+        ],
+        coordinate_lat: [
+          { required: true, message: "请输入参数", trigger: "blur" },
+          { validator: checkMax_depth, trigger: "blur" },
+        ],
+        location: [{ required: true, message: "请输入参数", trigger: "blur" }],
       },
       // 搜索对象
       searchCondition: {
@@ -303,11 +430,17 @@ export default {
     add_to_data: {
       handler(curval, oldval) {
         // console.log(Object.keys(curval)[0]);
+        let regZk_name = /^ZK[0-9]{1,6}/;
+        let re = /^[0-9]+.?[0-9]*/; //判断字符串是否为数字
         if (
-          curval.ZK_num != "" &&
-          curval.Depth != "" &&
-          curval.Azimuth != "" &&
-          curval.Inclination != ""
+          regZk_name.test(curval.zk_name) &&
+          re.test(curval.coordinate_E) &&
+          re.test(curval.coordinate_N) &&
+          re.test(curval.coordinate_R) &&
+          re.test(curval.max_depth) &&
+          curval.track_type != "" &&
+          re.test(curval.coordinate_lng) &&
+          re.test(curval.coordinate_lat)
         ) {
           this.add_button_state = true;
         } else {
@@ -360,29 +493,7 @@ export default {
             // { label: "钻孔柱状图", prop: "zk_histogram" },
           ];
 
-          // for (var key in tmp) {
-          //   listcol.push({
-          //     label: key,
-          //     prop: key,
-          //     // Depth: "normal",
-          //   });
-          // }
-          // console.log(listcol);
-          // listcol[0].prop = "_id.$oid"; //_id是一个对象，取值
-          // listcol[0].prop = "_id"; //_id是一个对象，取值，使用这个为了取值
-          // listcol.splice(0, 1); //去掉_id、ZK_num字段,自己在页面添加，为了更好的遍历
-          // console.log(listcol);
-          // listcol[6].nickname = "sort"; //按字段设置排序
-          // listcol[0].Depth = "sort"; //按字段设置排序
           this.cols = newcols;
-
-          // 添加数据设置字段
-          // delete tmp._id; //删除_id字段，
-          this.addForm = tmp;
-          // this.addForm = JSON.parse(tmp_addForm) //数组转json
-          // console.log(this.addForm); //Object
-          // console.log(typeof this.addForm);
-          // 生成一个筛选字段ZKX，赋值给filter_data
           let tem_list = [];
           for (let i = 0; i < 55; i++) {
             // const element = array[i];
@@ -411,14 +522,47 @@ export default {
       return row[property] === value;
     },
 
+    // 点击按钮，添加数据
+    addData() {
+      // this.addForm.visible = true;
+      // 发送添加数据的网络请求
+      const url = "http://127.0.0.1:8000/load/adddrilllocation/";
+      let tmp_data = this.add_to_data;
+      console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
+      axios
+        .post(url, {
+          tmp_data,
+          // 设置上传到后端的数据库和集合名称
+          // colname: this.$store.state.title_message,
+          // dbname: this.$store.state.temp_database,
+        })
+        .then((res) => {
+          console.log("Success");
+        })
+        .catch((err) => {
+          console.log("错误");
+          this.$message.warning("输入数据存在错误！");
+        });
+
+      // 隐藏添加用户的对话框
+      this.dialogVisible = false;
+      // 重新获取用户列表数据
+      // this.showData();
+      //通过flag判断,刷新数据
+      if (!this.flag) {
+        this.showData();
+      } else {
+        this.onSearchSubmit();
+      }
+    },
     // 监听添加对话框的关闭事件
     addDialogClosed() {
-      this.$refs.add_to_data.resetFields();
+      this.$refs.addFormRef.resetFields();
     },
     // 上传
-    uploadDrillMeta() {
-      this.$router.push({ path: "/mongeostore/drillupload" });
-    },
+    // uploadDrillMeta() {
+    //   this.$router.push({ path: "/mongeostore/drillupload" });
+    // },
     // 编辑（修改）按钮
     handleEdit(index, row) {
       // console.log(index, row);
@@ -437,7 +581,7 @@ export default {
         // console.log(row["id"]);
         let json_data = JSON.stringify(row);
 
-        const url = "http://127.0.0.1:8000/load/editdrillhistogram/";
+        const url = "http://127.0.0.1:8000/load/editdrilllocation/";
         axios
           .post(
             url,

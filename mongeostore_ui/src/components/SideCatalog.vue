@@ -4,11 +4,11 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-03 16:02:34
+ * @LastEditTime: 2020-12-15 22:52:44
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
-  <div class="menutree">
+  <div class="menutree" style="overflow: hidden">
     <div class="sidebar_header">
       <div class="title_img">
         <a
