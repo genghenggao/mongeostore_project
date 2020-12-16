@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-08 17:25:45
+ * @LastEditTime: 2020-12-16 14:49:45
  */
 import Vue from "vue";
 import Vuex from 'vuex'  // 引入 vuex
@@ -39,7 +39,10 @@ import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
 // wowjs动态加载
 import 'wowjs/css/libs/animate.css'
-import importJS from "@/utils/importJs"
+import echarts from "echarts";
+
+import importJS from "@/utils/importJs";
+
 
 Vue.use(Vuex) // 引入
 // 滑动验证码
@@ -56,6 +59,7 @@ Vue.use(BaiduMap, {
   ak: '23jFoXtASNYo6tR1hrrjuVWwM97FGKpH'
 })
 Vue.use(uploader)
+
 
 // // 设置反向代理，前端请求默认发送到 http://localhost:8080/api
 // var axios = require("axios");
@@ -90,6 +94,8 @@ Viewer.setDefaults({
 })
 
 Vue.prototype.global = global // 挂载全局配置模块
+Vue.prototype.$echarts = echarts;
+
 
 new Vue({
   i18n,

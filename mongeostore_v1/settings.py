@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "mongeostore_users",
     "verification",
     "mongeostore_load",
+    "mongeostore_seismic",
 ]
 
 MIDDLEWARE = [

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-15 22:59:46
+ * @LastEditTime: 2020-12-16 14:38:38
 -->
 <template>
   <el-container>
@@ -33,11 +33,6 @@
                   this.$store.state.title_message == '钻孔信息'
                 "
               >
-                <!-- {{ title_message }}
-                {{ temp_database }} -->
-                <!-- <InclinationData /> -->
-                <!-- <Inclination /> -->
-                <!-- <router-view></router-view> -->
                 <DrillMetaInfo />
               </div>
               <div
@@ -47,6 +42,14 @@
                 "
               >
                 <DrillLocationInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地震数据'
+                "
+              >
+                <SeismicInfo />
               </div>
               <div v-else>
                 <CommonCol />
@@ -83,6 +86,7 @@ import InclinationData from "@/components/drill/InclinationData.vue";
 import Inclination from "@/components/drill/Inclination.vue";
 import DrillMetaInfo from "@/components/drill/DrillMetaInfo.vue";
 import DrillLocationInfo from "@/components/drill/DrillLocationInfo.vue";
+import SeismicInfo from "@/components/seismic/SeismicInfo.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -101,6 +105,7 @@ export default {
     Inclination,
     DrillMetaInfo,
     DrillLocationInfo,
+    SeismicInfo,
   },
   data() {
     return {
