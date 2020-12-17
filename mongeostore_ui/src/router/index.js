@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-16 22:21:35
+ * @LastEditTime: 2020-12-17 22:26:27
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -224,10 +224,10 @@ const routes = [
       },
       // 地震数据
       {
-        path: "seismicdata",
-        name: "SeismicData",
+        path: "seismicmetadata",
+        name: "SeismicMetaData",
         component: () =>
-          import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicData.vue")
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicMetaData.vue")
       },
       // 地震剖面图
       {
@@ -235,6 +235,13 @@ const routes = [
         name: "SeismicProfile",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicProfile.vue")
+      },
+      // 地震数据解析
+      {
+        path: "seismicanalysis",
+        name: "seismicanalysis",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicAnalysis.vue")
       },
       // 地震数据上传
       {

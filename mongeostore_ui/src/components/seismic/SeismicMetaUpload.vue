@@ -4,21 +4,13 @@
  * @Author: henggao
  * @Date: 2020-12-16 22:18:57
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-16 23:13:41
--->
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
- * @Date: 2020-12-01 08:36:23
- * @LastEditors: henggao
- * @LastEditTime: 2020-12-03 11:14:45
+ * @LastEditTime: 2020-12-17 22:09:03
 -->
 <template>
   <el-row :gutter="20">
     <el-col :span="10" :offset="6">
       <el-container style="min-width: 600px; overflow: hidden">
-        <el-header><h2>钻孔信息上传</h2></el-header>
+        <el-header><h2>地震元数据上传</h2></el-header>
         <el-main>
           <el-form
             ref="form"
@@ -29,7 +21,7 @@
             <el-scrollbar style="height: 650px">
               <el-form-item label="文件名称">
                 <el-input
-                  v-model="form.filename"
+                  v-model="form.seismic_filename"
                   placeholder="LX_SEGY001"
                 ></el-input>
               </el-form-item>
@@ -62,7 +54,7 @@
                 <el-date-picker
                   type="date"
                   placeholder="选择日期"
-                  v-model="form.uploaddate"
+                  v-model="form.seismic_upload_date"
                   style="width: 100%"
                 ></el-date-picker
               ></el-form-item>
@@ -160,15 +152,13 @@ export default {
   data() {
     return {
       form: {
-        zk_num: "",
-        zk_type: "",
-        final_depth: "",
-        final_date: "",
-        depth: "",
-        project_name: "",
+        seismic_filename: "",
+        location: "",
         company_name: "",
         uploader: "",
-        uploaddate: "",
+        depth: "",
+        project_name: "",
+        seismic_upload_date: "",
       },
       show: false,
       fileList: [],
@@ -222,7 +212,7 @@ export default {
     this.uploader.bind("FileUploaded", this.FileUploaded);
     //获取uuid
     // let url = `http://127.0.0.1:8000/api/uploadinfo/`;
-    let url = `http://127.0.0.1:8000/load/drillmeta/`;
+    let url = `http://127.0.0.1:8000/seismic/seismicinfo/`;
     axios.get(url).then(({ data }) => {
       this.fileOptions.multipart_params.uuid = data;
     });
@@ -282,22 +272,31 @@ export default {
 
         //设置参数
         console.log(val.name);
-        uploader.setOption("multipart_params", {
-          // form: this.form, //设置表单擦不能输
-          filename: this.form["filename"],
-          location: this.form["location"],
-          // depth: this.form["depth"],
-          project_name: this.form["project_name"],
-          company_name: this.form["company_name"],
-          uploader: this.form["uploader"],
-          uploaddate: this.form["uploaddate"].getTime(),
-          filename: val.name,
-          publisher: val.publisher,
-          type: val.type,
-          upload_date: new Date().toLocaleString(),
-          // size:val.size
-        });
-
+        if (
+          this.form["seismic_filename"] == "" ||
+          this.form["location"] == "" ||
+          this.form["project_name"] == "" ||
+          this.form["company_name"] == "" ||
+          this.form["uploader"] == "" ||
+          this.form["seismic_upload_date"] == ""
+        ) {
+          console.log("信息有误！");
+        } else {
+          uploader.setOption("multipart_params", {
+            // form: this.form, //设置表单擦不能输
+            seismic_filename: this.form["seismic_filename"],
+            location: this.form["location"],
+            project_name: this.form["project_name"],
+            company_name: this.form["company_name"],
+            uploader: this.form["uploader"],
+            seismic_upload_date: this.form["seismic_upload_date"].getTime(),
+            filename: val.name,
+            publisher: val.publisher,
+            type: val.type,
+            upload_date: new Date().toLocaleString(),
+            // size:val.size
+          });
+        }
         uploader.settings.multipart_params.size = val.size;
         uploader.settings.multipart_params.id = val.id;
         return val;
@@ -342,7 +341,19 @@ export default {
     //   this.uploader.start();
     // },
     onSubmit() {
-      this.uploader.start();
+      if (
+        this.form["seismic_filename"] == "" ||
+        this.form["location"] == "" ||
+        this.form["project_name"] == "" ||
+        this.form["company_name"] == "" ||
+        this.form["uploader"] == "" ||
+        this.form["seismic_upload_date"] == ""
+      ) {
+        console.log("请检查输入信息！");
+         this.$message.error('缺少相关信息，请重新输入！');
+      } else {
+        this.uploader.start();
+      }
     },
   },
 };

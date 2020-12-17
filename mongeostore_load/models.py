@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-14 20:08:02
+LastEditTime: 2020-12-17 22:54:01
 '''
 # from djongo.models.indexes import TwoDSphereIndex  //模块付费
 from mongoengine import connect
@@ -154,4 +154,5 @@ class DrillLocation(Document):
     # coordinate_R = FloatField(required=True, max_length=50)
     # coordniate = ListField()
     meta = {'db_alias': 'drill_system',
+            'collection': '定位表',
             'indexes': [[("location.coordinates", "2dsphere"), ("datetime", 1)]]}

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-16 14:34:23
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-16 22:21:42
+ * @LastEditTime: 2020-12-17 22:24:36
 -->
 <template>
   <!-- 主界面-->
@@ -23,11 +23,14 @@
             ><i class="el-icon-s-home"></i>
             首页
           </el-menu-item>
-          <el-menu-item index="/mongeostore/seismicdata"
-            ><i class="el-icon-s-data"></i>地震数据
+          <el-menu-item index="/mongeostore/seismicmetadata"
+            ><i class="el-icon-s-data"></i>元数据
           </el-menu-item>
           <el-menu-item index="/mongeostore/seismicprofile"
             ><i class="el-icon-document"></i>地震剖面</el-menu-item
+          >
+          <el-menu-item index="/mongeostore/seismicanalysis"
+            ><i class="el-icon-document"></i>解析数据</el-menu-item
           >
           <el-menu-item index="/mongeostore/seismicupload"
             ><i class="el-icon-upload"></i>上传数据</el-menu-item
