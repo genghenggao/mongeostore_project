@@ -438,7 +438,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang='scss' scoped>
 .custom-tree-node {
   flex: 1;
   display: flex;

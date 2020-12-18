@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-15 22:52:44
+ * @LastEditTime: 2020-12-18 20:47:34
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -274,10 +274,10 @@ header.el-header {
   padding-top: 3px;
 }
 // 搜索按钮的颜色
-button.el-button.el-button--small.is-plain {
-  margin: 3px;
-  background: #870000;
-}
+// button.el-button.el-button--small.is-plain {
+//   margin: 3px;
+//   background: #870000;
+// }
 // 侧边主要内容
 .mentree_content {
   width: 280px;
