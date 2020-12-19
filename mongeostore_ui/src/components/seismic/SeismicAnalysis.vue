@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-18 20:56:31
+ * @LastEditTime: 2020-12-19 23:05:00
 -->
 <template>
   <el-container>
@@ -15,6 +15,7 @@
         style="border: 2px dashed rgb(54, 92, 150); width: 300px; height: 700px"
       >
         <div>当前可以解析的数据如下：</div>
+        <div></div>
         <div>
           <el-button type="primary" size="medium" plain >上传数据</el-button
           ><el-button type="primary" size="medium" plain>云端数据</el-button>
