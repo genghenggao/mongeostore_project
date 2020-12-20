@@ -4,8 +4,10 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-17 22:20:34
+LastEditTime: 2020-12-20 23:04:24
 '''
+import segyio
+import datetime
 import json
 from django import http
 from django.views.decorators.http import require_http_methods
@@ -223,3 +225,93 @@ def SeismicFileDownload(request):
         res["Content-Disposition"] = 'filename="{}"'.format(filename)
     return res
     # return HttpResponse('success')
+
+
+# 地震数据解析，获取文件
+@require_http_methods(['GET'])
+def SeismicFileRead(request):
+
+    # base_dir = 'c:/'
+    base_dir = "././pic/"
+    list = os.listdir(base_dir)
+
+    filelist = []
+    for i in range(0, len(list)):
+        path = os.path.join(base_dir, list[i])
+        if os.path.isfile(path):
+            filelist.append(list[i])
+    list_db = []
+    content = {}
+    for i in range(0, len(filelist)):
+        path = os.path.join(base_dir, filelist[i])
+        if os.path.isdir(path):
+            continue
+        # 获取文件的修改时间
+        timestamp = os.path.getmtime(path)
+        # print(timestamp)
+        # 获取文件的修改时间
+        # ts1 = os.stat(path).st_mtime
+        # print(ts1)
+        # 获取文件的大小,结果保留两位小数，单位为MB
+        filesize = os.path.getsize(path)
+        fsize = filesize/float(1024*1024)
+        size = round(fsize, 2)
+        filesize = str(size) + 'MB'
+        # print(size)
+
+        date = datetime.datetime.fromtimestamp(timestamp)
+        upload_time = date.strftime('%Y-%m-%d %H:%M:%S')
+        # upload_time = date.strftime('%Y-%m-%d')
+        # print(list[i], ' 最近修改时间是: ', date.strftime('%Y-%m-%d %H:%M:%S'))
+
+        fileinfo = {
+            'filename': list[i],
+            'filesize': filesize,
+            'upload_time': upload_time,
+        }
+        # print(type(fileinfo))
+        # json_str = str(fileinfo)
+        # print(type(json_str))
+        list_db.append(fileinfo)
+        content = json.dumps(list_db)  # 这个地方要用字符串传到前端去
+    print(content)
+    print(type(content))
+    return HttpResponse(content, "application/json")
+
+
+# 地震数据解析，获取文件
+@require_http_methods(['GET'])
+def SeismicHeaderQuery(request):
+    filename = request.GET.get('filename')
+    filequery = request.GET.get('queryparams')
+    # print(filename)
+    content = "..\mongeostore_env\pic\\" + filename
+
+    with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian='big') as f:
+        if filequery == 'header':
+            datatest = f.header[0]
+            queryinfo = str(datatest)
+            datatest = json.dumps(queryinfo)
+            return HttpResponse(datatest)
+        elif filequery == 'Bin':
+            datatest = f.bin
+            queryinfo = str(datatest)
+            return HttpResponse(queryinfo)
+        elif filequery == 'track':
+            datatest = f.text
+            queryinfo = str(datatest)
+            return HttpResponse(queryinfo)
+        elif filequery == 'traces':
+            datatest = f.trace
+            queryinfo = str(datatest)
+            return HttpResponse(queryinfo)
+        elif filequery == 'trace1':
+            datatest = f.trace[0]  # 拿到segy中数据
+            queryinfo = str(datatest)
+            return HttpResponse(queryinfo)
+        elif filequery == 'trace_1':
+            datatest = f.trace[-1]
+
+            # print(str(datatest))
+            queryinfo = str(datatest)
+            return HttpResponse(queryinfo)

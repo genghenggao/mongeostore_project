@@ -26,4 +26,8 @@ urlpatterns = [
          name="seismicinfosearch"),  # 地震元数据查询
     path('seismicfiledownload/', views.SeismicFileDownload,
          name="seismicfiledownload"),  # 地震元数据删除
+    path('seismicfileread/', views.SeismicFileRead,
+         name="seismicfileread"),  # 地震数据解析，获取文件
+    path('seismicheaderquery/', views.SeismicHeaderQuery,
+         name="seismicheaderquery"),  # 地震数据解析，获取文件
 ]
