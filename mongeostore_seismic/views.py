@@ -4,8 +4,9 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-20 23:04:24
+LastEditTime: 2020-12-21 20:23:18
 '''
+import re
 import segyio
 import datetime
 import json
@@ -227,7 +228,7 @@ def SeismicFileDownload(request):
     # return HttpResponse('success')
 
 
-# 地震数据解析，获取文件
+# 地震数据解析，获取文服务器件
 @require_http_methods(['GET'])
 def SeismicFileRead(request):
 
@@ -274,44 +275,128 @@ def SeismicFileRead(request):
         # print(type(json_str))
         list_db.append(fileinfo)
         content = json.dumps(list_db)  # 这个地方要用字符串传到前端去
-    print(content)
-    print(type(content))
+    # print(content)
+    # print(type(content))
     return HttpResponse(content, "application/json")
 
 
-# 地震数据解析，获取文件
+# 地震数据解析，获取服务器文件
 @require_http_methods(['GET'])
 def SeismicHeaderQuery(request):
+    print(request.GET)
     filename = request.GET.get('filename')
     filequery = request.GET.get('queryparams')
     # print(filename)
     content = "..\mongeostore_env\pic\\" + filename
 
-    with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian='big') as f:
-        if filequery == 'header':
-            datatest = f.header[0]
-            queryinfo = str(datatest)
-            datatest = json.dumps(queryinfo)
-            return HttpResponse(datatest)
-        elif filequery == 'Bin':
-            datatest = f.bin
-            queryinfo = str(datatest)
-            return HttpResponse(queryinfo)
-        elif filequery == 'track':
-            datatest = f.text
-            queryinfo = str(datatest)
-            return HttpResponse(queryinfo)
-        elif filequery == 'traces':
-            datatest = f.trace
-            queryinfo = str(datatest)
-            return HttpResponse(queryinfo)
-        elif filequery == 'trace1':
-            datatest = f.trace[0]  # 拿到segy中数据
-            queryinfo = str(datatest)
-            return HttpResponse(queryinfo)
-        elif filequery == 'trace_1':
-            datatest = f.trace[-1]
+    try:
+        with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian='big') as f:
+            if filequery == 'header':
+                datatest = f.header[0]
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            elif filequery == 'Bin':
+                datatest = f.bin
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            elif filequery == 'track':
+                datatest = f.text
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            elif filequery == 'traces':
+                datatest = f.trace
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            elif filequery == 'trace1':
+                datatest = f.trace[0]  # 拿到segy中数据
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            elif filequery == 'trace_1':
+                datatest = f.trace[-1]
 
-            # print(str(datatest))
-            queryinfo = str(datatest)
-            return HttpResponse(queryinfo)
+                # print(str(datatest))
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+            else:
+                datatest = f.trace[int(filequery)]
+                # print(filequery)
+                # print(type(filequery))
+                # print(datatest)
+                queryinfo = str(datatest)
+                return HttpResponse(queryinfo)
+    except:
+        print('解析错误')
+        return HttpResponse('Sorry，查询失败~')
+
+    # return HttpResponse('succes')
+
+# 地震数据解析，删除服务器文件
+@require_http_methods(['POST'])
+def SeismicAnalysisDelete(request):
+    # filename1 = request.POST
+    # print(filename1)
+    filename = request.POST.get('filename')
+    print(filename)
+    content = "..\mongeostore_env\pic\\" + filename
+    os.remove(content)
+    return HttpResponse('success')
+
+# 地震数据解析，本地文件上传服务器
+
+
+class SeismicAnalysisUpload(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        # print("走的是GET方法")
+        response = {}
+        response['code'] = 200
+        # response["Access-Control-Allow-Methods"] = "POST"
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    def post(self, request):
+        File = request.FILES.get("file", None)
+        # filename = request.POST.get('filename')
+        # 保存到本地
+        if not os.path.exists('pic/'):
+            os.mkdir('pic/')
+        with open("./pic/%s" % File.name, 'wb+') as f:
+            for chunk in File.chunks():
+                f.write(chunk)
+            f.close()
+        return HttpResponse('success')
+
+# 地震数据解析，下载云端数据
+# 地震segy文件下载
+@require_http_methods(['GET'])
+def AnalysisCloudDown(request):
+
+    search_key = request.GET['file_id']  # 根据字段搜索
+    print(search_key)
+
+    # 从数据库拿到数据
+    seismic_obj = SeismicInfo.objects(id=search_key).first()
+    # print(seismic_obj)
+    # print(seismic_obj.seismic_filename)
+    filename = seismic_obj.seismic_filename
+    seismic_file = seismic_obj.filedata.read()
+    content_type = seismic_obj.filedata.content_type
+    # print(type(seismic_file)) #<class 'bytes'>
+    # print(type(content_type))  # <class 'str'>
+    # print(content_type)  # <class 'str'>
+    filename = filename + '.' + content_type
+    # print(filename)
+    # 数据写入服务器
+    with open("../mongeostore_env/pic/%s" % filename, 'wb') as f:
+        f.write(seismic_file)
+
+        print('save success')
+
+    # # # 拿到数据,返回前端
+    # with open("./upload/%s" % filename, "rb") as f:
+    #     res = HttpResponse(f)
+    #     res["Content-Type"] = "application/octet-stream"  # 注意格式
+    #     res["Content-Disposition"] = 'filename="{}"'.format(filename)
+    # return res
+        return HttpResponse('success')

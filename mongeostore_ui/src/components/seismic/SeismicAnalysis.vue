@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-20 23:04:48
+ * @LastEditTime: 2020-12-21 17:36:10
 -->
 <template>
   <el-container>
@@ -32,8 +32,22 @@
           </div>
           <div class="main_file_button" style="text-align: left; display: flex">
             <h5 style="padding-top: 6px; color: #810000">选择：</h5>
-            <el-button type="goon" size="medium" plain>上传数据</el-button
-            ><el-button type="goon" size="medium" plain>云端数据</el-button>
+            <el-button
+              type="goon"
+              size="medium"
+              plain
+              @click="centerDialogVisible = true"
+              >上传数据</el-button
+            ><el-button
+              type="goon"
+              size="medium"
+              plain
+              @click="cloudDialogVisible = true"
+              >云端数据</el-button
+            >
+            <el-button type="goon" size="medium" plain @click="refreshtable"
+              >刷新表格</el-button
+            >
           </div>
           <div>
             <el-table
@@ -100,7 +114,7 @@
         </el-card>
       </div>
 
-      <div style="height: 600px; width: 835px">
+      <div style="height: 600px; width: 835px; min-width: 820px">
         <el-card shadow="hover" style="height: 750px">
           <div>
             <h5 style="color: #810000; text-align: left">
@@ -144,7 +158,7 @@
               >Traces</el-button
             >
           </div>
-          <div style="text-align: left; display: flex">
+          <div style="text-align: left; display: flex; padding-top: 5px">
             <el-button
               type="goon"
               size="medium"
@@ -167,17 +181,104 @@
               >最后一道</el-button
             >
           </div>
+          <div style="padding-top: 5px">
+            <el-form
+              ref="seismicform"
+              :model="seismicform"
+              :rules="seismicformrules"
+              style="
+                display: flex;
+                height: 40px;
+                width: 240px;
+                background: #51abce;
+                border-radius: 5px;
+              "
+            >
+              <el-form-item
+                label-width="70px"
+                label="第N道"
+                style="
+                  width: 165px;
+                  background: #51abce;
+                  height: 40px;
+                  border-radius: 5px;
+                "
+              >
+                <el-input
+                  v-model="seismicform.trace"
+                  placeholder="0-n"
+                  @keyup.enter.native="queryHeader((val = seismicform.trace))"
+                ></el-input>
+              </el-form-item>
+              <el-form-item style="width: 50px">
+                <el-button
+                  type="goon"
+                  @click="queryHeader((val = seismicform.trace))"
+                  >查询</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
         </el-card>
       </div>
+      <el-dialog
+        title="请上传需要解析的文件"
+        :visible.sync="centerDialogVisible"
+        width="30%"
+        center
+      >
+        <AnalysisUploadFile />
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="centerDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="makesuretable">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        title="请上传需要解析的文件"
+        :visible.sync="cloudDialogVisible"
+        width="30%"
+        center
+      >
+        <AnalysisCloudData />
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cloudDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="makesuretable">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-container>
   </el-container>
 </template>
 
 <script>
 import axios from "axios";
+import qs from "qs";
+import plupload from "plupload";
+import { stringify } from "qs";
+import AnalysisUploadFile from "@/components/seismic/AnalysisUploadFile.vue";
+import AnalysisCloudData from "@/components/seismic/AnalysisCloudData.vue";
 export default {
   name: "SeismicAnalysis",
+  components: {
+    AnalysisUploadFile,
+    AnalysisCloudData,
+  },
   data() {
+    // 校验表单trace
+    var checkTrace = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("Trace不能为空"));
+      }
+      setTimeout(() => {
+        var re = /^[0-9]*/; //判断字符串是否为数字
+        if (!re.test(value)) {
+          callback(new Error("请输入数字值"));
+        } else {
+          callback();
+        }
+      }, 500);
+    };
     return {
       tableData: [
         {
@@ -239,11 +340,23 @@ export default {
       search: "", //搜索框
       seismic_message: "LX_SEGY001", //文件名称
       seismic_info: "", //地震解析数据
+      // 表单数据
+      seismicform: {
+        trace: "",
+      },
+      // 校验表单数据
+      seismicformrules: {
+        trace: [{ validator: checkTrace, trigger: "blur" }],
+      },
+      // 上传弹出框
+      centerDialogVisible: false,
+      cloudDialogVisible: false,
     };
   },
   created() {
     this.showSeismicFile();
   },
+
   methods: {
     // 展示文件夹数据
     showSeismicFile() {
@@ -253,6 +366,9 @@ export default {
           console.log(res);
           console.log(res.data);
           this.tableData = res.data;
+          // 设置默认解析文件，这里社第一个文件
+          let temp_data = res.data[0];
+          this.seismic_message = temp_data["filename"];
         })
         .catch((err) => {
           console.log(err);
@@ -262,7 +378,25 @@ export default {
     handleDelete(index, rows, row) {
       // console.log(index, rows, row);
       console.log(row.filename);
+
+      // let json_data = JSON.stringify(row);
+      let data = { filename: row.filename };
       rows.splice(index, 1);
+      let this_url = "http://127.0.0.1:8000/seismic/Seismicanalysisdelete/";
+      axios({
+        method: "POST",
+        url: this_url,
+        data: qs.stringify(data),
+        // data: {json_data} ,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        // headers: { "Content-Type": "application/json" },
+      })
+        .then((res) => {
+          console.log("success");
+        })
+        .catch((err) => {
+          console.log("err");
+        });
     },
     // 解析文件
     seismicanalysic(index, rows, row) {
@@ -273,6 +407,7 @@ export default {
     // 查询卷头信息
     queryHeader(val) {
       console.log(this.seismic_message);
+      console.log(val);
       let this_url = "http://127.0.0.1:8000/seismic/seismicheaderquery/";
       axios({
         method: "GET",
@@ -280,13 +415,36 @@ export default {
         params: { filename: this.seismic_message, queryparams: val },
       })
         .then((res) => {
-          console.log(res);
-          console.log(res.data);
-          this.seismic_info = res.data;
+          // console.log(res);
+          // console.log(res.data);
+          // console.log(this.val);
+          if (this.val == "header" || this.val == "Bin") {
+            // console.log("yes");
+            let jsondata = eval("(" + res.data + ")");
+            // console.log(jsondata);
+            // this.seismic_info = res.data;
+            this.seismic_info = jsondata;
+          } else {
+            // console.log("no");
+            this.seismic_info = res.data;
+          }
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
+          this.$message.error("Sorry，文件无法解析，请检查文件正确性！");
         });
+    },
+    // 上传服务器文件
+    // 确定按钮
+    makesuretable() {
+      this.centerDialogVisible = false;
+      this.cloudDialogVisible = false;
+
+      this.showSeismicFile();
+    },
+    // 刷新表格
+    refreshtable() {
+      this.showSeismicFile();
     },
   },
 };
@@ -340,7 +498,7 @@ export default {
   margin-bottom: 0;
   width: 80%;
 }
-
+// 主要内容滚动条
 .analysis_content::-webkit-scrollbar {
   width: 6px; // 横向滚动条
 
@@ -350,5 +508,19 @@ export default {
   background-color: rgba(119, 158, 194, 0.829);
 
   border-radius: 3px;
+}
+
+// 解析工具表单
+// 表单label
+::v-deep .el-form-item__label {
+  color: #ffffff;
+  // padding: 0;
+}
+// 按钮位置
+// ::v-deep .el-form-item__content {
+//   margin-left: 10px;
+// }
+::v-deep .el-form-item__content {
+  margin-left: 5px;
 }
 </style>

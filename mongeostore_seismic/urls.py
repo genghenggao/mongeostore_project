@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:38:16
 LastEditors: henggao
-LastEditTime: 2020-12-17 16:40:42
+LastEditTime: 2020-12-21 17:15:14
 '''
 from django.urls import include, path
 
@@ -30,4 +30,12 @@ urlpatterns = [
          name="seismicfileread"),  # 地震数据解析，获取文件
     path('seismicheaderquery/', views.SeismicHeaderQuery,
          name="seismicheaderquery"),  # 地震数据解析，获取文件
+    path('Seismicanalysisdelete/', views.SeismicAnalysisDelete,
+         name="Seismicanalysisdelete"),  # 地震数据解析，删除文件
+    path('seismicanalysisupload/', SeismicAnalysisUpload.as_view(),
+         name="seismicanalysisupload"),  # 地震数据解析，上传本地文件
+    path('analysisclouddown/', views.AnalysisCloudDown,
+         name="analysisclouddown"),  # 地震数据解析，下载文件
+
+
 ]
