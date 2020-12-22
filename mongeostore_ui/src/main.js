@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-16 14:49:45
+ * @LastEditTime: 2020-12-22 19:56:12
  */
 import Vue from "vue";
 import Vuex from 'vuex'  // 引入 vuex
@@ -42,6 +42,7 @@ import 'wowjs/css/libs/animate.css'
 import echarts from "echarts";
 
 import importJS from "@/utils/importJs";
+// import VueWebsocket from 'vue-websocket'
 
 
 Vue.use(Vuex) // 引入
@@ -92,6 +93,8 @@ Viewer.setDefaults({
     'url': 'data-source' // 设置大图片的 url
   }
 })
+
+// Vue.use(VueWebsocket);
 
 Vue.prototype.global = global // 挂载全局配置模块
 Vue.prototype.$echarts = echarts;

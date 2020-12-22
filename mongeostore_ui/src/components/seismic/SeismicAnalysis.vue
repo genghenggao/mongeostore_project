@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-21 17:36:10
+ * @LastEditTime: 2020-12-22 22:19:59
 -->
 <template>
   <el-container>
@@ -238,13 +238,14 @@
         title="请上传需要解析的文件"
         :visible.sync="cloudDialogVisible"
         width="30%"
+        style="min-width: 500px"
         center
       >
-        <AnalysisCloudData />
+        <AnalysisCloudData ref="analysisCloudData" />
 
         <span slot="footer" class="dialog-footer">
           <el-button @click="cloudDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="makesuretable">确 定</el-button>
+          <el-button type="primary" @click="makesuretable2">确 定</el-button>
         </span>
       </el-dialog>
     </el-container>
@@ -363,8 +364,8 @@ export default {
       let this_url = "http://127.0.0.1:8000/seismic/seismicfileread/";
       axios({ method: "GET", url: this_url, params: {} })
         .then((res) => {
-          console.log(res);
-          console.log(res.data);
+          // console.log(res);
+          // console.log(res.data);
           this.tableData = res.data;
           // 设置默认解析文件，这里社第一个文件
           let temp_data = res.data[0];
@@ -377,7 +378,7 @@ export default {
     // 删除文件
     handleDelete(index, rows, row) {
       // console.log(index, rows, row);
-      console.log(row.filename);
+      // console.log(row.filename);
 
       // let json_data = JSON.stringify(row);
       let data = { filename: row.filename };
@@ -392,7 +393,7 @@ export default {
         // headers: { "Content-Type": "application/json" },
       })
         .then((res) => {
-          console.log("success");
+          // console.log("success");
         })
         .catch((err) => {
           console.log("err");
@@ -437,6 +438,13 @@ export default {
     // 上传服务器文件
     // 确定按钮
     makesuretable() {
+      this.centerDialogVisible = false;
+      this.cloudDialogVisible = false;
+
+      this.showSeismicFile();
+    },
+    makesuretable2() {
+      // this.$refs.analysisCloudData.WebSocketClose();
       this.centerDialogVisible = false;
       this.cloudDialogVisible = false;
 

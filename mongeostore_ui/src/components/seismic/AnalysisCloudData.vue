@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-21 17:33:53
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-21 20:28:32
+ * @LastEditTime: 2020-12-22 23:07:47
 -->
 <template>
   <div class="DataShow">
@@ -95,11 +95,17 @@
                 </template>
               </el-table-column>
             </template>
+
             <el-table-column label="下载进度" style="text-align: center">
-              <el-progress
-                type="circle"
-                :percentage="progressNum"
-              ></el-progress>
+              {{ progressNum }}
+              <!-- <template slot-scope="scope"> -->
+              <!-- <div v-show="progressFlag" class="head-img">
+                  <el-progress
+                    type="circle"
+                    :percentage="progressNum"
+                  ></el-progress>
+                </div> -->
+              <!-- </template> -->
             </el-table-column>
             <el-table-column
               label="下载文件"
@@ -171,23 +177,6 @@
               </el-form-item>
             </template>
           </el-form>
-          <!-- 底部区域 -->
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              :disabled="true"
-              v-if="!add_button_state"
-              @click="addData"
-              >确 定</el-button
-            >
-            <el-button
-              type="primary"
-              v-else-if="add_button_state"
-              @click="addData"
-              >确 定</el-button
-            >
-          </span>
         </el-dialog>
       </el-main>
     </el-container>
@@ -393,19 +382,12 @@ export default {
       },
       // 用于判断是否点击过搜索按钮
       flag: false,
+      //   下载进度提示
+      progressFlag: false, //进度条初始值隐藏
+      progressNum: 0, //进度条初始值
       //   进度条使用
-      progressNum: 0,
-      startTimer: "",
-      endTimer: "",
+      ws: null, //websocket通信
     };
-  },
-  props: {
-    progressStatus: {
-      type: Boolean,
-      default() {
-        return false;
-      },
-    },
   },
   watch: {
     add_to_data: {
@@ -430,21 +412,12 @@ export default {
       },
       deep: true,
     },
-    // 进度条
-    progressStatus(val) {
-      if (val) {
-        this.endProgress();
-      }
-    },
   },
   created() {
     this.showData(this.PageSize, this.currentPage); //展示Collection表格数据
     // this.onSearchSubmit(this.PageSize, this.currentPage); //展示Collection表格数据
   },
-  mounted() {
-    //   进度条
-    this.startProgress();
-  },
+  mounted() {},
   methods: {
     // 展示数据,将页码及每页显示的条数以参数传递提交给后台
     showData(n1, n2) {
@@ -461,11 +434,11 @@ export default {
         .then((response) => {
           // var res = JSON.parse(response.bodyText);
           // console.log(response);
-          console.log(response.data);
-          console.log(response.data.data);
+          //   console.log(response.data);
+          //   console.log(response.data.data);
 
           this.tableData = response.data.data.list;
-          console.log(response.data.data.list);
+          //   console.log(response.data.data.list);
 
           this.totalCount = response.data.data.count; //分页总数
 
@@ -512,40 +485,6 @@ export default {
       const property = column["property"];
       return row[property] === value;
     },
-
-    // 点击按钮，添加数据
-    addData() {
-      // this.addForm.visible = true;
-      // 发送添加数据的网络请求
-      const url = "http://127.0.0.1:8000/load/adddrilllocation/";
-      let tmp_data = this.add_to_data;
-      console.log(tmp_data); //这个取得值是undefined，但可以成功发送到后端
-      axios
-        .post(url, {
-          tmp_data,
-          // 设置上传到后端的数据库和集合名称
-          // colname: this.$store.state.title_message,
-          // dbname: this.$store.state.temp_database,
-        })
-        .then((res) => {
-          console.log("Success");
-        })
-        .catch((err) => {
-          console.log("错误");
-          this.$message.warning("输入数据存在错误！");
-        });
-
-      // 隐藏添加用户的对话框
-      this.dialogVisible = false;
-      // 重新获取用户列表数据
-      // this.showData();
-      //通过flag判断,刷新数据
-      if (!this.flag) {
-        this.showData();
-      } else {
-        this.onSearchSubmit();
-      }
-    },
     // 监听添加对话框的关闭事件
     addDialogClosed() {
       this.$refs.addFormRef.resetFields();
@@ -556,36 +495,8 @@ export default {
     },
     // 下载
     downloadfile(seismic_filename, id) {
-      console.log(id);
-      const url = "http://127.0.0.1:8000/seismic/analysisclouddown/";
-      axios
-        .get(url, {
-          params: {
-            file_id: id,
-          },
-          responseType: "blob",
-        })
-        .then((response) => {
-          console.log("success");
-          //   if (response.data.size === 0) {
-          //     console.log("下载失败");
-          //   } else {
-          //     console.log(response);
-          //     let blob = new Blob([response.data], {
-          //       type: "application/octet-stream",
-          //     });
-          //     let url = window.URL.createObjectURL(blob);
-          //     const link = document.createElement("a"); // 创建a标签
-          //     link.href = url;
-          //     // link.download = "下载文件.segy"; // 重命名文件
-          //     link.download = seismic_filename + ".segy"; // 重命名文件
-          //     link.click();
-          //     URL.revokeObjectURL(url); // 释放内存
-          //   }
-        })
-        .catch((err) => {
-          console.log("err");
-        });
+      //   console.log(id);
+      this.WebSocketTest(id);
     },
     // 编辑（修改）按钮
     handleEdit(index, row) {
@@ -760,26 +671,45 @@ export default {
       }
     },
     // 进度条
-    startProgress() {
-      this.startTimer = setInterval(() => {
-        this.progressNum++;
-        if (this.progressNum > 85) {
-          clearInterval(this.startTimer);
+    WebSocketTest(id) {
+      if ("WebSocket" in window) {
+        // alert("您的浏览器支持 WebSocket!");
+        if (this.ws) {
+          this.ws.close();
         }
-      }, 100);
-    },
-    endProgress() {
-      clearInterval(this.startTimer);
-      this.endTimer = setInterval(() => {
-        this.progressNum++;
-        if (this.progressNum > 99) {
-          clearInterval(this.endTimer);
-          this.finishProgress();
-        }
-      }, 10);
-    },
-    finishProgress() {
-      this.$emit("finishProgress", false);
+
+        // 打开一个 web socket
+        let ws = new WebSocket(
+          "ws://127.0.0.1:8000/seismic/analysisclouddown/"
+        );
+        // 给后端发数据
+        ws.onopen = function () {
+          // Web Socket 已连接上，使用 send() 方法发送数据
+          //   ws.send("发送数据");
+          ws.send(id);
+          //   alert("数据发送中...");
+        };
+        // 接收数据
+        ws.onmessage = function (evt) {
+          var received_msg = evt.data;
+          //   alert("数据已接收...");
+          //   alert("数据:" + received_msg);
+          var json_data = eval("(" + received_msg + ")");
+          console.log(json_data["percent"]);
+          this.progressNum = json_data["percent"];
+        //   console.log(this.progressNum);
+          if (json_data["percent"] == 100) {
+            console.log("完成");
+            ws.close(); //关闭websocket
+          }
+        };
+        // Call onopen directly if socket is already open
+        if (ws.readyState == WebSocket.OPEN) ws.onopen();
+        // this.ws = ws;
+      } else {
+        // 浏览器不支持 WebSocket
+        alert("您的浏览器不支持 WebSocket!");
+      }
     },
   },
 };
@@ -831,8 +761,8 @@ export default {
 // }
 
 ::v-deep .el-progress-circle {
-  height: 30px !important;
-  width: 30px !important;
+  height: 40px !important;
+  width: 40px !important;
 }
 ::v-deep .el-progress__text {
   //   width: 5px !important;

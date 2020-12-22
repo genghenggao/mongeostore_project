@@ -4,8 +4,11 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-21 20:23:18
+LastEditTime: 2020-12-22 22:13:32
 '''
+from django.test import client
+from dwebsocket.decorators import accept_websocket, require_websocket
+from functools import partial
 import re
 import segyio
 import datetime
@@ -21,7 +24,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from .models import SeismicInfo
 import time
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 # Create your views here.
 
@@ -367,36 +370,73 @@ class SeismicAnalysisUpload(APIView):
             f.close()
         return HttpResponse('success')
 
+
 # 地震数据解析，下载云端数据
-# 地震segy文件下载
-@require_http_methods(['GET'])
+# @require_http_methods(['GET'])
+@accept_websocket
 def AnalysisCloudDown(request):
 
-    search_key = request.GET['file_id']  # 根据字段搜索
-    print(search_key)
+    if request.is_websocket():  # 如果请求是websocket请求：
 
-    # 从数据库拿到数据
-    seismic_obj = SeismicInfo.objects(id=search_key).first()
-    # print(seismic_obj)
-    # print(seismic_obj.seismic_filename)
-    filename = seismic_obj.seismic_filename
-    seismic_file = seismic_obj.filedata.read()
-    content_type = seismic_obj.filedata.content_type
-    # print(type(seismic_file)) #<class 'bytes'>
-    # print(type(content_type))  # <class 'str'>
-    # print(content_type)  # <class 'str'>
-    filename = filename + '.' + content_type
-    # print(filename)
-    # 数据写入服务器
-    with open("../mongeostore_env/pic/%s" % filename, 'wb') as f:
-        f.write(seismic_file)
+        WebSocket = request.websocket
+        print(WebSocket)
+        i = 0  # 设置发送至前端的次数
+        messages = {}
 
-        print('save success')
+        while True:
+            i += 1  # 递增次数 i
+            time.sleep(1)  # 休眠1秒
 
-    # # # 拿到数据,返回前端
-    # with open("./upload/%s" % filename, "rb") as f:
-    #     res = HttpResponse(f)
-    #     res["Content-Type"] = "application/octet-stream"  # 注意格式
-    #     res["Content-Disposition"] = 'filename="{}"'.format(filename)
-    # return res
-        return HttpResponse('success')
+            # 判断是否通过websocket接收到数据
+            if WebSocket.has_messages():
+
+                # 存在Websocket客户端发送过来的消息
+                client_msg = WebSocket.read().decode()
+                print(client_msg)
+                # # 从数据库拿到数据
+                seismic_obj = SeismicInfo.objects(id=client_msg).first()
+                filename = seismic_obj.seismic_filename
+                seismic_file = seismic_obj.filedata.read  # 注意这个地方不用加（）
+                seismic_filensize = seismic_obj.filedata.length
+                content_type = seismic_obj.filedata.content_type
+                filename = filename + '.' + content_type
+                # 数据写入服务器
+                RECORD_SIZE = 1024*40  # 单位是B
+                with open("../mongeostore_env/pic/%s" % filename, 'wb') as f:
+                    # f.write(seismic_file)
+                    # print(f.tell())
+                    # print('save success')
+                    records = iter(partial(seismic_file, RECORD_SIZE), b'')
+                    for r in records:
+                        f.write(r)
+                        percent = int(f.tell()*100/seismic_filensize)
+                        # print(percent)
+                        # print(percent)
+                        # print(f.tell())
+                        # return HttpResponse(percent)
+
+                        # 设置发送前端的数据
+                        messages = {
+                            # 'time': time.strftime('%Y.%m.%d %H:%M:%S', time.localtime(time.time())),
+                            # 'server_msg': 'send %d times!' % i,
+                            'client_msg': client_msg,
+                            'percent': percent
+                        }
+                        request.websocket.send(json.dumps(messages))
+            # else:
+            #     # 设置发送前端的数据
+            #     messages = {
+            #         'time': time.strftime('%Y.%m.%d %H:%M:%S', time.localtime(time.time())),
+            #         'server_msg': 'send %d times!' % i,
+            #     }
+
+            #     # 设置发送数据为json格式
+            #     request.websocket.send(json.dumps(messages))
+    else:
+        try:#如果是普通的http方法
+            message = request.GET['message']
+            return HttpResponse(message)
+        except:
+            # return render(request,'index.html')
+            return HttpResponse('test123')
+
