@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-21 17:33:53
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-22 23:07:47
+ * @LastEditTime: 2020-12-23 11:16:57
 -->
 <template>
   <div class="DataShow">
@@ -97,15 +97,16 @@
             </template>
 
             <el-table-column label="下载进度" style="text-align: center">
-              {{ progressNum }}
-              <!-- <template slot-scope="scope"> -->
-              <!-- <div v-show="progressFlag" class="head-img">
-                  <el-progress
-                    type="circle"
-                    :percentage="progressNum"
-                  ></el-progress>
-                </div> -->
-              <!-- </template> -->
+              <h2>防止按钮消失</h2>
+              <template slot-scope="scope">
+                <!-- {{ scope.row["progressNum"] }} -->
+                <!-- <div v-show="progressFlag" class="head-img"> -->
+                <el-progress
+                  type="circle"
+                  :percentage="scope.row['progressNum']"
+                ></el-progress>
+                <!-- </div> -->
+              </template>
             </el-table-column>
             <el-table-column
               label="下载文件"
@@ -119,9 +120,7 @@
                   type="primary"
                   plain
                   size="mini"
-                  @click="
-                    downloadfile(scope.row.seismic_filename, scope.row.id)
-                  "
+                  @click="downloadfile(scope.$index, scope.row, scope.row)"
                   >下载文件</el-button
                 >
               </template>
@@ -383,7 +382,9 @@ export default {
       // 用于判断是否点击过搜索按钮
       flag: false,
       //   下载进度提示
-      progressFlag: false, //进度条初始值隐藏
+      startTimer: "",
+      fresh: false, // 组件加载
+      progressFlag: true, //进度条初始值隐藏
       progressNum: 0, //进度条初始值
       //   进度条使用
       ws: null, //websocket通信
@@ -494,9 +495,9 @@ export default {
       this.$router.push({ path: "/mongeostore/seismicupload" });
     },
     // 下载
-    downloadfile(seismic_filename, id) {
+    downloadfile(index, row, row_data) {
       //   console.log(id);
-      this.WebSocketTest(id);
+      this.WebSocketTest(index, row, row_data);
     },
     // 编辑（修改）按钮
     handleEdit(index, row) {
@@ -671,7 +672,7 @@ export default {
       }
     },
     // 进度条
-    WebSocketTest(id) {
+    WebSocketTest(index, row, row_data) {
       if ("WebSocket" in window) {
         // alert("您的浏览器支持 WebSocket!");
         if (this.ws) {
@@ -686,18 +687,46 @@ export default {
         ws.onopen = function () {
           // Web Socket 已连接上，使用 send() 方法发送数据
           //   ws.send("发送数据");
-          ws.send(id);
+          ws.send(row.id);
           //   alert("数据发送中...");
         };
         // 接收数据
+        var that = this;
         ws.onmessage = function (evt) {
           var received_msg = evt.data;
           //   alert("数据已接收...");
           //   alert("数据:" + received_msg);
           var json_data = eval("(" + received_msg + ")");
           console.log(json_data["percent"]);
-          this.progressNum = json_data["percent"];
-        //   console.log(this.progressNum);
+          //   this.progressNum = json_data["percent"];
+          //   temp_data = {};
+          //   console.log(index, row);
+          this.progressNum = 0 + json_data["percent"];
+          row.progressNum = 0 + this.progressNum;
+          row = {
+            id: row_data.id,
+            seismic_filename: row_data.seismic_filename,
+            location: row_data.location,
+            progressNum: this.progressNum,
+          };
+          console.log(row);
+        //   console.log(this);
+        //   console.log(that);
+          that.tableData = [row];
+          //   return row;
+          //   this.$set(this.tableData, index, row);
+          //   this.$set(this.tableData,index,temp_data)
+          //   this.fresh = false;
+          //   this.$nextTick(() => {
+          //     this.fresh = true;
+          //   });
+          //   this.startTimer = setInterval(() => {
+          //     this.progressNum++;
+          //     if (this.progressNum > 85) {
+          //       clearInterval(this.startTimer);
+          //     }
+          //   }, 100);
+          //   console.log(this.progressNum);
           if (json_data["percent"] == 100) {
             console.log("完成");
             ws.close(); //关闭websocket

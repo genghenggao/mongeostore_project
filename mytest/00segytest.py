@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 09:08:20
 LastEditors: henggao
-LastEditTime: 2020-12-16 17:09:53
+LastEditTime: 2020-12-23 17:29:41
 '''
 import segyio
 import numpy as np
@@ -378,3 +378,5 @@ with segyio.open(filename, mode="r", strict=False, ignore_geometry=False, endian
     # print(segyio.TraceField.TRACE_SEQUENCE_LINE)
     # print(segyio.BinField.Traces)                               # 3213      每个道集的数据道数。叠前数据强制要求
     # print(f.bin[segyio.BinField.Traces])                        # 1
+    print(f.header[2557][segyio.TraceField.TRACE_SEQUENCE_LINE]
+          )                        # 1

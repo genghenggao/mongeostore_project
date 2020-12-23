@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-22 22:19:59
+ * @LastEditTime: 2020-12-23 20:44:41
 -->
 <template>
   <el-container>
@@ -123,8 +123,26 @@
               }}
             </h5>
           </div>
-          <div class="analysis_content" style="height: 700px; overflow: auto">
+          <div
+            v-if="showtype == 'text'"
+            class="analysis_content"
+            style="height: 700px; overflow: auto"
+          >
             <pre>{{ seismic_info }}</pre>
+          </div>
+          <div
+            v-if="showtype == 'views'"
+            class="analysis_content"
+            style="height: 700px; overflow: auto; padding-top: 30px"
+          >
+            <!-- <pre>视图</pre> -->
+            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+            <div
+              id="dataviews"
+              class="echartsviews"
+              ref="chart"
+              style="width: 780px; height: 400px"
+            ></div>
           </div>
         </el-card>
       </div>
@@ -140,21 +158,21 @@
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'header'))"
+              @click="queryHeader((val = 'header'), (type = 'text'))"
               >卷头</el-button
             >
             <el-button
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'track'))"
+              @click="queryHeader((val = 'track'), (type = 'text'))"
               >道头</el-button
             >
             <el-button
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'traces'))"
+              @click="queryHeader((val = 'traces'), (type = 'text'))"
               >Traces</el-button
             >
           </div>
@@ -163,21 +181,21 @@
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'Bin'))"
+              @click="queryHeader((val = 'Bin'), (type = 'text'))"
               >Bin</el-button
             >
             <el-button
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'trace1'))"
+              @click="queryHeader((val = 'trace1'), (type = 'text'))"
               >第一道</el-button
             >
             <el-button
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'trace_1'))"
+              @click="queryHeader((val = 'trace_1'), (type = 'text'))"
               >最后一道</el-button
             >
           </div>
@@ -207,13 +225,80 @@
                 <el-input
                   v-model="seismicform.trace"
                   placeholder="0-n"
-                  @keyup.enter.native="queryHeader((val = seismicform.trace))"
+                  @keyup.enter.native="
+                    queryHeader((val = seismicform.trace), (type = 'text'))
+                  "
                 ></el-input>
               </el-form-item>
               <el-form-item style="width: 50px">
                 <el-button
                   type="goon"
-                  @click="queryHeader((val = seismicform.trace))"
+                  @click="
+                    queryHeader((val = seismicform.trace), (type = 'text'))
+                  "
+                  >查询</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+          <div>
+            <h5 style="color: #810000; text-align: left; padding-top: 15px">
+              <i class="el-icon-s-promotion"></i> 数据可视化：
+            </h5>
+          </div>
+          <div style="padding-top: 0px; text-align: left">
+            <el-button
+              type="goon"
+              size="medium"
+              plain
+              @click="queryHeader((val = 'trace1'), (type = 'views'))"
+              >第一道</el-button
+            >
+            <el-button
+              type="goon"
+              size="medium"
+              plain
+              @click="queryHeader((val = 'trace_1'), (type = 'views'))"
+              >最后一道</el-button
+            >
+          </div>
+          <div style="padding-top: 5px">
+            <el-form
+              ref="seismicform"
+              :model="seismicform"
+              :rules="seismicformrules"
+              style="
+                display: flex;
+                height: 40px;
+                width: 240px;
+                background: #51abce;
+                border-radius: 5px;
+              "
+            >
+              <el-form-item
+                label-width="70px"
+                label="第N道"
+                style="
+                  width: 165px;
+                  background: #51abce;
+                  height: 40px;
+                  border-radius: 5px;
+                "
+              >
+                <el-input
+                  v-model="seismicform.trace"
+                  placeholder="0-n"
+                  @keyup.enter.native="
+                    queryHeader((val = seismicform.trace), (type = 'views'))
+                  "
+                ></el-input>
+              </el-form-item>
+              <el-form-item style="width: 50px">
+                <el-button
+                  type="goon"
+                  @click="
+                    queryHeader((val = seismicform.trace), (type = 'views'))
+                  "
                   >查询</el-button
                 >
               </el-form-item>
@@ -253,6 +338,7 @@
 </template>
 
 <script>
+// var echarts = require("echarts");
 import axios from "axios";
 import qs from "qs";
 import plupload from "plupload";
@@ -349,6 +435,8 @@ export default {
       seismicformrules: {
         trace: [{ validator: checkTrace, trigger: "blur" }],
       },
+      // 判断展示text还是views
+      showtype: "",
       // 上传弹出框
       centerDialogVisible: false,
       cloudDialogVisible: false,
@@ -406,7 +494,7 @@ export default {
       this.seismic_message = row.filename;
     },
     // 查询卷头信息
-    queryHeader(val) {
+    queryHeader(val, type) {
       console.log(this.seismic_message);
       console.log(val);
       let this_url = "http://127.0.0.1:8000/seismic/seismicheaderquery/";
@@ -419,15 +507,120 @@ export default {
           // console.log(res);
           // console.log(res.data);
           // console.log(this.val);
-          if (this.val == "header" || this.val == "Bin") {
-            // console.log("yes");
-            let jsondata = eval("(" + res.data + ")");
-            // console.log(jsondata);
-            // this.seismic_info = res.data;
-            this.seismic_info = jsondata;
+          if (this.type == "text") {
+            this.showtype = "text";
+            if (this.val == "header" || this.val == "Bin") {
+              // console.log("yes");
+              let jsondata = eval("(" + res.data + ")");
+              // console.log(jsondata);
+              // this.seismic_info = res.data;
+              this.seismic_info = jsondata;
+            } else if (this.val == "track" || this.val == "traces") {
+              // console.log("no");
+              this.seismic_info = res.data;
+            } else {
+              this.seismic_info = res.data;
+            }
           } else {
-            // console.log("no");
-            this.seismic_info = res.data;
+            this.showtype = "views";
+            var seismicdata = res.data;
+
+            // 基于准备好的dom，初始化echarts实例
+            let myChart = this.$echarts.init(
+              document.getElementById("dataviews")
+            );
+
+            function func(x) {
+              x /= 10;
+              return (
+                Math.sin(x) * Math.cos(x * 2 + 1) * Math.sin(x * 3 + 2) * 50
+              );
+            }
+
+            function generateData() {
+              let data = [];
+              for (let i = -200; i <= 200; i += 0.1) {
+                data.push([i, func(i)]);
+              }
+              return data;
+            }
+
+            let option = {
+              animation: false,
+              grid: {
+                top: 40,
+                left: 50,
+                right: 40,
+                bottom: 50,
+              },
+              xAxis: {
+                name: "x",
+                minorTick: {
+                  show: true,
+                },
+                splitLine: {
+                  lineStyle: {
+                    color: "#999",
+                  },
+                },
+                minorSplitLine: {
+                  show: true,
+                  lineStyle: {
+                    color: "#ddd",
+                  },
+                },
+              },
+              yAxis: {
+                name: "y",
+                // min: -100,
+                // max: 100,
+                minorTick: {
+                  show: true,
+                },
+                splitLine: {
+                  lineStyle: {
+                    color: "#999",
+                  },
+                },
+                minorSplitLine: {
+                  show: true,
+                  lineStyle: {
+                    color: "#ddd",
+                  },
+                },
+              },
+              dataZoom: [
+                {
+                  show: true,
+                  type: "inside",
+                  filterMode: "none",
+                  xAxisIndex: [0],
+                  // startValue: -20,
+                  // endValue: 20,
+                },
+                {
+                  show: true,
+                  type: "inside",
+                  filterMode: "none",
+                  yAxisIndex: [0],
+                  // startValue: -20,
+                  // endValue: 20,
+                },
+              ],
+              series: [
+                {
+                  type: "line",
+                  showSymbol: false,
+                  clip: true,
+                  // data: generateData(),
+                  data: seismicdata,
+                },
+              ],
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            // mychart.setOption(option);
           }
         })
         .catch((err) => {

@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-22 22:13:32
+LastEditTime: 2020-12-23 21:05:30
 '''
 from django.test import client
 from dwebsocket.decorators import accept_websocket, require_websocket
@@ -66,7 +66,7 @@ class SeismicInfoView(APIView):
         docstring
         """
         seismic_obj = SeismicInfo.objects.all().order_by('_id')  # 一定要排序
-        print(seismic_obj)
+        # print(seismic_obj)
         # 创建分页对象
         page = MyPagination()
         # 实例化查询，获取分页的数据
@@ -83,9 +83,9 @@ class SeismicInfoView(APIView):
         """
         fileio = request.FILES.get("file", None)  # 注意比较
 
-        print(request.data['upload_date'])  # DRF才有request.data
-        print(request.POST)  # Django只有request.POST、request.GET
-        print(request.data)
+        # print(request.data['upload_date'])  # DRF才有request.data
+        # print(request.POST)  # Django只有request.POST、request.GET
+        # print(request.data)
         # _id = self.request.POST.get('id')
         seismic_filename = request.data['seismic_filename'],  # 取出来竟是个元组，QAQ
         location = request.data['location'],
@@ -182,9 +182,9 @@ class SeismicInfoSearch(APIView):
         """
         docstring
         """
-        print('success')
+        # print('success')
         search_key = request.GET['search_key']  # 根据字段搜索
-        print(search_key)
+        # print(search_key)
         seismic_obj = SeismicInfo.objects.filter(
             seismic_filename=search_key).all().order_by('_id')  # 一定要排序
         # seismic_obj = SeismicInfo.objects.search_text(search_key).first()
@@ -312,7 +312,10 @@ def SeismicHeaderQuery(request):
                 return HttpResponse(queryinfo)
             elif filequery == 'trace1':
                 datatest = f.trace[0]  # 拿到segy中数据
-                queryinfo = str(datatest)
+                datatest = datatest.tolist()  #矩阵转列表
+                queryinfo = str(datatest)  
+                print(queryinfo)
+                print(type(queryinfo))
                 return HttpResponse(queryinfo)
             elif filequery == 'trace_1':
                 datatest = f.trace[-1]
@@ -439,4 +442,6 @@ def AnalysisCloudDown(request):
         except:
             # return render(request,'index.html')
             return HttpResponse('test123')
+
+
 

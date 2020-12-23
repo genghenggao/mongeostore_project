@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:38:16
 LastEditors: henggao
-LastEditTime: 2020-12-22 10:57:50
+LastEditTime: 2020-12-23 14:15:09
 '''
 from django.urls import include, path
 
@@ -35,6 +35,6 @@ urlpatterns = [
     path('seismicanalysisupload/', SeismicAnalysisUpload.as_view(),
          name="seismicanalysisupload"),  # 地震数据解析，上传本地文件
     path('analysisclouddown/', views.AnalysisCloudDown,
-         name="analysisclouddown"),  # 地震数据解析，下载文
+         name="analysisclouddown"),  # 地震数据解析，下载数据库云端数据
 
 ]
