@@ -30,6 +30,8 @@ urlpatterns = [
          name="seismicfileread"),  # 地震数据解析，获取文件
     path('seismicheaderquery/', views.SeismicHeaderQuery,
          name="seismicheaderquery"),  # 地震数据解析，获取文件
+    path('seismicprofilequery/', views.SeismicProfileQuery,
+         name="seismicprofilequery"),  # 地震数据解析，地震剖面查看
     path('Seismicanalysisdelete/', views.SeismicAnalysisDelete,
          name="Seismicanalysisdelete"),  # 地震数据解析，删除文件
     path('seismicanalysisupload/', SeismicAnalysisUpload.as_view(),

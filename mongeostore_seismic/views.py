@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-23 21:05:30
+LastEditTime: 2020-12-24 20:34:26
 '''
 from django.test import client
 from dwebsocket.decorators import accept_websocket, require_websocket
@@ -289,6 +289,7 @@ def SeismicHeaderQuery(request):
     print(request.GET)
     filename = request.GET.get('filename')
     filequery = request.GET.get('queryparams')
+    filequerytype = request.GET.get('querytype')
     # print(filename)
     content = "..\mongeostore_env\pic\\" + filename
 
@@ -312,10 +313,17 @@ def SeismicHeaderQuery(request):
                 return HttpResponse(queryinfo)
             elif filequery == 'trace1':
                 datatest = f.trace[0]  # 拿到segy中数据
-                datatest = datatest.tolist()  #矩阵转列表
-                queryinfo = str(datatest)  
-                print(queryinfo)
-                print(type(queryinfo))
+                # datatest = datatest.tolist()  #矩阵转列表
+                queryinfo = str(datatest)
+                # print(queryinfo)
+                # print(type(queryinfo))
+                return HttpResponse(queryinfo)
+            elif filequery == 'trace1_view':
+                datatest = f.trace[0]  # 拿到segy中数据
+                datatest = datatest.tolist()  # 矩阵转列表
+                queryinfo = str(datatest)
+                # print(queryinfo)
+                # print(type(queryinfo))
                 return HttpResponse(queryinfo)
             elif filequery == 'trace_1':
                 datatest = f.trace[-1]
@@ -323,18 +331,58 @@ def SeismicHeaderQuery(request):
                 # print(str(datatest))
                 queryinfo = str(datatest)
                 return HttpResponse(queryinfo)
-            else:
-                datatest = f.trace[int(filequery)]
-                # print(filequery)
-                # print(type(filequery))
-                # print(datatest)
+            elif filequery == 'trace_1_view':
+                datatest = f.trace[-1]
+                datatest = datatest.tolist()  # 矩阵转列表
                 queryinfo = str(datatest)
                 return HttpResponse(queryinfo)
+            else:
+                if filequerytype == 'text':
+                    datatest = f.trace[int(filequery)]
+                    # print(filequery)
+                    # print(type(filequery))
+                    # print(datatest)
+                    queryinfo = str(datatest)
+                    return HttpResponse(queryinfo)
+                if filequerytype == 'views':
+                    datatest = f.trace[int(filequery)]
+                    datatest = datatest.tolist()  # 矩阵转列表
+                    queryinfo = str(datatest)
+                    return HttpResponse(queryinfo)
     except:
         print('解析错误')
         return HttpResponse('Sorry，查询失败~')
 
     # return HttpResponse('succes')
+
+# 地震数据解析，获取服务器文件
+@require_http_methods(['GET'])
+def SeismicProfileQuery(request):
+    print(request.GET)
+    filename = request.GET.get('filename')
+    mtrace = request.GET.get('mtrace')
+    ntrace = request.GET.get('ntrace')
+    print(mtrace)
+    print(type(mtrace))
+    print(ntrace)
+    content = "..\mongeostore_env\pic\\" + filename
+
+    try:
+        with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian='big') as f:
+            content = []
+            data = f.trace[int(mtrace):int(ntrace)]
+            # datatest = data.tolist()  # 矩阵转列表
+            # data = []
+            # for i in [int(mtrace), int(ntrace)]:
+            #     datatemp = f.trace[i].tolist()
+
+            #     data.append(str(datatemp))
+        # return HttpResponse('success')
+            print(data)
+            return HttpResponse(data)
+    except:
+        print('解析错误')
+        return HttpResponse('Sorry，查询失败~')
 
 # 地震数据解析，删除服务器文件
 @require_http_methods(['POST'])
@@ -436,12 +484,9 @@ def AnalysisCloudDown(request):
             #     # 设置发送数据为json格式
             #     request.websocket.send(json.dumps(messages))
     else:
-        try:#如果是普通的http方法
+        try:  # 如果是普通的http方法
             message = request.GET['message']
             return HttpResponse(message)
         except:
             # return render(request,'index.html')
             return HttpResponse('test123')
-
-
-

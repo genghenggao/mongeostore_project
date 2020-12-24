@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-23 20:44:41
+ * @LastEditTime: 2020-12-24 20:25:15
 -->
 <template>
   <el-container>
@@ -124,14 +124,14 @@
             </h5>
           </div>
           <div
-            v-if="showtype == 'text'"
+            v-show="showtype == 'text'"
             class="analysis_content"
             style="height: 700px; overflow: auto"
           >
             <pre>{{ seismic_info }}</pre>
           </div>
           <div
-            v-if="showtype == 'views'"
+            v-show="showtype == 'views'"
             class="analysis_content"
             style="height: 700px; overflow: auto; padding-top: 30px"
           >
@@ -141,7 +141,7 @@
               id="dataviews"
               class="echartsviews"
               ref="chart"
-              style="width: 780px; height: 400px"
+              style="width: 780px; height: 520px"
             ></div>
           </div>
         </el-card>
@@ -251,14 +251,14 @@
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'trace1'), (type = 'views'))"
+              @click="queryHeader((val = 1), (type = 'views'))"
               >第一道</el-button
             >
             <el-button
               type="goon"
               size="medium"
               plain
-              @click="queryHeader((val = 'trace_1'), (type = 'views'))"
+              @click="queryHeader((val = -1), (type = 'views'))"
               >最后一道</el-button
             >
           </div>
@@ -299,6 +299,36 @@
                   @click="
                     queryHeader((val = seismicform.trace), (type = 'views'))
                   "
+                  >查询</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+          <div style="padding-top: 5px; background: #d8d0bf">
+            <h5 style="color: #810000; text-align: left; padding-top: 15px">
+              <i class="el-icon-s-promotion"></i> 地震剖面图：
+            </h5>
+            <el-form
+              ref="seismicprofileform"
+              :model="seismicprofileform"
+              :rules="seismicprofileformrules"
+            >
+              <el-form-item label-width="70px" label="第M道">
+                <el-input
+                  v-model="seismicprofileform.mtrace"
+                  placeholder="第m道"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label-width="70px" label="第N道">
+                <el-input
+                  v-model="seismicprofileform.ntrace"
+                  placeholder="第n道"
+                ></el-input>
+              </el-form-item>
+              <el-form-item style="width: 50px">
+                <el-button
+                  type="goon"
+                  @click="seismicprofile('seismicprofileform')"
                   >查询</el-button
                 >
               </el-form-item>
@@ -431,6 +461,15 @@ export default {
       seismicform: {
         trace: "",
       },
+      // 剖面表单
+      seismicprofileform: {
+        mtrace: "",
+        ntrace: "",
+      },
+      // 校验表单数据
+      seismicprofileformrules: {
+        trace: [{ validator: checkTrace, trigger: "blur" }],
+      },
       // 校验表单数据
       seismicformrules: {
         trace: [{ validator: checkTrace, trigger: "blur" }],
@@ -465,26 +504,43 @@ export default {
     },
     // 删除文件
     handleDelete(index, rows, row) {
-      // console.log(index, rows, row);
-      // console.log(row.filename);
-
-      // let json_data = JSON.stringify(row);
-      let data = { filename: row.filename };
-      rows.splice(index, 1);
-      let this_url = "http://127.0.0.1:8000/seismic/Seismicanalysisdelete/";
-      axios({
-        method: "POST",
-        url: this_url,
-        data: qs.stringify(data),
-        // data: {json_data} ,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        // headers: { "Content-Type": "application/json" },
+      // 添加确认删除框
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       })
-        .then((res) => {
-          // console.log("success");
+        .then(() => {
+          // console.log(index, rows, row);
+          // console.log(row.filename);
+          // let json_data = JSON.stringify(row);
+          let data = { filename: row.filename };
+          rows.splice(index, 1);
+          let this_url = "http://127.0.0.1:8000/seismic/Seismicanalysisdelete/";
+          axios({
+            method: "POST",
+            url: this_url,
+            data: qs.stringify(data),
+            // data: {json_data} ,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            // headers: { "Content-Type": "application/json" },
+          })
+            .then((res) => {
+              // console.log("success");
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              });
+            })
+            .catch((err) => {
+              console.log("err");
+            });
         })
-        .catch((err) => {
-          console.log("err");
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
         });
     },
     // 解析文件
@@ -501,14 +557,18 @@ export default {
       axios({
         method: "GET",
         url: this_url,
-        params: { filename: this.seismic_message, queryparams: val },
+        params: {
+          filename: this.seismic_message,
+          queryparams: val,
+          querytype: type,
+        },
       })
         .then((res) => {
           // console.log(res);
           // console.log(res.data);
           // console.log(this.val);
           if (this.type == "text") {
-            this.showtype = "text";
+            this.showtype = "text"; //div判断展示text
             if (this.val == "header" || this.val == "Bin") {
               // console.log("yes");
               let jsondata = eval("(" + res.data + ")");
@@ -521,112 +581,140 @@ export default {
             } else {
               this.seismic_info = res.data;
             }
-          } else {
-            this.showtype = "views";
+          } else if (this.type == "views") {
+            this.showtype = "views"; //div判断展示views
             var seismicdata = res.data;
-
-            // 基于准备好的dom，初始化echarts实例
-            let myChart = this.$echarts.init(
-              document.getElementById("dataviews")
-            );
-
-            function func(x) {
-              x /= 10;
-              return (
-                Math.sin(x) * Math.cos(x * 2 + 1) * Math.sin(x * 3 + 2) * 50
+            console.log(res.data);
+            // console.log(typeof res.data);
+            if ((this.showtype = "views")) {
+              // 基于准备好的dom，初始化echarts实例
+              let myChart = this.$echarts.init(
+                document.getElementById("dataviews")
               );
-            }
-
-            function generateData() {
+              // let mychart = echarts.init(this.$refs.chart);
+              // 指定图表的配置项和数据
               let data = [];
-              for (let i = -200; i <= 200; i += 0.1) {
-                data.push([i, func(i)]);
-              }
-              return data;
+              seismicdata.forEach((element, i) => {
+                data.push([i, element]);
+              });
+              let textname = "第" + this.val + "道数据展示图";
+              let option = {
+                title: {
+                  // text: "当前道的频谱图",
+                  text: textname,
+                  subtext: "数据来自MonGeoStore解析",
+                  left: "center",
+                },
+                animation: false,
+                grid: {
+                  top: 60,
+                  left: 60,
+                  right: 40,
+                  bottom: 50,
+                },
+                xAxis: {
+                  name: "",
+                  minorTick: {
+                    show: true,
+                  },
+                  splitLine: {
+                    lineStyle: {
+                      color: "#999",
+                    },
+                  },
+                  minorSplitLine: {
+                    show: true,
+                    lineStyle: {
+                      color: "#ddd",
+                    },
+                  },
+                },
+                yAxis: {
+                  name: "y",
+                  // min: -100,
+                  // max: 100,
+                  minorTick: {
+                    show: true,
+                  },
+                  splitLine: {
+                    lineStyle: {
+                      color: "#999",
+                    },
+                  },
+                  minorSplitLine: {
+                    show: true,
+                    lineStyle: {
+                      color: "#ddd",
+                    },
+                  },
+                },
+                dataZoom: [
+                  {
+                    show: true,
+                    type: "inside",
+                    filterMode: "none",
+                    xAxisIndex: [0],
+                    // startValue: -20,
+                    // endValue: 20,
+                  },
+                  {
+                    show: true,
+                    type: "inside",
+                    filterMode: "none",
+                    yAxisIndex: [0],
+                    // startValue: -20,
+                    // endValue: 20,
+                  },
+                ],
+                series: [
+                  {
+                    type: "line",
+                    showSymbol: false,
+                    clip: true,
+                    data: data,
+                  },
+                ],
+              };
+              // 使用刚指定的配置项和数据显示图表。
+              myChart.setOption(option);
+              // mychart.setOption(option);
             }
-
-            let option = {
-              animation: false,
-              grid: {
-                top: 40,
-                left: 50,
-                right: 40,
-                bottom: 50,
-              },
-              xAxis: {
-                name: "x",
-                minorTick: {
-                  show: true,
-                },
-                splitLine: {
-                  lineStyle: {
-                    color: "#999",
-                  },
-                },
-                minorSplitLine: {
-                  show: true,
-                  lineStyle: {
-                    color: "#ddd",
-                  },
-                },
-              },
-              yAxis: {
-                name: "y",
-                // min: -100,
-                // max: 100,
-                minorTick: {
-                  show: true,
-                },
-                splitLine: {
-                  lineStyle: {
-                    color: "#999",
-                  },
-                },
-                minorSplitLine: {
-                  show: true,
-                  lineStyle: {
-                    color: "#ddd",
-                  },
-                },
-              },
-              dataZoom: [
-                {
-                  show: true,
-                  type: "inside",
-                  filterMode: "none",
-                  xAxisIndex: [0],
-                  // startValue: -20,
-                  // endValue: 20,
-                },
-                {
-                  show: true,
-                  type: "inside",
-                  filterMode: "none",
-                  yAxisIndex: [0],
-                  // startValue: -20,
-                  // endValue: 20,
-                },
-              ],
-              series: [
-                {
-                  type: "line",
-                  showSymbol: false,
-                  clip: true,
-                  // data: generateData(),
-                  data: seismicdata,
-                },
-              ],
-            };
-
-            // 使用刚指定的配置项和数据显示图表。
-            myChart.setOption(option);
-            // mychart.setOption(option);
+          } else {
+            console.log("no data");
           }
         })
         .catch((err) => {
           // console.log(err);
           this.$message.error("Sorry，文件无法解析，请检查文件正确性！");
         });
+    },
+    // 查看地震剖面
+    seismicprofile(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // console.log(formName);
+          // console.log(this.seismicprofileform);
+          let this_url = "http://127.0.0.1:8000/seismic/seismicprofilequery/";
+          axios({
+            method: "GET",
+            url: this_url,
+            params: {
+              filename: this.seismic_message,
+              mtrace: this.seismicprofileform.mtrace,
+              ntrace: this.seismicprofileform.ntrace,
+            },
+          })
+            .then((res) => {
+              console.log(res.data);
+            })
+            .catch((err) => {
+              console.log("err");
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     // 上传服务器文件
     // 确定按钮

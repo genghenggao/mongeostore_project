@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-09-28 11:03:19
 LastEditors: henggao
-LastEditTime: 2020-12-23 20:53:11
+LastEditTime: 2020-12-23 21:58:33
 '''
 import segyio
 
@@ -35,4 +35,4 @@ with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian=
     # print(len(f.trace[0])) #2001
     # print(f.header[0])
     # print(segyio.BinField.Traces)
-    print(f.header[17])
+    # print(f.header[17])
