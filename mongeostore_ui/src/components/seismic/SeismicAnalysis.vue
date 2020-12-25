@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-24 20:25:15
+ * @LastEditTime: 2020-12-25 22:09:32
 -->
 <template>
   <el-container>
@@ -139,6 +139,20 @@
             <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
             <div
               id="dataviews"
+              class="echartsviews"
+              ref="chart"
+              style="width: 780px; height: 520px"
+            ></div>
+          </div>
+          <div
+            v-show="showtype == 'views_profile'"
+            class="analysis_content"
+            style="height: 700px; overflow: auto; padding-top: 30px"
+          >
+            <!-- <pre>视图</pre> -->
+            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+            <div
+              id="dataviews_profile"
               class="echartsviews"
               ref="chart"
               style="width: 780px; height: 520px"
@@ -304,7 +318,7 @@
               </el-form-item>
             </el-form>
           </div>
-          <div style="padding-top: 5px; background: #d8d0bf">
+          <div style="padding-top: 5px">
             <h5 style="color: #810000; text-align: left; padding-top: 15px">
               <i class="el-icon-s-promotion"></i> 地震剖面图：
             </h5>
@@ -313,23 +327,41 @@
               :model="seismicprofileform"
               :rules="seismicprofileformrules"
             >
-              <el-form-item label-width="70px" label="第M道">
+              <el-form-item
+                label-width="70px"
+                label="第M道"
+                style="
+                  width: 250px;
+                  background: #51abce;
+                  height: 40px;
+                  border-radius: 5px;
+                "
+              >
                 <el-input
                   v-model="seismicprofileform.mtrace"
                   placeholder="第m道"
                 ></el-input>
               </el-form-item>
-              <el-form-item label-width="70px" label="第N道">
+              <el-form-item
+                label-width="70px"
+                label="第N道"
+                style="
+                  width: 250px;
+                  background: #51abce;
+                  height: 40px;
+                  border-radius: 5px;
+                "
+              >
                 <el-input
                   v-model="seismicprofileform.ntrace"
                   placeholder="第n道"
                 ></el-input>
               </el-form-item>
-              <el-form-item style="width: 50px">
+              <el-form-item label="第N道" style="width: 50px; padding-left: 100px">
                 <el-button
                   type="goon"
                   @click="seismicprofile('seismicprofileform')"
-                  >查询</el-button
+                  >查询第M-N道</el-button
                 >
               </el-form-item>
             </el-form>
@@ -545,13 +577,13 @@ export default {
     },
     // 解析文件
     seismicanalysic(index, rows, row) {
-      console.log(index, row);
-      console.log(row.filename);
+      // console.log(index, row);
+      // console.log(row.filename);
       this.seismic_message = row.filename;
     },
     // 查询卷头信息
     queryHeader(val, type) {
-      console.log(this.seismic_message);
+      // console.log(this.seismic_message);
       console.log(val);
       let this_url = "http://127.0.0.1:8000/seismic/seismicheaderquery/";
       axios({
@@ -584,7 +616,17 @@ export default {
           } else if (this.type == "views") {
             this.showtype = "views"; //div判断展示views
             var seismicdata = res.data;
-            console.log(res.data);
+            // console.log(res.data);
+            // console.log(Math.max.apply(null, res.data));
+            // console.log(Math.min.apply(null, res.data));
+            let max_value = Math.max.apply(null, res.data);
+            let min_value = Math.min.apply(null, res.data);
+            let value = 0;
+            if (max_value < Math.abs(min_value)) {
+              value = Math.abs(min_value);
+            } else {
+              value = max_value;
+            }
             // console.log(typeof res.data);
             if ((this.showtype = "views")) {
               // 基于准备好的dom，初始化echarts实例
@@ -595,7 +637,7 @@ export default {
               // 指定图表的配置项和数据
               let data = [];
               seismicdata.forEach((element, i) => {
-                data.push([i, element]);
+                data.push([i, element / value]);
               });
               let textname = "第" + this.val + "道数据展示图";
               let option = {
@@ -631,8 +673,8 @@ export default {
                 },
                 yAxis: {
                   name: "y",
-                  // min: -100,
-                  // max: 100,
+                  min: -1,
+                  max: 1,
                   minorTick: {
                     show: true,
                   },
@@ -691,7 +733,18 @@ export default {
     // 查看地震剖面
     seismicprofile(formName) {
       this.$refs[formName].validate((valid) => {
-        if (valid) {
+        if (
+          this.seismicprofileform.mtrace == "" ||
+          this.seismicprofileform.ntrace == ""
+        ) {
+          // console.log("不能为空");
+          this.$notify.error({
+            title: "Error",
+            message: "请输入相关参数!!",
+          });
+        } else if (
+          this.seismicprofileform.mtrace <= this.seismicprofileform.ntrace
+        ) {
           // console.log(formName);
           // console.log(this.seismicprofileform);
           let this_url = "http://127.0.0.1:8000/seismic/seismicprofilequery/";
@@ -705,14 +758,163 @@ export default {
             },
           })
             .then((res) => {
-              console.log(res.data);
+              // console.log(res);
+              // console.log(res.data);
+              this.showtype = "views_profile"; //div判断展示views
+              // 基于准备好的dom，初始化echarts实例
+              let myChart = this.$echarts.init(
+                document.getElementById("dataviews_profile")
+              );
+              var datajson = eval("(" + res.data + ")");
+              // console.log(datajson);
+              // console.log(datajson['data']);
+              let data_arr = datajson["data"];
+              // console.log(data_arr);
+              // console.log(data_arr[1]);
+              let data1 = data_arr[0];
+              let data2 = data_arr[1];
+              // console.log(datajson.data);
+              // 图形需要的数据
+              // let data = datajson.data;
+              let num_data =
+                this.seismicprofileform.ntrace -
+                this.seismicprofileform.mtrace +
+                1;
+              let serieslist = [];
+              let seriejson = {};
+              // let itemStyle = {};
+              // itemStyle = {
+              //   normal: {
+              //     lineStyle: {
+              //       color: "#253A5D", //改变折线颜色
+              //     },
+              //   },
+              // };
+              // serieslist.push(itemStyle);
+
+              for (let index = 0; index < num_data; index++) {
+                // const element = array[index];
+                let data_x = data_arr[index];
+                seriejson = {
+                  type: "line",
+                  showSymbol: false,
+                  clip: true,
+                  data: data_x,
+                };
+
+                serieslist.push(seriejson);
+              }
+              console.log(serieslist);
+
+              let textname = "多道数据展示图";
+              let option = {
+                title: {
+                  // text: "当前道的频谱图",
+                  text: textname,
+                  subtext: "数据来自MonGeoStore解析",
+                  left: "center",
+                },
+                animation: false,
+                // visualMap: {
+                //   top: 10,
+                //   right: 10,
+                // },
+                grid: {
+                  top: 60,
+                  left: 60,
+                  right: 40,
+                  bottom: 50,
+                },
+                xAxis: {
+                  name: "",
+                  minorTick: {
+                    show: true,
+                  },
+                  splitLine: {
+                    lineStyle: {
+                      color: "#999",
+                    },
+                  },
+                  minorSplitLine: {
+                    show: true,
+                    lineStyle: {
+                      color: "#ddd",
+                    },
+                  },
+                },
+                yAxis: {
+                  name: "y",
+                  // min: -1,
+                  // max: 1,
+                  minorTick: {
+                    show: true,
+                  },
+                  splitLine: {
+                    lineStyle: {
+                      color: "#999",
+                    },
+                  },
+                  minorSplitLine: {
+                    show: true,
+                    lineStyle: {
+                      color: "#ddd",
+                    },
+                  },
+                },
+                dataZoom: [
+                  {
+                    show: true,
+                    type: "inside",
+                    filterMode: "none",
+                    xAxisIndex: [0],
+                    // startValue: -20,
+                    // endValue: 20,
+                  },
+                  {
+                    show: true,
+                    type: "inside",
+                    filterMode: "none",
+                    yAxisIndex: [0],
+                    // startValue: -20,
+                    // endValue: 20,
+                  },
+                ],
+                // series: [
+                //   {
+                //     type: "line",
+                //     showSymbol: false,
+                //     clip: true,
+                //     data: data1,
+                //   },
+                //   {
+                //     type: "line",
+                //     showSymbol: false,
+                //     clip: true,
+                //     data: data2,
+                //   },
+                // ],
+                series: serieslist,
+              };
+
+              // console.log(parseFloat(res.data));
+
+              // 使用刚指定的配置项和数据显示图表。
+              myChart.setOption(option, true); // 加上true表示不合并配置
             })
             .catch((err) => {
-              console.log("err");
+              // console.log(err);
+              this.$notify.error({
+                title: "Error",
+                message: "参数超出查询范围!!",
+              });
             });
         } else {
-          console.log("error submit!!");
-          return false;
+          // console.log("error submit!!");
+          // return false;
+          this.$notify.error({
+            title: "Error",
+            message: "输入参数不正确!!",
+          });
         }
       });
     },

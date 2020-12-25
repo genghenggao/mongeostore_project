@@ -4,12 +4,14 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-24 20:34:26
+LastEditTime: 2020-12-25 17:26:36
 '''
+from bson.json_util import dumps
 from django.test import client
 from dwebsocket.decorators import accept_websocket, require_websocket
 from functools import partial
 import re
+import numpy as np
 import segyio
 import datetime
 import json
@@ -354,32 +356,51 @@ def SeismicHeaderQuery(request):
         return HttpResponse('Sorry，查询失败~')
 
     # return HttpResponse('succes')
-
 # 地震数据解析，获取服务器文件
 @require_http_methods(['GET'])
 def SeismicProfileQuery(request):
-    print(request.GET)
+    # print(request.GET)
     filename = request.GET.get('filename')
     mtrace = request.GET.get('mtrace')
     ntrace = request.GET.get('ntrace')
     print(mtrace)
-    print(type(mtrace))
+    # print(type(mtrace))
     print(ntrace)
     content = "..\mongeostore_env\pic\\" + filename
 
     try:
         with segyio.open(content, mode="r", strict=False, ignore_geometry=False, endian='big') as f:
-            content = []
-            data = f.trace[int(mtrace):int(ntrace)]
+            readdata = f.trace[int(mtrace):int(ntrace)]  # 读出generator object
             # datatest = data.tolist()  # 矩阵转列表
-            # data = []
-            # for i in [int(mtrace), int(ntrace)]:
-            #     datatemp = f.trace[i].tolist()
+            data = []
+            datajson = {}
+            subdatalist = []
+            for i in range(int(mtrace), int(ntrace)+1):
+                outputdatalist = []
 
-            #     data.append(str(datatemp))
-        # return HttpResponse('success')
-            print(data)
-            return HttpResponse(data)
+                # datatemp = f.trace[i].tolist()
+                readdata = f.trace[i]
+                # print(readdata)
+                max_value = np.max(readdata)
+                min_value = np.min(readdata)
+                # print(max_value)
+                # print(min_value)
+                max_result = max_value if max_value > - \
+                    min_value else -min_value  # 如果条件成立，将x的值赋给result
+                # print(max_result)
+                readdata = readdata/max_result+i
+                n = -1
+                for value in readdata:
+                    n += 1
+                    subdatalist = [n, value]
+                    outputdatalist.append(subdatalist)
+
+                data.append(outputdatalist)
+                datajson = {
+                    'data': data
+                }
+
+            return HttpResponse(str(datajson))
     except:
         print('解析错误')
         return HttpResponse('Sorry，查询失败~')
