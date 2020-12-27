@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-17 22:26:27
+ * @LastEditTime: 2020-12-27 18:11:02
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -221,6 +221,13 @@ const routes = [
         name: "SeismicHome",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicHome.vue")
+      },
+      // 地震数据信息
+      {
+        path: "seismicdatainfo",
+        name: "seismicdatainfo",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicDataInfo.vue")
       },
       // 地震数据
       {

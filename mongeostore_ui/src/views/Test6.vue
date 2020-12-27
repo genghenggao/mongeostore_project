@@ -1,305 +1,529 @@
+<!--
+ * @Description: henggao_learning
+ * @version: v1.0.0
+ * @Author: henggao
+ * @Date: 2020-12-16 15:37:36
+ * @LastEditors: henggao
+ * @LastEditTime: 2020-12-27 16:23:02
+-->
 <template>
-  <el-form ref="form" :model="form" label-width="100px">
-    <el-form-item label="钻孔编号">
-      <el-input v-model="form.zk_num"></el-input>
-    </el-form-item>
-    <el-form-item label="钻孔类型">
-      <el-input v-model="form.zk_type"></el-input>
-    </el-form-item>
-    <el-form-item label="钻孔深度">
-      <el-input v-model="form.final_depth"></el-input>
-    </el-form-item>
-    <el-form-item label="终孔时间">
-      <el-date-picker
-        type="date"
-        placeholder="选择日期"
-        v-model="form.final_date"
-        style="width: 100%"
-      ></el-date-picker
-    ></el-form-item>
-
-    <el-form-item label="项目名称">
-      <el-input v-model="form.project_name"></el-input>
-    </el-form-item>
-    <el-form-item label="单位名称">
-      <el-input v-model="form.company_name"></el-input>
-    </el-form-item>
-    <el-form-item label="上传人员">
-      <el-input v-model="form.uploader"></el-input>
-    </el-form-item>
-    <el-form-item label="上传时间">
-      <el-date-picker
-        type="date"
-        placeholder="选择日期"
-        v-model="form.uploaddate"
-        style="width: 100%"
-      ></el-date-picker
-    ></el-form-item>
-
-    <el-form-item label="钻孔柱状图">
-      <el-row>
-        <el-button ref="VideoChose" id="VideoChose" size="medium "
-          >选择文件</el-button
-        >
-      </el-row>
-      <el-card style="margin-top: 20px">
-        <el-table :data="fileList" style="width: 100%">
-          <el-table-column prop="id" label="文件id"></el-table-column>
-          <el-table-column prop="name" label="文件名称"></el-table-column>
-          <el-table-column prop="type" label="文件类型"></el-table-column>
-          <el-table-column prop="size" label="文件大小" v-slot="{ row }">
-            {{ row.size }}MB
-          </el-table-column>
-          <el-table-column label="进度" v-slot="{ row }">
-            <el-progress
-              :text-inside="true"
-              :stroke-width="16"
-              :percentage="row.percentage"
-            ></el-progress>
-          </el-table-column>
-          <el-table-column label="取消上传" v-slot="{ row }">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              circle
-              @click="removeFile(row.id)"
-            ></el-button>
-          </el-table-column>
-          <el-table-column label="上传状态" v-slot="{ row }">
-            <el-link
-              :type="
-                row.loadType == 0
-                  ? 'info'
-                  : row.loadType == 1
-                  ? 'warning'
-                  : row.loadType == 2
-                  ? 'success'
-                  : 'danger'
-              "
-              :underline="false"
-              >{{
-                row.loadType == 0
-                  ? "等待上传"
-                  : row.loadType == 1
-                  ? "正在上传"
-                  : row.loadType == 2
-                  ? "上传成功"
-                  : "上传失败"
-              }}</el-link
-            >
-          </el-table-column>
-        </el-table>
-      </el-card>
-    </el-form-item>
-    <el-form-item>
-      <el-button
-        ref="VideoChose"
-        type="primary"
-        size="medium  "
-        @click="onSubmit"
-        >提交</el-button
-      >
-      <el-button>取消</el-button>
-    </el-form-item>
-  </el-form>
+  <div>
+    <div
+      id="chart-panel"
+      ref="chart"
+      style="wodth: 800px; height: 600px; margin: 0 auto"
+    ></div>
+    <!-- <remote-script
+      src="https://gallerybox.echartsjs.com/dep/echarts/map/js/china.js"
+    ></remote-script
+    >; -->
+  </div>
 </template>
 
 <script>
-import plupload from "plupload";
-import axios from "axios";
-import { stringify } from "qs";
+// import $ from "jquery";
+import * as echarts from "echarts/lib/echarts";
+import china from "echarts/map/js/china.js";
+// import china from "@/assets/js/china.js";
+// var echarts = require("echarts");
 export default {
-  name: "UploadFile",
+  name: "SeismicProfile",
   data() {
     return {
-      form: {
-        zk_num: "",
-        zk_type: "",
-        final_depth: "",
-        final_date: "",
-        depth: "",
-        project_name: "",
-        company_name: "",
-        uploader: "",
-        uploaddate: "",
-      },
-      show: false,
-      fileList: [],
-      fileOptions: {
-        browse_button: "VideoChose",
-        // url: "http://127.0.0.1:8000/load/uploadfile/",
-        url: "http://127.0.0.1:8000/load/drillmeta/",
-        flash_swf_url: "script/Moxie.swf",
-        silverlight_xap_url: "script/Moxie.xap",
-        // chunk_size: "10mb", //分块大小  ,注销掉或者改chunk_size：'0mb'为解决文件大于10M存为blob问题
-        max_retries: 3,
-        unique_names: true,
-        multi_selection: false, //是否允许选择多文件
-        views: {
-          list: true,
-          thumbs: true, // Show thumbs
-          active: "thumbs",
-        },
-        filters: {
-          mime_types: [
-            //文件格式
-            {
-              title: "files",
-              extensions:
-                // "png,jpg,svg,mp4,rmvb,mpg,mxf,avi,mpeg,wmv,flv,mov,ts,docx,doc,pdf,segy,xls,xlsx,csv", //文件格式
-                "png,jpg",
-            },
-          ],
-          max_file_size: "10240mb", //最大上传的文件
-          prevent_duplicates: true, //不允许选取重复文件
-        },
-        multipart_params: {
-          uuid: "", //参数
-          // testparams: "Must can see me",
-          // "testparams2": "Must can see me2"
-        },
-      },
+      data: "",
+      a: "g",
     };
   },
-
+  created() {},
   mounted() {
-    //实例化一个plupload上传对象
-    this.uploader.init();
-    //绑定进队列
-    this.uploader.bind("FilesAdded", this.FilesAdded);
-    //绑定进度
-    this.uploader.bind("UploadProgress", this.UploadProgress);
-    //上传之前
-    this.uploader.bind("BeforeUpload", this.BeforeUpload);
-    //上传成功监听
-    this.uploader.bind("FileUploaded", this.FileUploaded);
-    //获取uuid
-    // let url = `http://127.0.0.1:8000/api/uploadinfo/`;
-    let url = `http://127.0.0.1:8000/load/drillmeta/`;
-    axios.get(url).then(({ data }) => {
-      this.fileOptions.multipart_params.uuid = data;
-    });
+    // 引入china.json
+    this.showDataResource();
   },
-  computed: {
-    //实例化一个plupload上传对象
-    uploader() {
-      return new plupload.Uploader(this.fileOptions);
-    },
-  },
+  watch: {},
   methods: {
-    //绑定进队列
-    FilesAdded(uploader, files) {
-      console.log(this.form);
-      let data = this.form;
-      if (files[0].name.length > 25) {
-        // $.messager.show("提示", "文件名称太长！", "info");
-        this.$message({
-          type: "error",
-          message: "文件名称太长！",
-        });
-        return;
-      }
-      if (uploader.files.length > 1) {
-        // 最多上传3张图
-        // $.messager.show("提示", "只能上传一个文件，请删除多余文件！", "info");
-        this.$message({
-          type: "error",
-          message: "只能上传一个文件,请先删除！",
-        });
-        uploader.removeFile(files[0]);
-        return;
-      }
-      let objarr = files.map((val, ind) => {
-        let obj = {};
-        obj.id = val.id;
-        obj.name = val.name;
-        obj.type = val.type;
-        // obj.upload_date = val.upload_date;
-        obj.upload_date = new Date().toLocaleString(); //获取日期与时间
-        // obj.publiser = val.publiser;
-        obj.publisher = "publisher"; //获取当前登录用户信息
-        obj.size = parseInt((val.origSize / 1024 / 1024) * 100) / 100;
-        obj.percentage = 0;
-        obj.loadType = 0;
-        console.log(obj);
-        return obj;
-      });
-      this.fileList.push(...objarr);
-    },
-    //上传之前回调
-    BeforeUpload(uploader, file) {
-      this.fileList = this.fileList.map((val, ind) => {
-        if (val.id == file.id) {
-          val.loadType = 1;
-        }
+    showDataResource() {
+      // 基于准备好的dom，初始化echarts实例
+      let myChart = echarts.init(this.$refs.chart);
 
-        //设置参数
-        console.log(val.name);
-        uploader.setOption("multipart_params", {
-          // form: this.form, //设置表单擦不能输
-          zk_num: this.form["zk_num"],
-          zk_type: this.form["zk_type"],
-          final_depth: this.form["final_depth"],
-          final_date: this.form["final_date"].getTime(), //时间转为时间戳方便后端解析 对比toLocaleString()
-          depth: this.form["depth"],
-          project_name: this.form["project_name"],
-          company_name: this.form["company_name"],
-          uploader: this.form["uploader"],
-          uploaddate: this.form["uploaddate"].getTime(),
-          filename: val.name,
-          publisher: val.publisher,
-          type: val.type,
-          upload_date: new Date().toLocaleString(),
-          // size:val.size
-        });
+      $('<div class="back">返 回</div>').appendTo($("#chart-panel"));
 
-        uploader.settings.multipart_params.size = val.size;
-        uploader.settings.multipart_params.id = val.id;
-        return val;
+      $(".back").css({
+        position: "absolute",
+        left: "25px",
+        top: "25px",
+        color: "rgb(179, 239, 255)",
+        "font-size": "16px",
+        cursor: "pointer",
+        "z-index": "100",
       });
-    },
-    //上传进度回调
-    UploadProgress(uploader, file) {
-      this.fileList = this.fileList.map((val, ind) => {
-        if (val.id == file.id) {
-          val.percentage = file.percent;
+
+      $(".back").click(function () {
+        if (parentInfo.length === 1) {
+          return;
         }
-        return val;
+        parentInfo.pop();
+        init(parentInfo[parentInfo.length - 1].code);
       });
-    },
-    // 上传成功回调
-    FileUploaded(uploader, file, responseObject) {
-      this.fileList = this.fileList.map((val, ind) => {
-        if (val.id == file.id) {
-          // if (JSON.parse(responseObject.response).status == 0) {
-          if (status == 0) {
-            val.loadType = 2;
-          } else {
-            val.loadType = 3;
+
+      var geoJson = {};
+
+      var parentInfo = [
+        {
+          cityName: "全国",
+          code: 100000,
+        },
+      ];
+
+      var currentIndex = 0;
+
+      var timeTitle = ["2015", "2016", "2017", "2018", "2019"];
+      init(100000);
+
+      function init(adcode) {
+        getGeoJson(adcode).then((data) => {
+          geoJson = data;
+          getMapData();
+        });
+      }
+
+      //这里我封装了下，直接可以拿过来用
+      function getGeoJson(adcode, childAdcode = "") {
+        return new Promise((resolve, reject) => {
+          function insideFun(adcode, childAdcode) {
+            AMapUI.loadUI(["geo/DistrictExplorer"], (DistrictExplorer) => {
+              var districtExplorer = new DistrictExplorer();
+              districtExplorer.loadAreaNode(adcode, function (error, areaNode) {
+                if (error) {
+                  console.error(error);
+                  reject(error);
+                  return;
+                }
+                let Json = areaNode.getSubFeatures();
+                if (Json.length === 0) {
+                  let parent =
+                    areaNode._data.geoData.parent.properties.acroutes;
+                  insideFun(parent[parent.length - 1], adcode);
+                  return;
+                }
+
+                if (childAdcode) {
+                  Json = Json.filter((item) => {
+                    return item.properties.adcode == childAdcode;
+                  });
+                }
+                let mapJson = {
+                  features: Json,
+                };
+                resolve(mapJson);
+              });
+            });
           }
+          insideFun(adcode, childAdcode);
+        });
+      }
+
+      //获取数据
+      function getMapData() {
+        let mapData = [],
+          pointData = [],
+          sum = 0;
+
+        geoJson.features.forEach((item) => {
+          let value = Math.random() * 3000;
+          mapData.push({
+            name: item.properties.name,
+            value: value,
+            cityCode: item.properties.adcode,
+          });
+          pointData.push({
+            name: item.properties.name,
+            value: [
+              item.properties.center[0],
+              item.properties.center[1],
+              value,
+            ],
+            cityCode: item.properties.adcode,
+          });
+          sum += value;
+        });
+        mapData = mapData.sort(function (a, b) {
+          return b.value - a.value;
+        });
+
+        initEchartMap(mapData, sum, pointData);
+      }
+
+      //渲染echarts
+      function initEchartMap(mapData, sum, pointData) {
+        var xData = [],
+          yData = [];
+        var min = mapData[mapData.length - 1].value;
+        var max = mapData[0].value;
+        if (mapData.length === 1) {
+          min = 0;
         }
-        return val;
-      });
-    },
-    //取消上传回调
-    removeFile(id) {
-      this.uploader.removeFile(id);
-      this.fileList = this.fileList.filter((val, ind) => {
-        if (val.id == id) {
-          return false;
+        mapData.forEach((c) => {
+          xData.unshift(c.name);
+          yData.unshift(c.value);
+        });
+        //这里做个切换，全国的时候才显示南海诸岛  只有当注册的名字为china的时候才会显示南海诸岛
+        echarts.registerMap(parentInfo.length === 1 ? "china" : "map", geoJson);
+        var option = {
+          timeline: {
+            data: timeTitle,
+            axisType: "category",
+            autoPlay: true,
+            playInterval: 5000,
+            left: "10%",
+            right: "10%",
+            bottom: "2%",
+            width: "80%",
+            label: {
+              normal: {
+                textStyle: {
+                  color: "rgb(179, 239, 255)",
+                },
+              },
+              emphasis: {
+                textStyle: {
+                  color: "#fff",
+                },
+              },
+            },
+            currentIndex: currentIndex,
+            symbolSize: 10,
+            lineStyle: {
+              color: "#8df4f4",
+            },
+            checkpointStyle: {
+              borderColor: "#8df4f4",
+              color: "#53D9FF",
+              borderWidth: 2,
+            },
+            controlStyle: {
+              showNextBtn: true,
+              showPrevBtn: true,
+              normal: {
+                color: "#53D9FF",
+                borderColor: "#53D9FF",
+              },
+              emphasis: {
+                color: "rgb(58,115,192)",
+                borderColor: "rgb(58,115,192)",
+              },
+            },
+          },
+          baseOption: {
+            backgroundColor: "#012248",
+            title: [
+              {
+                left: "center",
+                top: 10,
+                text:
+                  parentInfo[parentInfo.length - 1].cityName +
+                  "销售额统计图(可点击下钻到县)",
+                textStyle: {
+                  color: "rgb(179, 239, 255)",
+                  fontSize: 16,
+                },
+              },
+              {
+                text: "销售总额：" + sum.toFixed(2) + "万",
+                left: "center",
+                top: "6.5%",
+                textStyle: {
+                  color: "#FFAC50",
+                  fontSize: 26,
+                },
+              },
+            ],
+            tooltip: {
+              trigger: "axis",
+              axisPointer: {
+                type: "shadow",
+              },
+            },
+            grid: {
+              right: "2%",
+              top: "12%",
+              bottom: "8%",
+              width: "20%",
+            },
+            toolbox: {
+              feature: {
+                restore: {
+                  show: false,
+                },
+                dataView: {
+                  show: false,
+                },
+                saveAsImage: {
+                  name:
+                    parentInfo[parentInfo.length - 1].cityName + "销售额统计图",
+                },
+                dataZoom: {
+                  show: false,
+                },
+                magicType: {
+                  show: false,
+                },
+              },
+              iconStyle: {
+                normal: {
+                  borderColor: "#1990DA",
+                },
+              },
+              top: 15,
+              right: 35,
+            },
+            geo: {
+              map: parentInfo.length === 1 ? "china" : "map",
+              zoom: 1.1,
+              roam: true,
+              left: "10%",
+              top: "15%",
+              tooltip: {
+                trigger: "item",
+                formatter: (p) => {
+                  let val = p.value[2];
+                  if (window.isNaN(val)) {
+                    val = 0;
+                  }
+                  let txtCon =
+                    "<div style='text-align:left'>" +
+                    p.name +
+                    ":<br />销售额：" +
+                    val.toFixed(2) +
+                    "万</div>";
+                  return txtCon;
+                },
+              },
+              label: {
+                normal: {
+                  show: true,
+                  color: "rgb(249, 249, 249)", //省份标签字体颜色
+                  formatter: (p) => {
+                    switch (p.name) {
+                      case "内蒙古自治区":
+                        p.name = "内蒙古";
+                        break;
+                      case "西藏自治区":
+                        p.name = "西藏";
+                        break;
+                      case "新疆维吾尔自治区":
+                        p.name = "新疆";
+                        break;
+                      case "宁夏回族自治区":
+                        p.name = "宁夏";
+                        break;
+                      case "广西壮族自治区":
+                        p.name = "广西";
+                        break;
+                      case "香港特别行政区":
+                        p.name = "香港";
+                        break;
+                      case "澳门特别行政区":
+                        p.name = "澳门";
+                        break;
+                    }
+                    return p.name;
+                  },
+                },
+                emphasis: {
+                  show: true,
+                  color: "#f75a00",
+                },
+              },
+              itemStyle: {
+                normal: {
+                  areaColor: "#24CFF4",
+                  borderColor: "#53D9FF",
+                  borderWidth: 1.3,
+                  shadowBlur: 15,
+                  shadowColor: "rgb(58,115,192)",
+                  shadowOffsetX: 7,
+                  shadowOffsetY: 6,
+                },
+                emphasis: {
+                  areaColor: "#8dd7fc",
+                  borderWidth: 1.6,
+                  shadowBlur: 25,
+                },
+              },
+            },
+            visualMap: {
+              min: min,
+              max: max,
+              left: "3%",
+              bottom: "5%",
+              calculable: true,
+              seriesIndex: [0],
+              inRange: {
+                color: ["#24CFF4", "#2E98CA", "#1E62AC"],
+              },
+              textStyle: {
+                color: "#24CFF4",
+              },
+            },
+            xAxis: {
+              type: "value",
+              scale: true,
+              position: "top",
+              boundaryGap: false,
+              splitLine: {
+                show: false,
+              },
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: "#455B77",
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+              axisLabel: {
+                margin: 2,
+                textStyle: {
+                  color: "#c0e6f9",
+                },
+              },
+            },
+            yAxis: {
+              type: "category",
+              nameGap: 16,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: "#455B77",
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+              axisLabel: {
+                interval: 0,
+                textStyle: {
+                  color: "#c0e6f9",
+                },
+              },
+              data: xData,
+            },
+            series: [
+              {
+                name: timeTitle[currentIndex] + "年销售额度",
+                type: "map",
+                geoIndex: 0,
+                map: parentInfo.length === 1 ? "china" : "map",
+                roam: true,
+                zoom: 1.3,
+                tooltip: {
+                  trigger: "item",
+                  formatter: (p) => {
+                    let val = p.value;
+                    if (p.name == "南海诸岛") return;
+                    if (window.isNaN(val)) {
+                      val = 0;
+                    }
+                    let txtCon =
+                      "<div style='text-align:left'>" +
+                      p.name +
+                      ":<br />销售额：" +
+                      val.toFixed(2) +
+                      "万</div>";
+                    return txtCon;
+                  },
+                },
+                label: {
+                  normal: {
+                    show: false,
+                  },
+                  emphasis: {
+                    show: false,
+                  },
+                },
+                data: mapData,
+              },
+              {
+                name: "散点",
+                type: "effectScatter",
+                coordinateSystem: "geo",
+                rippleEffect: {
+                  brushType: "fill",
+                },
+                itemStyle: {
+                  normal: {
+                    color: "#F4E925",
+                    shadowBlur: 10,
+                    shadowColor: "#333",
+                  },
+                },
+                data: pointData,
+
+                symbolSize: function (val) {
+                  let value = val[2];
+                  if (value == max) {
+                    return 27;
+                  }
+                  return 10;
+                },
+                showEffectOn: "render", //加载完毕显示特效
+              },
+              {
+                type: "bar",
+                barGap: "-100%",
+                barCategoryGap: "60%",
+                itemStyle: {
+                  normal: {
+                    color: "#11AAFE",
+                  },
+                  emphasis: {
+                    show: false,
+                  },
+                },
+                data: yData,
+              },
+            ],
+          },
+        };
+
+        myChart.setOption(option, true);
+
+        //点击前解绑，防止点击事件触发多次
+        myChart.off("click");
+        myChart.on("click", echartsMapClick);
+
+        //监听时间切换事件
+        myChart.off("timelinechanged");
+        myChart.on("timelinechanged", (params) => {
+          currentIndex = params.currentIndex;
+          getMapData();
+        });
+      }
+
+      //echarts点击事件
+      function echartsMapClick(params) {
+        if (!params.data) {
+          return;
         } else {
-          return true;
+          //如果当前是最后一级，那就直接return
+          if (parentInfo[parentInfo.length - 1].code == params.data.cityCode) {
+            return;
+          }
+          let data = params.data;
+          parentInfo.push({
+            cityName: data.name,
+            code: data.cityCode,
+          });
+          init(data.cityCode);
         }
-      });
-    },
-    //开始上传
-    // FileUplodeOn() {
-    //   this.uploader.start();
-    // },
-    onSubmit() {
-      this.uploader.start();
+      }
+      // 使用刚指定的配置项和数据显示图表。
+      // mychart.setOption(option); // 加上true表示不合并配置
     },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+</style>

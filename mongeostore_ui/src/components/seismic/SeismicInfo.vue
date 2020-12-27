@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-16 14:34:23
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-17 22:24:36
+ * @LastEditTime: 2020-12-27 18:42:23
 -->
 <template>
   <!-- 主界面-->
@@ -22,6 +22,10 @@
           <el-menu-item index="/mongeostore/seismichome"
             ><i class="el-icon-s-home"></i>
             首页
+          </el-menu-item>
+          <el-menu-item index="/mongeostore/seismicdatainfo"
+            ><i class="el-icon-document"></i>
+            数据信息
           </el-menu-item>
           <el-menu-item index="/mongeostore/seismicmetadata"
             ><i class="el-icon-s-data"></i>元数据
@@ -116,5 +120,8 @@ export default {
   height: 46px;
   line-height: 46px;
   margin: 0;
+}
+ul.el-menu-demo.el-menu--horizontal.el-menu {
+  border-color: #810000;
 }
 </style>

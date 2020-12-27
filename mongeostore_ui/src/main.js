@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-22 19:56:12
+ * @LastEditTime: 2020-12-27 14:31:37
  */
 import Vue from "vue";
 import Vuex from 'vuex'  // 引入 vuex
@@ -33,6 +33,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import SlideVerify from 'vue-monoplasty-slide-verify';
 // Baidui API
 import BaiduMap from 'vue-baidu-map';
+// 高德地图
+import VueAMap from 'vue-amap';
 import uploader from 'vue-simple-uploader';
 // v-viewer 图片插件
 import 'viewerjs/dist/viewer.css'
@@ -54,11 +56,21 @@ Vue.use(BootstrapVueIcons)
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
-
+// baidu
 Vue.use(BaiduMap, {
   /* Visit http://lbsyun.baidu.com/apiconsole/key for details about app key. */
   ak: '23jFoXtASNYo6tR1hrrjuVWwM97FGKpH'
 })
+// 高德
+Vue.use(VueAMap);
+VueAMap.initAMapApiLoader({
+  key: "fe5a1d60924e859da081d46619c9f3ae",
+  plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor'],   //插件
+  // v: "1.4.4"  //版本号，默认高德sdk版本为1.4.4，可自行修改
+})
+// Vue.prototype.VueAMap = VueAMap;
+
+
 Vue.use(uploader)
 
 

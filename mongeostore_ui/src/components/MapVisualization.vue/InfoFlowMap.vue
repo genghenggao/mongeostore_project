@@ -4,11 +4,15 @@
  * @Author: henggao
  * @Date: 2020-12-16 15:37:36
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-27 20:15:16
+ * @LastEditTime: 2020-12-27 16:34:18
 -->
 <template>
   <div>
-    <div id="main" ref="chart" style="height: 811px; margin: 0 auto"></div>
+    <div
+      id="main"
+      ref="chart"
+      style="wodth: 800px; height: 600px; margin: 0 auto"
+    ></div>
     <!-- <remote-script
       src="https://gallerybox.echartsjs.com/dep/echarts/map/js/china.js"
     ></remote-script
@@ -38,7 +42,6 @@ export default {
     // script.src = "https://gallerybox.echartsjs.com/dep/echarts/map/js/china.js";
     // document.body.appendChild(script);
   },
-
   watch: {},
   methods: {
     showDataResource() {

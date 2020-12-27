@@ -2,14 +2,6 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-12-27 18:11:18
- * @LastEditors: henggao
- * @LastEditTime: 2020-12-27 20:16:56
--->
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
  * @Date: 2020-12-27 09:51:40
  * @LastEditors: henggao
  * @LastEditTime: 2020-12-27 16:28:24
@@ -19,7 +11,7 @@
     <div
       id="chart-panel"
       ref="chart"
-      style="width: 100%; height: 811px; margin: 0 auto"
+      style="width: 600px; height: 400px; margin: 0 auto"
     ></div>
     <!-- <remote-script
       src="https://gallerybox.echartsjs.com/dep/echarts/map/js/china.js"
@@ -84,7 +76,7 @@ export default {
 
       var currentIndex = 0;
 
-      var timeTitle = ["2016", "2017", "2018", "2019", "2020"];
+      var timeTitle = ["2015", "2016", "2017", "2018", "2019"];
       init(100000);
 
       function init(adcode) {
@@ -223,26 +215,25 @@ export default {
           },
           baseOption: {
             backgroundColor: "#012248",
-            // backgroundColor: "#fff",
             title: [
               {
                 left: "center",
                 top: 10,
                 text:
                   parentInfo[parentInfo.length - 1].cityName +
-                  "地学数据统计图(可点击下钻到县)",
+                  "销售额统计图(可点击下钻到县)",
                 textStyle: {
                   color: "rgb(179, 239, 255)",
-                  fontSize: 26,
+                  fontSize: 16,
                 },
               },
               {
-                text: "数据总数" + sum.toFixed(2) + "万",
+                text: "销售总额：" + sum.toFixed(2) + "万",
                 left: "center",
                 top: "6.5%",
                 textStyle: {
                   color: "#FFAC50",
-                  fontSize: 16,
+                  fontSize: 26,
                 },
               },
             ],
@@ -268,8 +259,7 @@ export default {
                 },
                 saveAsImage: {
                   name:
-                    parentInfo[parentInfo.length - 1].cityName +
-                    "地学数据统计图",
+                    parentInfo[parentInfo.length - 1].cityName + "销售额统计图",
                 },
                 dataZoom: {
                   show: false,
@@ -421,7 +411,7 @@ export default {
             },
             series: [
               {
-                name: timeTitle[currentIndex] + "地学数据量",
+                name: timeTitle[currentIndex] + "年销售额度",
                 type: "map",
                 geoIndex: 0,
                 map: parentInfo.length === 1 ? "china" : "map",
@@ -438,7 +428,7 @@ export default {
                     let txtCon =
                       "<div style='text-align:left'>" +
                       p.name +
-                      ":<br />地学数据" +
+                      ":<br />销售额：" +
                       val.toFixed(2) +
                       "万</div>";
                     return txtCon;

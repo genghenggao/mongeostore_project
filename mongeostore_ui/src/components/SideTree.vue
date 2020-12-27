@@ -406,6 +406,9 @@ export default {
       if (this.$store.state.title_message == "定位表") {
         this.$router.push({ path: "/mongeostore/drilllocationhome" });
       }
+      if (this.$store.state.title_message == "地震数据") {
+        this.$router.push({ path: "/mongeostore/seismichome" });
+      }
       // 点击不同集合，数据动态展示数据
       this.reload(); //重载页面
       if (!obj["isEdit"]) {
