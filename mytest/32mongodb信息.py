@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-27 20:53:29
 LastEditors: henggao
-LastEditTime: 2020-12-27 21:36:21
+LastEditTime: 2020-12-28 09:17:39
 '''
 from pymongo import MongoClient
 
@@ -17,11 +17,11 @@ col = db.colname
 stats = db.command('collstats', '定位表')
 # print(stats)
 # print(stats['storageSize'] / 1024 / 1024)  # 获取占用硬盘的大小,#用 MB 作为单位
-
+print(db)
 
 # print(db.last_status)
 # print (db.command("dbstats"))
 
 # num = col.count_documents()  # 集合的count() 方法返回集合中文档的个数
 # print(num)
-print(db.command("buildinfo"))
+# print(db.collection_names())

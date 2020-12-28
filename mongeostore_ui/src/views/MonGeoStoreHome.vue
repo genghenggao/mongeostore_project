@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-05 19:45:25
+ * @LastEditTime: 2020-12-28 22:48:45
 -->
 <template>
   <div class="mongoestore_home">
@@ -20,10 +20,38 @@
             <el-col :xl="24">
               <h1>MonGeoStore系统简介</h1>
               <p>
-                系统主要使用Django框架，整合MongoDB数据库。<br />
+                系统主要使用Django框架，整合MongoDB数据库。
                 该系统主要用于解决海量地震数据的存储、管理，为地质工作者提供更好的服务。
               </p>
-              <img src="@/assets/images/yanshitu.jpg" alt="" />
+              <!-- <img src="@/assets/images/yanshitu.jpg" alt="" /> -->
+              <!-- <img src="@/assets/images/logo_theme_GM.png" alt="" /> -->
+              <div>
+                <!--动态将图片轮播图的容器高度设置成与图片一致-->
+                <el-carousel
+                  indicator-position="outside"
+                  :height="bannerHeight + 'px'"
+                >
+                  <el-carousel-item v-for="item in img_list" :key="item.url">
+                    <!-- <h3 class="medium">{{ item }}</h3> -->
+                    <img :src="item.url" alt="图片" />
+                  </el-carousel-item>
+                </el-carousel>
+              </div>
+            </el-col>
+          </el-row>
+        </el-container>
+        <el-container class="act_one_extra wow fadeInUp" data-wow-duration="1s">
+          <el-row :gutter="10" style="margin: auto">
+            <el-col :xl="24">
+              <h1>MonGeoStore系统数据中心</h1>
+              <p>
+                系统主要由中国矿业大学（北京）煤炭资源与安全开采国家重点实验室负责运维,数据来源于全国各地，旨在搭建一个综合信息的地学数据管理系统，<br />更好的为地学科研人员提供帮助与服务。
+              </p>
+              <!-- </el-col> -->
+              <!-- <el-col :xl="24"> -->
+              <div class="extra_map">
+                <InfoFlowMap />
+              </div>
             </el-col>
           </el-row>
         </el-container>
@@ -149,7 +177,8 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  style="width:275px,height:174px"
+                  src="@/assets/images/strata1.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -166,7 +195,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/zkmodel.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -183,7 +212,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/zkmodel2.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -200,7 +229,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/contour1.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -217,7 +246,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/yanshi2.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -234,7 +263,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/strata2.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -251,7 +280,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/strata3.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -409,13 +438,26 @@
 import "animate.css";
 import WOW from "wowjs";
 import Navbar from "@/components/Navbar.vue";
+import InfoFlowMap from "@/components/map_visualization/InfoFlowMap.vue";
 export default {
   name: "MonGeoStoreHome",
   components: {
     Navbar,
+    InfoFlowMap,
   },
   data() {
-    return {};
+    return {
+      // 图片地址数组
+      img_list: [
+        { url: require("@/assets/images/yanshitu.jpg") },
+        { url: require("@/assets/images/中秋.jpg") },
+        { url: require("@/assets/images/教师节.png") },
+      ],
+      // // 图片父容器高度
+      bannerHeight: 706,
+      // // 浏览器宽度
+      // screenWidth: 0,
+    };
   },
   mounted() {
     // new this.$wow.WOW().init();
@@ -427,18 +469,30 @@ export default {
       live: true,
     });
     wow.init();
+    // 首次加载时,需要调用一次
+    this.screenWidth = window.innerWidth;
+    this.setSize();
+    // 窗口大小发生改变时,调用一次
+    window.onresize = () => {
+      this.screenWidth = window.innerWidth;
+      this.setSize();
+    };
   },
   methods: {
     onSubmit() {
       console.log("Hello");
     },
+    setSize: function () {
+      // 通过浏览器宽度(图片宽度)计算高度
+      this.bannerHeight = (745 / 1920) * this.screenWidth;
+    },
   },
 };
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 // 导航栏设置
-.sticky-top {
+::v-deep .sticky-top {
   position: fixed;
   top: 0;
   width: 100%;
@@ -463,8 +517,51 @@ export default {
 .act_one p {
   line-height: 35px;
 }
+
+// 轮播
+.el-carousel__item h3 {
+  color: #475669;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 200px;
+  margin: 0;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #99a9bf;
+}
+
+.el-carousel__item:nth-child(2n + 1) {
+  background-color: #d3dce6;
+}
+
 .act_one img {
   width: 100%;
+  // height: 100%;
+  height: inherit;
+}
+.act_one_extra {
+  // margin-top: 70px;
+  // background: url("../assets/images/home-bg.jpg");
+  background-size: cover;
+
+  width: 100%;
+  // padding: 0;
+  color: #582b2b;
+  text-align: center;
+}
+.act_one_extra h1 {
+  font-weight: bold;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+// 图片自适应
+.act_one_extra p {
+  line-height: 35px;
+}
+.act_one_extra .extra_map {
+  width: 100%;
+  // width: 1000px;
   height: 100%;
 }
 .act_two {
@@ -541,6 +638,11 @@ export default {
   color: #fff;
 }
 
+.act_five_content img.img-responsive {
+  width: 274px;
+  height: 180px;
+}
+
 .act_six {
   background: #f8f8f8;
   // padding: 80px 0;
@@ -586,16 +688,16 @@ export default {
 .act_seven textarea.el-textarea__inner {
   height: 100px;
 }
-.act_seven input.el-input__inner {
+::v-deep .act_seven input.el-input__inner {
   border: 0;
 }
-.act_seven .form-control {
+::v-deep .act_seven .form-control {
   border: none;
   border-radius: 0;
   height: 50px;
   margin-bottom: 20px;
 }
-.act_seven .form-control_textare {
+::v-deep .act_seven .form-control_textare {
   border: none;
   border-radius: 0;
   margin-bottom: 20px;
