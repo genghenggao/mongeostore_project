@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-28 22:48:45
+ * @LastEditTime: 2020-12-29 09:58:47
 -->
 <template>
   <div class="mongoestore_home">
@@ -27,13 +27,10 @@
               <!-- <img src="@/assets/images/logo_theme_GM.png" alt="" /> -->
               <div>
                 <!--动态将图片轮播图的容器高度设置成与图片一致-->
-                <el-carousel
-                  indicator-position="outside"
-                  :height="bannerHeight + 'px'"
-                >
-                  <el-carousel-item v-for="item in img_list" :key="item.url">
-                    <!-- <h3 class="medium">{{ item }}</h3> -->
+                <el-carousel :height="bannerHeight + 'px'">
+                  <el-carousel-item v-for="item in img_list" :key="item.id">
                     <img :src="item.url" alt="图片" />
+                    <h3 class="medium">{{ item.content }}</h3>
                   </el-carousel-item>
                 </el-carousel>
               </div>
@@ -439,19 +436,29 @@ import "animate.css";
 import WOW from "wowjs";
 import Navbar from "@/components/Navbar.vue";
 import InfoFlowMap from "@/components/map_visualization/InfoFlowMap.vue";
+import HomePage from "@/views/HomePage.vue";
 export default {
   name: "MonGeoStoreHome",
   components: {
     Navbar,
     InfoFlowMap,
+    HomePage,
   },
   data() {
     return {
       // 图片地址数组
       img_list: [
-        { url: require("@/assets/images/yanshitu.jpg") },
-        { url: require("@/assets/images/中秋.jpg") },
-        { url: require("@/assets/images/教师节.png") },
+        {
+          id: 1,
+          url: require("@/assets/images/yanshitu.jpg"),
+          content: "研究一",
+        },
+        { id: 2, url: require("@/assets/images/中秋.jpg"), content: "研究二" },
+        {
+          id: 3,
+          url: require("@/assets/images/教师节.png"),
+          content: "研究三",
+        },
       ],
       // // 图片父容器高度
       bannerHeight: 706,
@@ -519,13 +526,13 @@ export default {
 }
 
 // 轮播
-.el-carousel__item h3 {
-  color: #475669;
-  font-size: 14px;
-  opacity: 0.75;
-  line-height: 200px;
-  margin: 0;
-}
+// .el-carousel__item h3 {
+//   color: #475669;
+//   font-size: 14px;
+//   opacity: 0.75;
+//   line-height: 200px;
+//   margin: 0;
+// }
 
 .el-carousel__item:nth-child(2n) {
   background-color: #99a9bf;
@@ -537,9 +544,18 @@ export default {
 
 .act_one img {
   width: 100%;
-  // height: 100%;
-  height: inherit;
+  height: 100%;
+  // height: inherit;
+  filter: brightness(50%); //设置图片对比度
 }
+.act_one h3 {
+  color: #fff;
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+}
+
 .act_one_extra {
   // margin-top: 70px;
   // background: url("../assets/images/home-bg.jpg");
