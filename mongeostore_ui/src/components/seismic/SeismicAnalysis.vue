@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-25 22:09:32
+ * @LastEditTime: 2020-12-31 20:39:09
 -->
 <template>
   <el-container>
@@ -225,6 +225,7 @@
                 background: #51abce;
                 border-radius: 5px;
               "
+              @submit.native.prevent
             >
               <el-form-item
                 label-width="70px"
@@ -239,9 +240,6 @@
                 <el-input
                   v-model="seismicform.trace"
                   placeholder="0-n"
-                  @keyup.enter.native="
-                    queryHeader((val = seismicform.trace), (type = 'text'))
-                  "
                 ></el-input>
               </el-form-item>
               <el-form-item style="width: 50px">
@@ -288,6 +286,7 @@
                 background: #51abce;
                 border-radius: 5px;
               "
+              @submit.native.prevent
             >
               <el-form-item
                 label-width="70px"
@@ -302,9 +301,6 @@
                 <el-input
                   v-model="seismicform.trace"
                   placeholder="0-n"
-                  @keyup.enter.native="
-                    queryHeader((val = seismicform.trace), (type = 'views'))
-                  "
                 ></el-input>
               </el-form-item>
               <el-form-item style="width: 50px">
@@ -357,7 +353,10 @@
                   placeholder="第n道"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="第N道" style="width: 50px; padding-left: 100px">
+              <el-form-item
+                label="第N道"
+                style="width: 50px; padding-left: 100px"
+              >
                 <el-button
                   type="goon"
                   @click="seismicprofile('seismicprofileform')"
