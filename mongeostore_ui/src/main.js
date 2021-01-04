@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-30 16:26:32
+ * @LastEditTime: 2021-01-04 21:34:41
  */
 import Vue from "vue";
 import Vuex from 'vuex'  // 引入 vuex
@@ -46,6 +46,9 @@ import echarts from "echarts";
 import importJS from "@/utils/importJs";
 // import VueWebsocket from 'vue-websocket'
 
+import dataV from '@jiaminghi/data-view'
+// dataVs使用
+Vue.use(dataV)
 
 Vue.use(Vuex) // 引入
 // 滑动验证码
