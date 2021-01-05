@@ -1,91 +1,79 @@
-<!--
- * @Description: henggao_learning
- * @version: v1.0.0
- * @Author: henggao
- * @Date: 2020-11-28 21:01:32
- * @LastEditors: henggao
- * @LastEditTime: 2021-01-04 22:31:41
--->
 <template>
-  <div class="update-demo" style="background: black; height: 400px">
-    <dv-border-box-8 style="top: 10px; height: 380px">
-      <dv-charts :option="option" style="width: 400px; height: 400px" />
-      <dv-scroll-board :config="config" style="width: 500px; height: 220px" />
-    </dv-border-box-8>
+  <!-- <div id="cesiumContainer"></div>
+   -->
+  <div style="height: 800px; width: 600px">
+    <div id="cesiumContainer" class="box"></div>
+    <div id="loadingOverlay"><h1>Loading...</h1></div>
+    <div id="toolbar">
+      <div id="zoomButtons"></div>
+    </div>
   </div>
 </template>
 
 <script>
+import * as Cesium from "cesium/Cesium";
+import * as widgets from "cesium/Widgets/widgets.css";
+
 export default {
-  name: "UpdateDemo",
-  data() {
-    return {
-      config: {
-        header: ["列1", "列2", "列3"],
-        data: [
-          ["行1列1", "行1列2", "行1列3"],
-          ["行2列1", "行2列2", "行2列3"],
-          ["行3列1", "行3列2", "行3列3"],
-          ["行4列1", "行4列2", "行4列3"],
-          ["行5列1", "行5列2", "行5列3"],
-          ["行6列1", "行6列2", "行6列3"],
-          ["行7列1", "行7列2", "行7列3"],
-          ["行8列1", "行8列2", "行8列3"],
-          ["行9列1", "行9列2", "行9列3"],
-          ["行10列1", "行10列2", "行10列3"],
-        ],
+  name: "Cesium",
+  mounted() {
+    var cesiumAsset =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxZDE0MWI4OS1jYjYxLTRmMDEtYWI5Yy1hZjBiNDAwZjc2NzEiLCJpZCI6MTgzMDEsImlhdCI6MTYwOTMyNjMxNH0.5H4EA7TyeUBhRmOI6IoRFXjyLtEJAjFZKJORBhGK2uc";
+    var tiandituTk = "	9c117468801c8405aaddff93da98c1e6";
+    // var tiandituTk = "	ebf64362215c081f8317203220f133eb";
+    // 服务域名
+    var tdtUrl = "https://t{s}.tianditu.gov.cn/";
+    var subdomains = ["0", "1", "2", "3", "4", "5", "6", "7"];
+    Cesium.Ion.defaultAccessToken = cesiumAsset; //设置你的seisum asset，不添加则使用默认，下方会有提示
+    var viewer = new Cesium.Viewer("cesiumContainer", {
+      animation: false, //是否显示动画控件
+      baseLayerPicker: false, //是否显示图层选择控件
+      geocoder: true, //是否显示地名查找控件
+      timeline: false, //是否显示时间线控件
+      sceneModePicker: true, //是否显示投影方式控件
+      navigationHelpButton: false, //是否显示帮助信息控件
+      infoBox: true, //是否显示点击要素之后显示的信息
+    });
+    //加载影像底图
+    var layer = new Cesium.WebMapTileServiceImageryProvider({
+      url:
+        "http://t0.tianditu.gov.cn/img_w/wmts?tk=9c117468801c8405aaddff93da98c1e6",
+      layer: "img",
+      style: "default",
+      tileMatrixSetID: "w",
+      format: "tiles",
+      maximumLevel: 18,
+    });
+    viewer.imageryLayers.addImageryProvider(layer);
+    viewer._cesiumWidget._creditContainer.style.display = "none"; // 隐藏cesium ion
+    //加载影像注记
+    var layer1 = new Cesium.WebMapTileServiceImageryProvider({
+      url:
+        "http://t0.tianditu.gov.cn/cia_w/wmts?tk=9c117468801c8405aaddff93da98c1e6",
+      layer: "cia",
+      style: "default",
+      tileMatrixSetID: "w",
+      format: "tiles",
+      maximumLevel: 18,
+    });
+    viewer.imageryLayers.addImageryProvider(layer1);
+    // 将三维球定位到中国
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(103.84, 31.15, 17850000),
+      orientation: {
+        heading: Cesium.Math.toRadians(348.4202942851978),
+        pitch: Cesium.Math.toRadians(-89.74026687972041),
+        roll: Cesium.Math.toRadians(0),
       },
-      option: {
-        title: {
-          text: "剩余油量表",
-          style: {
-            fill: "#fff",
-          },
-        },
-        series: [
-          {
-            type: "gauge",
-            data: [{ name: "itemA", value: 55 }],
-            center: ["50%", "55%"],
-            axisLabel: {
-              formatter: "{value}%",
-              style: {
-                fill: "#fff",
-              },
-            },
-            axisTick: {
-              style: {
-                stroke: "#fff",
-              },
-            },
-            animationCurve: "easeInOutBack",
-          },
-        ],
+      complete: function callback() {
+        // 定位完成之后的回调函数
       },
-    };
-  },
-  methods: {
-    // 更新数据的示例方法
-    updateHandler() {
-      const { config } = this;
-
-      /**
-       * 只是这样做是无效
-       * config指向的内存地址没有发生变化
-       * 组件无法侦知数据变化
-       */
-      this.config.value = 90;
-      this.config.lineDash = [10, 4];
-
-      /**
-       * 使用ES6拓展运算符生成新的props对象
-       * 组件侦知数据变化 自动刷新状态
-       */
-      this.config = { ...this.config };
-    },
+    });
   },
 };
 </script>
 
-<style lang = 'scss' scoped>
+<style scoped>
+@import url(https://sandcastle.cesium.com/templates/bucket.css);
 </style>
+

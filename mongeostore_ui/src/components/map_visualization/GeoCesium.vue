@@ -2,9 +2,9 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2021-01-03 22:56:56
+ * @Date: 2021-01-05 20:03:41
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-04 22:24:34
+ * @LastEditTime: 2021-01-05 20:03:56
 -->
 <template>
   <!-- <div id="cesiumContainer"></div>
@@ -23,7 +23,7 @@ import * as Cesium from "cesium/Cesium";
 import * as widgets from "cesium/Widgets/widgets.css";
 
 export default {
-  name: "GeographicalMap",
+  name: "Cesium",
   mounted() {
     var cesiumAsset =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxZDE0MWI4OS1jYjYxLTRmMDEtYWI5Yy1hZjBiNDAwZjc2NzEiLCJpZCI6MTgzMDEsImlhdCI6MTYwOTMyNjMxNH0.5H4EA7TyeUBhRmOI6IoRFXjyLtEJAjFZKJORBhGK2uc";

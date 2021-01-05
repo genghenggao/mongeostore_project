@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-27 18:11:02
+ * @LastEditTime: 2021-01-05 19:40:53
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -246,7 +246,7 @@ const routes = [
       // 地震数据解析
       {
         path: "seismicanalysis",
-        name: "seismicanalysis",
+        name: "SeismicAnalysis",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicAnalysis.vue")
       },
@@ -256,6 +256,13 @@ const routes = [
         name: "SeismicUpload",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicUpload.vue")
+      },
+      // 地理数据
+      {
+        path: "geographicalmap",
+        name: "GeographicalMap",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalMap.vue")
       },
 
     ]
