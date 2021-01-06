@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-05 19:40:53
+ * @LastEditTime: 2021-01-06 10:54:12
  */
 import Vue from "vue";
 import VueRouter from "vue-router";

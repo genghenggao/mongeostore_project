@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-16 14:34:23
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-05 21:25:51
+ * @LastEditTime: 2021-01-06 11:17:32
 -->
 <template>
   <!-- 主界面-->
@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import * as Cesium from "cesium/Cesium";
+import * as widgets from "cesium/Widgets/widgets.css";
 import SeismicHome from "@/components/seismic/SeismicHome.vue";
 export default {
   name: "GeographicalInfo",

@@ -4,13 +4,13 @@
  * @Author: henggao
  * @Date: 2021-01-05 20:03:41
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-05 20:03:56
+ * @LastEditTime: 2021-01-06 14:16:17
 -->
 <template>
   <!-- <div id="cesiumContainer"></div>
    -->
-  <div>
-    <div id="cesiumContainer" class="fullSize"></div>
+  <div style="height: 800px; width: 600px">
+    <div id="cesiumContainer" class="box"></div>
     <div id="loadingOverlay"><h1>Loading...</h1></div>
     <div id="toolbar">
       <div id="zoomButtons"></div>
