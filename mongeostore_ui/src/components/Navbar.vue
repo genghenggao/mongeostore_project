@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-09-28 20:19:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-05 18:49:40
+ * @LastEditTime: 2021-01-08 20:14:08
 -->
 <template>
   <div class="sticky-top">
@@ -31,7 +31,7 @@
             >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <a class="nav-link" href="/monitor">Monitor</a>
           </li>
           <li class="nav-item dropdown">
             <a

@@ -4,12 +4,12 @@
  * @Author: henggao
  * @Date: 2020-08-29 16:00:58
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-30 16:46:14
+ * @LastEditTime: 2021-01-08 21:47:23
  */
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack');
 const path = require('path');  //引入path模块（node）
-// const resolve = (dir) => path.join(__dirname, dir); //将文件组成绝对路径
+const resolve = (dir) => path.join(__dirname, dir); //将文件组成绝对路径
 //导入
 let cesiumSource = './node_modules/cesium/Source'
 let cesiumWorkers = '../Build/Cesium/Workers'
@@ -74,7 +74,7 @@ module.exports = {
       new CopyWebpackPlugin([{ from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' }]),
       new CopyWebpackPlugin([{ from: path.join(cesiumSource, 'ThirdParty/Workers'), to: 'ThirdParty/Workers' }]),
       new webpack.DefinePlugin({
-        CESIUM_BASE_URL: JSON.stringify('./')
+        CESIUM_BASE_URL: JSON.stringify('.././') //这里我使用的是嵌套组件，需要往上在写一层
       })
     ],
     module: {

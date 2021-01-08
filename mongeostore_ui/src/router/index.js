@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-06 10:54:12
+ * @LastEditTime: 2021-01-08 21:47:51
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -110,6 +110,13 @@ const routes = [
     name: "Test6",
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/Test6.vue")
+  },
+  // 监控页面
+  {
+    path: "/monitor",
+    name: "monitor",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "@/components/monitoringplatform/index.vue")
   },
   {
     path: "/mapview",
@@ -259,12 +266,18 @@ const routes = [
       },
       // 地理数据
       {
+        path: "geographicalhome",
+        name: "GeographicalHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalHome.vue")
+      },
+      // 地理数据
+      {
         path: "geographicalmap",
         name: "GeographicalMap",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalMap.vue")
       },
-
     ]
   },
 ];

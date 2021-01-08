@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-16 14:34:23
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-06 11:17:32
+ * @LastEditTime: 2021-01-08 21:12:15
 -->
 <template>
   <!-- 主界面-->
@@ -23,7 +23,7 @@
             ><i class="el-icon-s-home"></i>
             首页
           </el-menu-item>
-          <el-menu-item index="/mongeostore/seismicdatainfo"
+          <el-menu-item index="/mongeostore/geographicalhome"
             ><i class="el-icon-document"></i>
             数据信息
           </el-menu-item>

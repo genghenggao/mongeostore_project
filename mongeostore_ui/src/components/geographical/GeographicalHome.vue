@@ -2,13 +2,13 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
- * @Date: 2020-11-28 21:01:32
+ * @Date: 2021-01-08 18:57:55
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-08 21:58:57
+ * @LastEditTime: 2021-01-08 19:09:22
 -->
 <template>
-  <div class="update-demo" style="background: black; height: 400px">
-    <dv-border-box-10 style="top: 10px; height: 380px">
+  <div class="update-demo" style="background: black; height: 811px">
+    <dv-border-box-10 style="top: 10px; height: 800px">
       <dv-charts :option="option" style="width: 400px; height: 400px" />
       <div>
         <h1>数据展示</h1>
@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  name: "UpdateDemo",
+  name: "GeographicalHome",
   data() {
     return {
       config: {
