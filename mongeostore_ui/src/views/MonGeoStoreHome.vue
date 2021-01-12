@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-06 14:18:02
+ * @LastEditTime: 2021-01-12 22:04:57
 -->
 <template>
   <div class="mongoestore_home">
@@ -18,14 +18,14 @@
             <!-- <el-col :xl="8">&nbsp;</el-col> -->
             <!-- <el-col :xl="8">1</el-col> -->
             <el-col :xl="24">
-              <h1>MonGeoStore系统简介</h1>
-              <p>
+              <!-- <h1>MonGeoStore管理系统</h1> -->
+              <!-- <p>
                 系统主要使用Django框架，整合MongoDB数据库。
                 该系统主要用于解决海量地震数据的存储、管理，为地质工作者提供更好的服务。
-              </p>
+              </p> -->
               <!-- <img src="@/assets/images/yanshitu.jpg" alt="" /> -->
               <!-- <img src="@/assets/images/logo_theme_GM.png" alt="" /> -->
-              <div>
+              <div style="padding-top: 120px">
                 <!--动态将图片轮播图的容器高度设置成与图片一致-->
                 <el-carousel :height="bannerHeight + 'px'">
                   <el-carousel-item v-for="item in img_list" :key="item.id">
@@ -33,6 +33,20 @@
                     <h3 class="medium">{{ item.content }}</h3>
                   </el-carousel-item>
                 </el-carousel>
+              </div>
+              <div class="jumbotron" style="background-color: #b5b5b500">
+                <h1 class="display-4">Welcome, partner!</h1>
+                <p class="lead">
+                  系统主要使用Django框架，整合MongoDB数据库。
+                  该系统主要用于解决海量地震数据的存储、管理，为地质工作者提供更好的服务。
+                </p>
+                <hr class="my-4" />
+                <p>
+                  系统包括地理数据、遥感数据、地质数据、钻孔数据、测井数据、地震数据管理子系统。
+                </p>
+                <a class="btn btn-primary btn-lg" href="#" role="button"
+                  >Learn more</a
+                >
               </div>
             </el-col>
           </el-row>
@@ -451,17 +465,21 @@ export default {
         {
           id: 1,
           url: require("@/assets/images/yanshitu.jpg"),
-          content: "研究一",
+          // content: "研究一",
         },
-        { id: 2, url: require("@/assets/images/中秋.jpg"), content: "研究二" },
+        {
+          id: 2,
+          url: require("@/assets/images/中秋.jpg"),
+          // content: "研究二"
+        },
         {
           id: 3,
           url: require("@/assets/images/教师节.png"),
-          content: "研究三",
+          // content: "研究三",
         },
       ],
       // // 图片父容器高度
-      bannerHeight: 706,
+      bannerHeight: 316,
       // // 浏览器宽度
       // screenWidth: 0,
     };
@@ -491,7 +509,7 @@ export default {
     },
     setSize: function () {
       // 通过浏览器宽度(图片宽度)计算高度
-      this.bannerHeight = (745 / 1920) * this.screenWidth;
+      this.bannerHeight = (365 / 1920) * this.screenWidth;
     },
   },
 };
@@ -512,7 +530,8 @@ export default {
 
   width: 100%;
   // padding: 0;
-  color: #ffffff;
+  // color: #ffffff;
+  color: #212529a6;
   text-align: center;
 }
 .act_one h1 {
@@ -563,7 +582,7 @@ export default {
 
   width: 100%;
   // padding: 0;
-  color: #582b2b;
+  // color: #582b2b;
   text-align: center;
 }
 .act_one_extra h1 {
