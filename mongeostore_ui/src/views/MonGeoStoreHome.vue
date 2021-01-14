@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-12 22:04:57
+ * @LastEditTime: 2021-01-14 21:56:42
 -->
 <template>
   <div class="mongoestore_home">
@@ -257,7 +257,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi2.png"
+                  src="@/assets/images//strata3.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -291,7 +291,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/strata3.png"
+                  src="@/assets/images/Hydrological2.png"
                   class="img-responsive"
                   alt=""
                 />
@@ -308,7 +308,7 @@
             <el-col :xl="6">
               <div class="act_five_content">
                 <img
-                  src="@/assets/images/yanshi.jpg"
+                  src="@/assets/images/Hydrological1.png"
                   class="img-responsive"
                   alt=""
                 />
