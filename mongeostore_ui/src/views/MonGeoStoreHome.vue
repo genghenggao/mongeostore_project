@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-14 21:56:42
+ * @LastEditTime: 2021-01-15 09:37:53
 -->
 <template>
   <div class="mongoestore_home">
@@ -364,7 +364,7 @@
                   <i class="el-icon-s-promotion"></i>
                   &nbsp; 联系我们
                 </h2>
-                <p>MongoGeoStore,一种基于MongoDB的地学数据存储管理系统。</p>
+                <p>MonGeoStore,一种基于MongoDB的地学数据存储管理系统。</p>
                 <address>
                   <p>
                     <i class="el-icon-s-home"></i>
@@ -432,7 +432,7 @@
             <el-col :xl="24">
               <p>
                 Copyright
-                &nbsp;©&nbsp;2018-2020&nbsp;&nbsp;www.mongeostore.com&nbsp;&nbsp;
+                &nbsp;©&nbsp;2018-2021&nbsp;&nbsp;www.mongeostore.com&nbsp;&nbsp;
                 京公网安备：110402430067号
               </p>
             </el-col>

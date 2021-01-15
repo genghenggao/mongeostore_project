@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-03 16:44:30
+ * @LastEditTime: 2021-01-15 10:30:16
 -->
 <template>
   <div id="poster">
@@ -183,7 +183,7 @@ export default {
         last: 1 //用于解决后端smscode参数为3019"}多了"}问题
       });
       console.log(postData);
-      console.log(postData.username);
+      // console.log(postData.username);
       let url = `http://127.0.0.1:8000/api/userlogin/`;
       axios
         .post(
@@ -206,7 +206,9 @@ export default {
           // 登录成功，定向到首页
           if (response.data.status_code == 200) {
             // _this.$store.commit("login", _this.loginForm);
-            var path = this.$route.query.redirect;
+            // var path = this.$route.query.redirect;
+            var path = '/mongeostore';
+            console.log(path);
             this.$router.replace({
               path: path === "/" || path === undefined ? "/" : path
             });
