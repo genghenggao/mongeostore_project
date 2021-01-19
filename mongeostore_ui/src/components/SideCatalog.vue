@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 15:08:08
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-18 20:47:34
+ * @LastEditTime: 2021-01-19 19:38:16
 -->
 <template>
   <!-- <el-container style="overflow:auto"> -->
@@ -85,7 +85,7 @@
                     class="el-icon-menu"
                     style="font-size: 17px; color: #870000"
                   ></i>
-                  <span>钻孔数据管理子系统</span>
+                  <span>专题数据管理系统</span>
                 </template>
                 <el-menu-item-group>
                   <el-submenu index="2-1">
