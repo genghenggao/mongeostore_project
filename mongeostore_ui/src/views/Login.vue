@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-15 10:30:16
+ * @LastEditTime: 2021-01-21 17:53:56
 -->
 <template>
   <div id="poster">
@@ -135,8 +135,8 @@ export default {
     return {
       visible: false, //图片验证弹出框
       msg: "",
-      bgimgs: [aa], //	如果使用网络图片资源就用该值
-      // bgimgs: [], //	如果使用网络图片资源就用该值
+      // bgimgs: [aa], //	如果使用网络图片资源就用该值
+      bgimgs: [], //	如果使用网络图片资源就用该值
       text: "向右滑动~",
       Login: {
         username: "",

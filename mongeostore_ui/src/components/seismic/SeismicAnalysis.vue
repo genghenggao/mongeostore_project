@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-31 20:39:09
+ * @LastEditTime: 2021-01-25 08:50:11
 -->
 <template>
   <el-container>
@@ -845,6 +845,7 @@ export default {
                   name: "y",
                   // min: -1,
                   // max: 1,
+                  min: this.seismicprofileform.mtrace-1,
                   minorTick: {
                     show: true,
                   },

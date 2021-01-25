@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-10-23 21:47:34
 LastEditors: henggao
-LastEditTime: 2020-12-15 14:24:35
+LastEditTime: 2021-01-22 15:25:27
 '''
 import math
 from mongoengine.context_managers import switch_collection
@@ -40,6 +40,7 @@ import pymongo
 import gridfs
 import json
 from pymongo.mongo_client import MongoClient
+from mongeostore_v1 import settings
 
 # Create your views here.
 
@@ -125,7 +126,8 @@ class FileInfoView(APIView):
             f.close()
 
         #  上传文件到MongoDB中gridfs
-        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        client = settings.MongoDB_cluster_client
         # 如果没有数据库，创建数据库
         db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
         with open("./upload/%s" % File.name, 'rb') as f:
@@ -159,7 +161,8 @@ def FileShow(request):
     """
     docstring
     """
-    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
     db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
     fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为mysegy
     gf = fs.find_one()
@@ -195,8 +198,8 @@ def filedownload(request):
     """
     docstring
     """
-    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
-
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
     # file_id1 = request.FILES.get("_id", None)
     # file_id2 = request.POST.get("_id")
     file_id = request.GET.get("_id")
@@ -226,7 +229,8 @@ def ShowData(request):
     """
     docstring
     """
-    client = pymongo.MongoClient("192.168.55.110", 20000)
+    # client = pymongo.MongoClient("192.168.55.110", 20000)
+    client = settings.MongoDB_cluster_client
     database = "segyfile"
     db = client[database]
     # 选择集合
@@ -280,7 +284,8 @@ class UploadCSV(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "data"
@@ -338,7 +343,8 @@ class UploadExcel(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
@@ -396,7 +402,8 @@ def EditData(request):
         # print(front_query_id)  # 5fa7dc070a6d3e479de148d9   终于拿到了！！
         # print(type(front_query_id))  # <class 'str'>
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
@@ -438,7 +445,8 @@ def DeleteData(request):
         # print(front_query_id)
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
@@ -470,7 +478,8 @@ def AddData(request):
         print(query_data_json)
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
@@ -497,7 +506,8 @@ def QueryData(request):
         ZK_num = data_json['ZK_num_data']
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         database = "segyfile"
         db = client[database]
         collection = "excel_data"
@@ -520,7 +530,8 @@ def ShowDataBase(request):
     """
     if request.method == "GET":
         # 连接mongoDB数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # 查询数据库
         # ['admin', 'config', 'gridfs', 'segyfile', 'testGridfs', 'testdb', '中文数据库']
         databases = client.list_database_names()
@@ -598,7 +609,8 @@ def EditDataBase(request):
         # print(data['isEdit'])
 
         # 连接mongoDB数据库，读取 db 库 table 表中的数据
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         if (data['isEdit']):
             check_name = data['label']  # 数据库名称
             # print(check_name)
@@ -679,7 +691,8 @@ def AddCollection(request):
         data_name = data['_database']  # 取到数据库名称
 
         # 连接mongoDB数据库，读取 db 库 table 表中的数据
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         db = client[data_name]  # 连接数据库
         collections = db.list_collection_names()
         if col_name in collections:
@@ -706,7 +719,8 @@ def DeleteCollection(request):
         data_name = data['_database']  # 取到数据库名称
 
         # 连接mongoDB数据库，读取 db 库 table 表中的数据
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         db = client[data_name]  # 连接数据库
         collections = db.list_collection_names()
         if col_name in collections:
@@ -921,7 +935,8 @@ def DeleteDrillHistogram(request):
         drill_obj.delete()  # 删除表里的数据
 
         # 连接数据库,删除GridFS对应的柱状图
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = data_json['dbname']  # 从前端拿到数据库名称
         db = client[database]
@@ -961,7 +976,8 @@ def EditDrillHistogram(request):
         # front_query_id = front_query_oid['$oid']
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # print(data_json['colname'])
         # print(data_json['dbname'])
         # database = "segyfile"
@@ -1101,7 +1117,8 @@ def DeleteInclination(request):
         # print(data_json['dbname'])
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = data_json['dbname']  # 从前端拿到数据库名称
         db = client[database]
@@ -1136,7 +1153,8 @@ def EditInclination(request):
         # front_query_id = front_query_oid['$oid']
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # print(data_json['colname'])
         # print(data_json['dbname'])
         # database = "segyfile"
@@ -1179,7 +1197,8 @@ def ShowCommonData(request):
     db = data_json['dbname']  # 获取到前端数据库名称
     col_name = data_json['colname']  # 获取到前端集合名称
     # 连接数据库
-    client = pymongo.MongoClient("192.168.55.110", 20000)
+    # client = pymongo.MongoClient("192.168.55.110", 20000)
+    client = settings.MongoDB_cluster_client
     db = client[db]
     db_coll = db[col_name]
     # # 查询
@@ -1221,7 +1240,8 @@ def CommonEditData(request):
         front_query_id = front_query_oid['$oid']
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # print(data_json['colname'])
         # print(data_json['dbname'])
         # database = "segyfile"
@@ -1268,7 +1288,8 @@ def CommonDeleteData(request):
         # print(data_json['dbname'])
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = data_json['dbname']  # 从前端拿到数据库名称
         db = client[database]
@@ -1307,7 +1328,8 @@ def CommonAddData(request):
         # print(query_data_json)
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = data_json['dbname']
         db = client[database]
@@ -1339,7 +1361,8 @@ def CommonQueryData(request):
         filter_key = data_json['filter_key_data']
 
         # 连接数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = data_json['dbname']
         db = client[database]
@@ -1398,7 +1421,8 @@ class CommonUploadExcel(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = request.data['dbname']  # 从前端拿到数据库名称
         db = client[database]  # 连接数据库
@@ -1462,7 +1486,8 @@ class CommonUploadCSV(APIView):
                 f.write(chunk)
             f.close()
         # 写入mongodb，data数据库
-        client = pymongo.MongoClient("192.168.55.110", 20000)
+        # client = pymongo.MongoClient("192.168.55.110", 20000)
+        client = settings.MongoDB_cluster_client
         # database = "segyfile"
         database = request.data['dbname']  # 从前端拿到数据库名称
         db = client[database]  # 连接数据库
@@ -1535,8 +1560,8 @@ class CommonUploadMeta(APIView):
             f.close()
 
         #  上传文件到MongoDB中gridfs
-        client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
-
+        # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+        client = settings.MongoDB_cluster_client    
         # 如果没有数据库，创建数据库
         # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
         # database = "segyfile"
@@ -1575,7 +1600,8 @@ def CommonMetaShow(request):
     """
     docstring
     """
-    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
     # print(request.GET.get('dbname'))
     dbname = request.GET.get('dbname')  # 从前端获取数据库名称
     # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
@@ -1605,7 +1631,8 @@ def CommonFileDownload(request):
     """
 
     print(request.GET.get('dbname'))
-    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
 
     file_id = request.GET.get("_id")
     db = request.GET.get('dbname')  # 获取数据库名称
@@ -1630,7 +1657,8 @@ def CommonFileDownload(request):
 
 
 def listAllImgFromDB(request):
-    client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
     db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
     # db = client[dbname]  # 选定数据库
     fs = GridFS(db, collection='mysegy')  # 连接GridFS集合，名称为元数据

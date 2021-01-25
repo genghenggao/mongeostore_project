@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-08-26 18:15:34
 LastEditors: henggao
-LastEditTime: 2020-10-23 20:58:53
+LastEditTime: 2021-01-21 15:56:33
 '''
 # from django.views.decorators.http import require_http_methods
 # # from django.core import serializers
@@ -574,8 +574,12 @@ class MobileCountView(View):
 
         如果想使用TTL集合，用用到 expireAfterSeconds 选项.
         '''
-        client = MongoClient("192.168.55.110", 27017)
-        collection = client.mobilecode.expire
+        # client = MongoClient("192.168.55.110", 27017)
+        # collection = client.mobilecode.expire
+
+        client = settings.MongoDB_client
+        db  = client['用户数据管理子系统']
+        collection = db['用户手机注册']
         # collection = client.django_example.mongeostore_app_smscode
         collection.create_index(
             [("time", pymongo.ASCENDING)], expireAfterSeconds=66)
@@ -662,8 +666,11 @@ class RegisterView(View):
             raise ValidationError("该手机已经注册过，请重新输入")
 
         """检测验证码"""
-        client = MongoClient("192.168.55.110", 27017)
-        collection = client.mobilecode.expire
+        # client = MongoClient("192.168.55.110", 27017)
+        # collection = client.mobilecode.expire
+        client = settings.MongoDB_client
+        db  = client['用户数据管理子系统']
+        collection = db['用户手机注册']
         # collection = client.django_example.mongeostore_app_smscode
         code_mobile = self.request.POST.get("mobile")
         print(type(code_mobile))  # str
