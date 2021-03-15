@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-25 08:50:11
+ * @LastEditTime: 2021-03-15 22:01:07
 -->
 <template>
   <el-container>
@@ -137,6 +137,7 @@
           >
             <!-- <pre>视图</pre> -->
             <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+            <!-- 旋转  transform:rotate(90deg); -->
             <div
               id="dataviews"
               class="echartsviews"
@@ -144,6 +145,7 @@
               style="width: 780px; height: 520px"
             ></div>
           </div>
+          <!-- 多道地震数据 -->
           <div
             v-show="showtype == 'views_profile'"
             class="analysis_content"
@@ -157,6 +159,19 @@
               ref="chart"
               style="width: 780px; height: 520px"
             ></div>
+          </div>
+          <!-- 整个地震剖面 -->
+          <div
+            v-show="showtype == 'seismicprofile'"
+            class="analysis_content"
+            style="height: 700px; overflow: auto; padding-top: 30px"
+          >
+            <img
+              :src="'data:image/png;base64,' + ico"
+              class="avatar"
+              height="600"
+              width="750"
+            />
           </div>
         </el-card>
       </div>
@@ -353,14 +368,17 @@
                   placeholder="第n道"
                 ></el-input>
               </el-form-item>
-              <el-form-item
-                label="第N道"
-                style="width: 50px; padding-left: 100px"
-              >
+              <el-form-item>
                 <el-button
                   type="goon"
                   @click="seismicprofile('seismicprofileform')"
-                  >查询第M-N道</el-button
+                  >第M-N道</el-button
+                >
+                <!-- 查询整个地震剖面图，查询图片 -->
+                <el-button
+                  type="goon"
+                  @click="allseismicprofile('seismicprofile')"
+                  >整个剖面</el-button
                 >
               </el-form-item>
             </el-form>
@@ -510,6 +528,8 @@ export default {
       // 上传弹出框
       centerDialogVisible: false,
       cloudDialogVisible: false,
+      // 地震剖面图图片
+      ico: "",
     };
   },
   created() {
@@ -584,6 +604,7 @@ export default {
     queryHeader(val, type) {
       // console.log(this.seismic_message);
       console.log(val);
+      console.log(type);
       let this_url = "http://127.0.0.1:8000/seismic/seismicheaderquery/";
       axios({
         method: "GET",
@@ -729,7 +750,7 @@ export default {
           this.$message.error("Sorry，文件无法解析，请检查文件正确性！");
         });
     },
-    // 查看地震剖面
+    // 查看多道地震剖面
     seismicprofile(formName) {
       this.$refs[formName].validate((valid) => {
         if (
@@ -845,7 +866,7 @@ export default {
                   name: "y",
                   // min: -1,
                   // max: 1,
-                  min: this.seismicprofileform.mtrace-1,
+                  min: this.seismicprofileform.mtrace - 1,
                   minorTick: {
                     show: true,
                   },
@@ -917,6 +938,37 @@ export default {
           });
         }
       });
+    },
+    // 查看地震剖面图
+    allseismicprofile(type) {
+      console.log(type);
+      console.log(this.seismic_message);
+      let this_url = "http://127.0.0.1:8000/seismic/seismicprofilepic/";
+      axios({
+        methods: "GET",
+        url: this_url,
+        params: {
+          filename: this.seismic_message,
+        },
+      })
+        .then((res) => {
+          // console.log("success");
+          // console.log(res);
+          // console.log(res.data);
+          this.showtype = "seismicprofile"; //div判断展示views
+          this.$notify.success({
+            title: "success",
+            message: "已加载剖面图！",
+          });
+          this.ico = res.data;
+        })
+        .catch((err) => {
+          console.log("error");
+          this.$notify.error({
+            title: "Error",
+            message: "sorry，no data!!",
+          });
+        });
     },
     // 上传服务器文件
     // 确定按钮

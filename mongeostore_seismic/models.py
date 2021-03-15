@@ -4,13 +4,13 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-17 16:11:01
+LastEditTime: 2021-03-15 20:26:49
 '''
 from datetime import datetime
 from django.db import models
 from mongoengine import connect
 from mongoengine.document import Document
-from mongoengine.fields import DateTimeField, FileField, StringField
+from mongoengine.fields import DateTimeField, FileField, ImageField, StringField
 
 # Create your models here.
 # 设置数据库
@@ -21,7 +21,7 @@ connect(alias='seismic_system', db='地震数据管理子系统',
 
 
 class SeismicInfo(Document):
-    '''钻孔定位表'''
+    '''地震数据上传'''
     seismic_filename = StringField(required=True)
     location = StringField(required=True)
     company_name = StringField(required=True)
@@ -29,6 +29,8 @@ class SeismicInfo(Document):
     seismic_upload_date = DateTimeField(default=datetime.now(), required=True)
     project_name = StringField(required=True)
     filedata = FileField()
+#     seismicprofile = ImageField(collection_name='seismicprofile')
+#     filedata = FileField(collection_name='test')  # 设置Gridfs中的存储桶名称
 
     meta = {'db_alias': 'seismic_system',
             # 'collection': '地震数据Demo1', 'indexes': ['filename']}

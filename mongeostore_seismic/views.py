@@ -4,8 +4,11 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2020-12-25 17:26:36
+LastEditTime: 2021-03-15 21:43:08
 '''
+import gridfs
+from mongeostore_v1 import settings
+import base64
 from bson.json_util import dumps
 from django.test import client
 from dwebsocket.decorators import accept_websocket, require_websocket
@@ -404,6 +407,38 @@ def SeismicProfileQuery(request):
     except:
         print('解析错误')
         return HttpResponse('Sorry，查询失败~')
+
+
+# 地震数据解析，获取整个地震剖面
+@require_http_methods(['GET'])
+def SeismicProfilePic(request):
+    # print(request.GET)
+    filename = request.GET.get('filename')
+    # filequery = request.GET.get('queryparams')
+    # filequerytype = request.GET.get('querytype')
+    # print(filename)
+    # 读取文件
+    # image = "..\mongeostore_env\pic_seismic\\" + filename
+    # client = MongoClient("192.168.55.110", 20000)  # 连接MongoDB数据库
+    client = settings.MongoDB_cluster_client
+    # db = client.segyfile  # 选定数据库，设定数据库名称为segyfile
+    db = client['地震数据管理子系统']  # 选定数据库
+    fs = gridfs.GridFS(db, collection='地震数据')  # 连接GridFS集合，名称为元数据
+
+    # file_id = 'o_1em6kq0js1jmsavl1n8q1nma2ock'
+    file_name = 'LX_SEGY001.jpg'
+    # 读取文件
+    # image = fs.find_one({"$where": "this._id.match(/.*" + file_id + "/)"})
+    image = fs.find_one({"$where": "this.filename.match(/.*" + file_name + "/)"})
+    # print(image.name)
+    # 这里读取服务器中的数据
+    # image = "..\mongeostore_env\pic_seismic\\" + 'LX_SEGY001.jpg'
+
+    content = image.read()
+    temp_data = base64.b64encode(content)  # 图片base64
+    # print(temp_data)
+    return HttpResponse(temp_data)
+
 
 # 地震数据解析，删除服务器文件
 @require_http_methods(['POST'])
