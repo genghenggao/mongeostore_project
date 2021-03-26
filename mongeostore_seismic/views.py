@@ -4,7 +4,7 @@ version: v1.0.0
 Author: henggao
 Date: 2020-12-16 21:36:57
 LastEditors: henggao
-LastEditTime: 2021-03-15 21:43:08
+LastEditTime: 2021-03-24 16:30:22
 '''
 import gridfs
 from mongeostore_v1 import settings
@@ -22,12 +22,12 @@ from django import http
 from django.views.decorators.http import require_http_methods
 
 from rest_framework import filters
-from .serializers import SeismicInfoSerializer
+from .serializers import RemoteInfoSerializer, SeismicInfoSerializer,LoggingInfoSerializer, GeologicalInfoSerializer
 import os
 from rest_framework.response import Response
 
 from rest_framework.pagination import PageNumberPagination
-from .models import SeismicInfo
+from .models import RemoteInfo, SeismicInfo,LoggingInfo, GeologicalInfo
 import time
 from django.http.response import HttpResponse, JsonResponse
 from rest_framework.views import APIView
@@ -546,3 +546,514 @@ def AnalysisCloudDown(request):
         except:
             # return render(request,'index.html')
             return HttpResponse('test123')
+
+
+
+# 遥感数据上传
+class RemoteInfoView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        remote_obj = RemoteInfo.objects.all().order_by('_id')  # 一定要排序
+        # print(seismic_obj)
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=remote_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = RemoteInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        fileio = request.FILES.get("file", None)  # 注意比较
+
+        # print(request.data['upload_date'])  # DRF才有request.data
+        # print(request.POST)  # Django只有request.POST、request.GET
+        # print(request.data)
+        # _id = self.request.POST.get('id')
+        remote_filename = request.data['remote_filename'],  # 取出来竟是个元组，QAQ
+        location = request.data['location'],
+        company_name = request.data['company_name'],
+        uploader = request.data['uploader'],
+        project_name = request.data['project_name'],
+        remote_upload_date = request.data['remote_upload_date'],
+        # 上传到GriDFS中
+        filename = request.data['filename'],
+
+        temp_time2 = int(remote_upload_date[0])/1000
+        # 转换成localtime
+        time_local2 = time.localtime(temp_time2)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+
+        dt2 = time.strftime("%Y-%m-%d", time_local2)
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % fileio.name, 'wb+') as f:
+            for chunk in fileio.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入数据
+        write_data = RemoteInfo(
+            remote_filename=remote_filename[0],
+            location=location[0],
+            project_name=project_name[0], company_name=company_name[0], uploader=uploader[0],
+            remote_upload_date=dt2)
+
+        with open("./upload/%s" % fileio.name, 'rb') as fd:
+            # 写入GridFS
+            write_data.filedata.put(
+                fd, content_type='tif', filename=remote_filename[0], aliases=[filename[0]])
+            # writedata.filedata.put(SeismicInfo, content_type='segy')
+        write_data.save()
+
+        return HttpResponse('success')
+
+
+# 遥感数据编辑数据
+def EditRemoteInfo(request):
+    if request.method == "POST":
+
+        body_data = request.body
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        dict_data.pop('filedata')  # 去掉文件字段
+        front_query_oid = dict_data['id']
+
+        query_obj = RemoteInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        try:
+            query_obj.update(**dict_data)
+            query_obj.save()
+            return HttpResponse('success')
+        except:
+            print('输入有误')
+            status_code = 412
+            return HttpResponse(status_code)
+        
+# 遥感数据删除数据
+def DeleteRemoteInfo(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        query_data_json = data_json['json_data']
+        # print(query_data_json)
+        dict_data = json.loads(query_data_json)
+        print(dict_data)
+        front_query_oid = dict_data['id']
+
+        query_obj = RemoteInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        query_obj.delete()
+        return HttpResponse("Delete Success")
+
+# 遥感数据查询数据
+class RemoteInfoSearch(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        # print('success')
+        search_key = request.GET['search_key']  # 根据字段搜索
+        # print(search_key)
+        remote_obj = RemoteInfo.objects.filter(
+            remote_filename=search_key).all().order_by('_id')  # 一定要排序
+        # seismic_obj = SeismicInfo.objects.search_text(search_key).first()
+
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=remote_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = RemoteInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+
+# 遥感数据下载数据
+@require_http_methods(['GET'])
+def RemoteFileDownload(request):
+
+    search_key = request.GET['file_id']  # 根据字段搜索
+    print(search_key)
+
+    # 从数据库拿到数据
+    remote_obj = RemoteInfo.objects(id=search_key).first()
+    print(remote_obj)
+    print(remote_obj.remote_filename)
+    filename = remote_obj.remote_filename
+    remote_file = remote_obj.filedata.read()
+    content_type = remote_obj.filedata.content_type
+    # print(type(seismic_file)) #<class 'bytes'>
+    # print(type(content_type)) #<class 'str'>
+
+    # 数据写入服务器
+    with open("../mongeostore_env/upload/%s" % filename, 'wb') as f:
+        f.write(remote_file)
+    print('save success')
+
+    # # 拿到数据,返回前端
+    with open("./upload/%s" % filename, "rb") as f:
+        res = HttpResponse(f)
+        res["Content-Type"] = "application/octet-stream"  # 注意格式
+        res["Content-Disposition"] = 'filename="{}"'.format(filename)
+    return res
+    # return HttpResponse('success')
+
+
+# 测井数据上传
+class LoggingInfoView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        logging_obj = LoggingInfo.objects.all().order_by('_id')  # 一定要排序
+        # print(seismic_obj)
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=logging_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = LoggingInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        fileio = request.FILES.get("file", None)  # 注意比较
+
+        # print(request.data['upload_date'])  # DRF才有request.data
+        # print(request.POST)  # Django只有request.POST、request.GET
+        # print(request.data)
+        # _id = self.request.POST.get('id')
+        logging_filename = request.data['logging_filename'],  # 取出来竟是个元组，QAQ
+        location = request.data['location'],
+        company_name = request.data['company_name'],
+        uploader = request.data['uploader'],
+        project_name = request.data['project_name'],
+        logging_upload_date = request.data['logging_upload_date'],
+        # 上传到GriDFS中
+        filename = request.data['filename'],
+
+        temp_time2 = int(logging_upload_date[0])/1000
+        # 转换成localtime
+        time_local2 = time.localtime(temp_time2)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+
+        dt2 = time.strftime("%Y-%m-%d", time_local2)
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % fileio.name, 'wb+') as f:
+            for chunk in fileio.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入数据
+        write_data = LoggingInfo(
+            logging_filename=logging_filename[0],
+            location=location[0],
+            project_name=project_name[0], company_name=company_name[0], uploader=uploader[0],
+            logging_upload_date=dt2)
+
+        with open("./upload/%s" % fileio.name, 'rb') as fd:
+            # 写入GridFS
+            write_data.filedata.put(
+                fd, content_type='prn', filename=logging_filename[0], aliases=[filename[0]])
+            # writedata.filedata.put(SeismicInfo, content_type='segy')
+        write_data.save()
+
+        return HttpResponse('success')
+
+
+# 测井数据编辑数据
+def EditLoggingInfo(request):
+    if request.method == "POST":
+
+        body_data = request.body
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        dict_data.pop('filedata')  # 去掉文件字段
+        front_query_oid = dict_data['id']
+
+        query_obj = LoggingInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        try:
+            query_obj.update(**dict_data)
+            query_obj.save()
+            return HttpResponse('success')
+        except:
+            print('输入有误')
+            status_code = 412
+            return HttpResponse(status_code)
+        
+# 测井数据删除数据
+def DeleteLoggingInfo(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        query_data_json = data_json['json_data']
+        # print(query_data_json)
+        dict_data = json.loads(query_data_json)
+        print(dict_data)
+        front_query_oid = dict_data['id']
+
+        query_obj = LoggingInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        query_obj.delete()
+        return HttpResponse("Delete Success")
+
+# 测井数据查询数据
+class LoggingInfoSearch(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        # print('success')
+        search_key = request.GET['search_key']  # 根据字段搜索
+        # print(search_key)
+        logging_obj = LoggingInfo.objects.filter(
+            logging_filename=search_key).all().order_by('_id')  # 一定要排序
+        # seismic_obj = SeismicInfo.objects.search_text(search_key).first()
+
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=logging_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = LoggingInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+
+# 测井数据下载数据
+@require_http_methods(['GET'])
+def LoggingFileDownload(request):
+
+    search_key = request.GET['file_id']  # 根据字段搜索
+    print(search_key)
+
+    # 从数据库拿到数据
+    logging_obj = LoggingInfo.objects(id=search_key).first()
+    print(logging_obj)
+    print(logging_obj.logging_filename)
+    filename = logging_obj.logging_filename
+    logging_file = logging_obj.filedata.read()
+    content_type = logging_obj.filedata.content_type
+    # print(type(seismic_file)) #<class 'bytes'>
+    # print(type(content_type)) #<class 'str'>
+
+    # 数据写入服务器
+    with open("../mongeostore_env/upload/%s" % filename, 'wb') as f:
+        f.write(logging_file)
+    print('save success')
+
+    # # 拿到数据,返回前端
+    with open("./upload/%s" % filename, "rb") as f:
+        res = HttpResponse(f)
+        res["Content-Type"] = "application/octet-stream"  # 注意格式
+        res["Content-Disposition"] = 'filename="{}"'.format(filename)
+    return res
+    # return HttpResponse('success')
+
+
+# 地质数据上传
+class GeologicalInfoView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        geological_obj = GeologicalInfo.objects.all().order_by('_id')  # 一定要排序
+        # print(seismic_obj)
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=geological_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = GeologicalInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        fileio = request.FILES.get("file", None)  # 注意比较
+
+        # print(request.data['upload_date'])  # DRF才有request.data
+        # print(request.POST)  # Django只有request.POST、request.GET
+        # print(request.data)
+        # _id = self.request.POST.get('id')
+        geological_filename = request.data['geological_filename'],  # 取出来竟是个元组，QAQ
+        location = request.data['location'],
+        company_name = request.data['company_name'],
+        uploader = request.data['uploader'],
+        project_name = request.data['project_name'],
+        geological_upload_date = request.data['geological_upload_date'],
+        # 上传到GriDFS中
+        filename = request.data['filename'],
+
+        temp_time2 = int(geological_upload_date[0])/1000
+        # 转换成localtime
+        time_local2 = time.localtime(temp_time2)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+
+        dt2 = time.strftime("%Y-%m-%d", time_local2)
+
+        # 保存到本地
+        if not os.path.exists('upload/'):
+            os.mkdir('upload/')
+        with open("./upload/%s" % fileio.name, 'wb+') as f:
+            for chunk in fileio.chunks():
+                f.write(chunk)
+            f.close()
+        # 写入数据
+        write_data = GeologicalInfo(
+            geological_filename=geological_filename[0],
+            location=location[0],
+            project_name=project_name[0], company_name=company_name[0], uploader=uploader[0],
+            geological_upload_date=dt2)
+
+        with open("./upload/%s" % fileio.name, 'rb') as fd:
+            # 写入GridFS
+            write_data.filedata.put(
+                fd, content_type='jpeg/png', filename=geological_filename[0], aliases=[filename[0]])
+            # writedata.filedata.put(SeismicInfo, content_type='segy')
+        write_data.save()
+
+        return HttpResponse('success')
+
+
+# 地质数据编辑数据
+def EditGeologicalInfo(request):
+    if request.method == "POST":
+
+        body_data = request.body
+        data_json = json.loads(body_data)
+        # print(data_json)
+
+        query_data_json = data_json['json_data']
+        dict_data = json.loads(query_data_json)
+        dict_data.pop('filedata')  # 去掉文件字段
+        front_query_oid = dict_data['id']
+
+        query_obj = GeologicalInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        try:
+            query_obj.update(**dict_data)
+            query_obj.save()
+            return HttpResponse('success')
+        except:
+            print('输入有误')
+            status_code = 412
+            return HttpResponse(status_code)
+        
+# 地质数据删除数据
+def DeleteGeologicalInfo(request):
+    """
+    docstring
+    """
+    if request.method == "POST":
+        body_data = request.body
+        # print(body_data)
+        data_json = json.loads(body_data)
+        # print(data_json)
+        query_data_json = data_json['json_data']
+        # print(query_data_json)
+        dict_data = json.loads(query_data_json)
+        print(dict_data)
+        front_query_oid = dict_data['id']
+
+        query_obj = GeologicalInfo.objects.get(
+            id=front_query_oid)
+        print(query_obj)
+        query_obj.delete()
+        return HttpResponse("Delete Success")
+
+# 地质数据查询数据
+class GeologicalInfoSearch(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        docstring
+        """
+        # print('success')
+        search_key = request.GET['search_key']  # 根据字段搜索
+        # print(search_key)
+        geological_obj = GeologicalInfo.objects.filter(
+            geological_filename=search_key).all().order_by('_id')  # 一定要排序
+        # seismic_obj = SeismicInfo.objects.search_text(search_key).first()
+
+        # 创建分页对象
+        page = MyPagination()
+        # 实例化查询，获取分页的数据
+        page_chapter = page.paginate_queryset(
+            queryset=geological_obj, request=request, view=self)
+        # 序列化及结果返回，将分页后返回的数据, 进行序列化
+        ser = GeologicalInfoSerializer(instance=page_chapter, many=True)
+        data = {'list': ser.data}
+        return page.get_paginated_response(data)
+
+
+# 地质数据下载数据
+@require_http_methods(['GET'])
+def GeologicalFileDownload(request):
+
+    search_key = request.GET['file_id']  # 根据字段搜索
+    print(search_key)
+
+    # 从数据库拿到数据
+    geological_obj = GeologicalInfo.objects(id=search_key).first()
+    print(geological_obj)
+    print(geological_obj.geological_filename)
+    filename = geological_obj.geological_filename
+    geological_file = geological_obj.filedata.read()
+    content_type = geological_obj.filedata.content_type
+    # print(type(seismic_file)) #<class 'bytes'>
+    # print(type(content_type)) #<class 'str'>
+
+    # 数据写入服务器
+    with open("../mongeostore_env/upload/%s" % filename, 'wb') as f:
+        f.write(geological_file)
+    print('save success')
+
+    # # 拿到数据,返回前端
+    with open("./upload/%s" % filename, "rb") as f:
+        res = HttpResponse(f)
+        res["Content-Type"] = "application/octet-stream"  # 注意格式
+        res["Content-Disposition"] = 'filename="{}"'.format(filename)
+    return res
+    # return HttpResponse('success')

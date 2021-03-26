@@ -406,8 +406,20 @@ export default {
       if (this.$store.state.title_message == "定位表") {
         this.$router.push({ path: "/mongeostore/drilllocationhome" });
       }
+      if (this.$store.state.title_message == "地理数据") {
+        this.$router.push({ path: "/mongeostore/geographicalhome" });
+      }
       if (this.$store.state.title_message == "地震数据") {
         this.$router.push({ path: "/mongeostore/seismichome" });
+      }
+      if (this.$store.state.title_message == "遥感影像") {
+        this.$router.push({ path: "/mongeostore/remotehome" });
+      }
+      if (this.$store.state.title_message == "测井数据") {
+        this.$router.push({ path: "/mongeostore/logginghome" });
+      }
+      if (this.$store.state.title_message == "地质数据") {
+        this.$router.push({ path: "/mongeostore/geologicalhome" });
       }
       // 点击不同集合，数据动态展示数据
       this.reload(); //重载页面

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-01 08:57:34
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-18 20:19:53
+ * @LastEditTime: 2021-03-24 09:44:06
 -->
 
 <template>
@@ -71,7 +71,8 @@
             role="tabpanel"
             aria-labelledby="nav-home-tab"
           >
-            <Home />
+            <!-- <Home /> -->
+            <DrillMetaHome />
           </div>
 
           <div
@@ -128,6 +129,7 @@ import InclinationData from "@/components/drill/InclinationData.vue";
 import DrillDetails from "@/components/drill/DrillDetails.vue";
 import DrillMetaData from "@/components/drill/DrillMetaData.vue";
 import DrillUpload from "@/components/drill/DrillUpload.vue";
+import DrillMetaHome from "@/components/drill/DrillMetaHome.vue";
 export default {
   name: "DrillMetaInfo",
   components: {
@@ -144,6 +146,7 @@ export default {
     DrillDetails,
     DrillMetaData,
     DrillUpload,
+    DrillMetaHome,
   },
   data() {
     return {

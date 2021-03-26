@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-08 21:47:51
+ * @LastEditTime: 2021-03-24 19:27:03
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -264,19 +264,89 @@ const routes = [
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/seismic/SeismicUpload.vue")
       },
-      // 地理数据
+      // 地理数据首页
       {
         path: "geographicalhome",
         name: "GeographicalHome",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalHome.vue")
       },
-      // 地理数据
+      // 地理信息
       {
         path: "geographicalmap",
         name: "GeographicalMap",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalMap.vue")
+      },
+      // 地理数据
+      {
+        path: "geographicalview",
+        name: "GeographicalView",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geographical/GeographicalView.vue")
+      },
+      // 遥感首页
+      {
+        path: "remotehome",
+        name: "RemoteHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/remote_sensing/RemoteHome.vue")
+      },
+      // 遥感元数据
+      {
+        path: "remotemetadata",
+        name: "RemoteMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/remote_sensing/RemoteMetaData.vue")
+      },
+      // 遥感上传
+      {
+        path: "remoteupload",
+        name: "RemoteUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/remote_sensing/RemoteUpload.vue")
+      },
+       // 测井首页
+       {
+        path: "logginghome",
+        name: "LoggingHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/logging/LoggingHome.vue")
+      },
+      // 测井元数据
+      {
+        path: "loggingmetadata",
+        name: "LoggingMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/logging/LoggingMetaData.vue")
+      },
+      // 测井上传
+      {
+        path: "loggingupload",
+        name: "LoggingUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/logging/LoggingUpload.vue")
+      },
+       // 地质首页
+       {
+        path: "geologicalhome",
+        name: "GeologicalHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geological/GeologicalHome.vue")
+      },
+      // 地质元数据
+      {
+        path: "geologicalmetadata",
+        name: "GeologicalMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geological/GeologicalMetaData.vue")
+      },
+      // 地质上传
+      {
+        path: "geologicalupload",
+        name: "GeologicalUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/geological/GeologicalUpload.vue")
       },
     ]
   },

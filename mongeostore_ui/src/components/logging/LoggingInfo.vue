@@ -2,9 +2,17 @@
  * @Description: henggao_learning
  * @version: v1.0.0
  * @Author: henggao
+ * @Date: 2021-03-23 21:09:53
+ * @LastEditors: henggao
+ * @LastEditTime: 2021-03-24 11:08:48
+-->
+<!--
+ * @Description: henggao_learning
+ * @version: v1.0.0
+ * @Author: henggao
  * @Date: 2020-12-16 14:34:23
  * @LastEditors: henggao
- * @LastEditTime: 2021-03-24 19:28:30
+ * @LastEditTime: 2020-12-27 18:42:23
 -->
 <template>
   <!-- 主界面-->
@@ -19,15 +27,15 @@
           mode="horizontal"
           @select="handleSelect"
         >
-          <el-menu-item index="/mongeostore/geographicalhome"
+          <el-menu-item index="/mongeostore/logginghome"
             ><i class="el-icon-s-home"></i>
             首页
           </el-menu-item>
-          <el-menu-item index="/mongeostore/geographicalmap"
+          <!-- <el-menu-item index="/mongeostore/remotedatainfo"
             ><i class="el-icon-document"></i>
             数据信息
-          </el-menu-item>
-          <el-menu-item index="/mongeostore/geographicalview"
+          </el-menu-item> -->
+          <el-menu-item index="/mongeostore/loggingmetadata"
             ><i class="el-icon-s-data"></i>元数据
           </el-menu-item>
           <!-- <el-menu-item index="/mongeostore/seismicprofile"
@@ -36,9 +44,9 @@
           <el-menu-item index="/mongeostore/seismicanalysis"
             ><i class="el-icon-document"></i>解析数据</el-menu-item
           > -->
-          <!-- <el-menu-item index="/mongeostore/seismicupload"
+          <el-menu-item index="/mongeostore/loggingupload"
             ><i class="el-icon-upload"></i>上传数据</el-menu-item
-          > -->
+          >
         </el-menu>
       </el-header>
       <el-main>
@@ -49,13 +57,11 @@
 </template>
 
 <script>
-import * as Cesium from "cesium/Cesium";
-import * as widgets from "cesium/Widgets/widgets.css";
-import SeismicHome from "@/components/seismic/SeismicHome.vue";
+import LoggingHome from "@/components/logging/LoggingHome.vue";
 export default {
-  name: "GeographicalInfo",
+  name: "LoggingInfo",
   components: {
-    SeismicHome,
+    LoggingHome,
   },
   data() {
     return {
@@ -65,7 +71,7 @@ export default {
   mounted() {
     //  _this.activeIndex=window.location.href.split('/')[4];
     //  console.log(window.location.href.split('/'));
-    this.activeIndex = "/mongeostore/seismichome";
+    this.activeIndex = "/mongeostore/logginghome";
   },
   methods: {
     handleSelect(key, keyPath) {

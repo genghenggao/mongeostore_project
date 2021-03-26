@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2021-03-15 22:01:07
+ * @LastEditTime: 2021-03-24 15:10:22
 -->
 <template>
   <el-container>
@@ -142,14 +142,19 @@
               id="dataviews"
               class="echartsviews"
               ref="chart"
-              style="width: 780px; height: 520px"
+              style="width: 680px; height: 520px; transform: rotate(90deg)"
             ></div>
           </div>
           <!-- 多道地震数据 -->
           <div
             v-show="showtype == 'views_profile'"
             class="analysis_content"
-            style="height: 700px; overflow: auto; padding-top: 30px"
+            style="
+              height: 700px;
+              overflow: auto;
+              padding-top: 30px;
+              transform: rotate(90deg);
+            "
           >
             <!-- <pre>视图</pre> -->
             <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->

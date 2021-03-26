@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-05 19:30:52
+ * @LastEditTime: 2021-03-24 16:14:33
 -->
 <template>
   <el-container>
@@ -53,6 +53,30 @@
               </div>
               <div
                 v-else-if="
+                  this.$store.state.temp_database == '遥感数据管理子系统' &&
+                  this.$store.state.title_message == '遥感影像'
+                "
+              >
+                <RemoteInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '测井数据管理子系统' &&
+                  this.$store.state.title_message == '测井数据'
+                "
+              >
+                <LoggingInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '地质数据管理子系统' &&
+                  this.$store.state.title_message == '地质数据'
+                "
+              >
+                <GeologicalInfo />
+              </div>
+              <div
+                v-else-if="
                   this.$store.state.temp_database == '地理数据管理子系统' &&
                   this.$store.state.title_message == '地理数据'
                 "
@@ -95,6 +119,9 @@ import Inclination from "@/components/drill/Inclination.vue";
 import DrillMetaInfo from "@/components/drill/DrillMetaInfo.vue";
 import DrillLocationInfo from "@/components/drill/DrillLocationInfo.vue";
 import SeismicInfo from "@/components/seismic/SeismicInfo.vue";
+import RemoteInfo from "@/components/remote_sensing/RemoteInfo.vue";
+import LoggingInfo from "@/components/logging/LoggingInfo.vue";
+import GeologicalInfo from "@/components/geological/GeologicalInfo.vue";
 import GeographicalInfo from "@/components/geographical/GeographicalInfo.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
@@ -116,6 +143,9 @@ export default {
     DrillLocationInfo,
     SeismicInfo,
     GeographicalInfo,
+    RemoteInfo,
+    LoggingInfo,
+    GeologicalInfo,
   },
   data() {
     return {

@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-03 16:52:28
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-15 09:37:53
+ * @LastEditTime: 2021-03-16 16:08:53
 -->
 <template>
   <div class="mongoestore_home">
@@ -35,14 +35,14 @@
                 </el-carousel>
               </div>
               <div class="jumbotron" style="background-color: #b5b5b500">
-                <h1 class="display-4">Welcome, partner!</h1>
+                <h1 class="display-4">Welcome, geologists!</h1>
                 <p class="lead">
                   系统主要使用Django框架，整合MongoDB数据库。
                   该系统主要用于解决海量地震数据的存储、管理，为地质工作者提供更好的服务。
                 </p>
                 <hr class="my-4" />
                 <p>
-                  系统包括地理数据、遥感数据、地质数据、钻孔数据、测井数据、地震数据管理子系统。
+                  系统包括地理数据、遥感数据、地质数据、钻孔数据、测井数据、地震数据管理等子系统。
                 </p>
                 <a class="btn btn-primary btn-lg" href="#" role="button"
                   >Learn more</a
