@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-31 15:03:39
  * @LastEditors: henggao
- * @LastEditTime: 2021-01-21 17:53:56
+ * @LastEditTime: 2021-03-27 19:15:39
 -->
 <template>
   <div id="poster">
@@ -207,7 +207,8 @@ export default {
           if (response.data.status_code == 200) {
             // _this.$store.commit("login", _this.loginForm);
             // var path = this.$route.query.redirect;
-            var path = '/mongeostore';
+            // var path = '/mongeostore';
+            var path = '/mongeostorehome';
             console.log(path);
             this.$router.replace({
               path: path === "/" || path === undefined ? "/" : path
