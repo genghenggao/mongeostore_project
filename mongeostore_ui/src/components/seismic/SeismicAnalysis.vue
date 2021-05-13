@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-17 22:25:22
  * @LastEditors: henggao
- * @LastEditTime: 2021-03-24 15:10:22
+ * @LastEditTime: 2021-03-29 11:10:42
 -->
 <template>
   <el-container>
@@ -404,7 +404,7 @@
         </span>
       </el-dialog>
       <el-dialog
-        title="请上传需要解析的文件"
+        title="请下载需要解析的文件"
         :visible.sync="cloudDialogVisible"
         width="30%"
         style="min-width: 500px"

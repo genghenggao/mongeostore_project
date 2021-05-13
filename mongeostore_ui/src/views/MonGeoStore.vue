@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-11-18 14:59:33
  * @LastEditors: henggao
- * @LastEditTime: 2021-03-24 16:14:33
+ * @LastEditTime: 2021-04-13 19:04:01
 -->
 <template>
   <el-container>
@@ -46,15 +46,47 @@
               <div
                 v-else-if="
                   this.$store.state.temp_database == '地震数据管理子系统' &&
-                  this.$store.state.title_message == '地震数据'
+                  this.$store.state.title_message == '地震勘探数据管理'
                 "
               >
                 <SeismicInfo />
               </div>
               <div
                 v-else-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地震采集数据'
+                "
+              >
+                <SeiAcquisitionInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地震处理数据'
+                "
+              >
+                <SeiprocessInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地震解释数据'
+                "
+              >
+                <SeiInterpretationInfo />
+              </div>
+              <div
+                v-else-if="
+                  this.$store.state.temp_database == '地震数据管理子系统' &&
+                  this.$store.state.title_message == '地震历史数据'
+                "
+              >
+                <SeihistoricalInfo />
+              </div>
+              <div
+                v-else-if="
                   this.$store.state.temp_database == '遥感数据管理子系统' &&
-                  this.$store.state.title_message == '遥感影像'
+                  this.$store.state.title_message == '遥感影像管理'
                 "
               >
                 <RemoteInfo />
@@ -62,7 +94,7 @@
               <div
                 v-else-if="
                   this.$store.state.temp_database == '测井数据管理子系统' &&
-                  this.$store.state.title_message == '测井数据'
+                  this.$store.state.title_message == '测井数据管理'
                 "
               >
                 <LoggingInfo />
@@ -70,15 +102,23 @@
               <div
                 v-else-if="
                   this.$store.state.temp_database == '地质数据管理子系统' &&
-                  this.$store.state.title_message == '地质数据'
+                  this.$store.state.title_message == '地质数据管理'
                 "
               >
                 <GeologicalInfo />
               </div>
               <div
                 v-else-if="
+                  this.$store.state.temp_database == '水文数据管理子系统' &&
+                  this.$store.state.title_message == '水文数据管理'
+                "
+              >
+                <HydrologicalInfo />
+              </div>
+              <div
+                v-else-if="
                   this.$store.state.temp_database == '地理数据管理子系统' &&
-                  this.$store.state.title_message == '地理数据'
+                  this.$store.state.title_message == '地理数据管理'
                 "
               >
                 <GeographicalInfo />
@@ -123,6 +163,11 @@ import RemoteInfo from "@/components/remote_sensing/RemoteInfo.vue";
 import LoggingInfo from "@/components/logging/LoggingInfo.vue";
 import GeologicalInfo from "@/components/geological/GeologicalInfo.vue";
 import GeographicalInfo from "@/components/geographical/GeographicalInfo.vue";
+import HydrologicalInfo from "@/components/hydrological/HydrologicalInfo.vue";
+import SeiAcquisitionInfo from "@/components/seismic/SeiAcquisitionInfo.vue";
+import SeiprocessInfo from "@/components/seismic/SeiprocessInfo.vue";
+import SeiInterpretationInfo from "@/components/seismic/SeiInterpretationInfo.vue";
+import SeihistoricalInfo from "@/components/seismic/SeihistoricalInfo.vue";
 // import Navbar from '../components/Navbar.vue';
 export default {
   name: "MonGeoStore",
@@ -146,6 +191,11 @@ export default {
     RemoteInfo,
     LoggingInfo,
     GeologicalInfo,
+    HydrologicalInfo,
+    SeiAcquisitionInfo,
+    SeiprocessInfo,
+    SeiInterpretationInfo,
+    SeihistoricalInfo,
   },
   data() {
     return {

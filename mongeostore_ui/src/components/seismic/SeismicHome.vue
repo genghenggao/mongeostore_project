@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-12-27 18:11:18
  * @LastEditors: henggao
- * @LastEditTime: 2020-12-27 20:16:56
+ * @LastEditTime: 2021-04-13 20:10:34
 -->
 <!--
  * @Description: henggao_learning
@@ -230,7 +230,7 @@ export default {
                 top: 10,
                 text:
                   parentInfo[parentInfo.length - 1].cityName +
-                  "地学数据统计图(可点击下钻到县)",
+                  "地震勘探数据统计图(可点击下钻到县)",
                 textStyle: {
                   color: "rgb(179, 239, 255)",
                   fontSize: 26,
@@ -269,7 +269,7 @@ export default {
                 saveAsImage: {
                   name:
                     parentInfo[parentInfo.length - 1].cityName +
-                    "地学数据统计图",
+                    "地震勘探数据统计图",
                 },
                 dataZoom: {
                   show: false,
@@ -421,7 +421,7 @@ export default {
             },
             series: [
               {
-                name: timeTitle[currentIndex] + "地学数据量",
+                name: timeTitle[currentIndex] + "地震勘探数据量",
                 type: "map",
                 geoIndex: 0,
                 map: parentInfo.length === 1 ? "china" : "map",
@@ -438,7 +438,7 @@ export default {
                     let txtCon =
                       "<div style='text-align:left'>" +
                       p.name +
-                      ":<br />地学数据" +
+                      ":<br />地震勘探数据" +
                       val.toFixed(2) +
                       "万</div>";
                     return txtCon;

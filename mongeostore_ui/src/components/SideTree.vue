@@ -406,20 +406,35 @@ export default {
       if (this.$store.state.title_message == "定位表") {
         this.$router.push({ path: "/mongeostore/drilllocationhome" });
       }
-      if (this.$store.state.title_message == "地理数据") {
+      if (this.$store.state.title_message == "地理数据管理") {
         this.$router.push({ path: "/mongeostore/geographicalhome" });
       }
-      if (this.$store.state.title_message == "地震数据") {
+      if (this.$store.state.title_message == "地震勘探数据管理") {
         this.$router.push({ path: "/mongeostore/seismichome" });
       }
-      if (this.$store.state.title_message == "遥感影像") {
+      if (this.$store.state.title_message == "地震采集数据") {
+        this.$router.push({ path: "/mongeostore/seiAcquisitionhome" });
+      }
+      if (this.$store.state.title_message == "地震处理数据") {
+        this.$router.push({ path: "/mongeostore/seiprocesshome" });
+      }
+      if (this.$store.state.title_message == "地震解释数据") {
+        this.$router.push({ path: "/mongeostore/seiInterpretationhome" });
+      }
+      if (this.$store.state.title_message == "地震历史数据") {
+        this.$router.push({ path: "/mongeostore/seihistoricalhome" });
+      }
+      if (this.$store.state.title_message == "遥感影像管理") {
         this.$router.push({ path: "/mongeostore/remotehome" });
       }
-      if (this.$store.state.title_message == "测井数据") {
+      if (this.$store.state.title_message == "测井数据管理") {
         this.$router.push({ path: "/mongeostore/logginghome" });
       }
-      if (this.$store.state.title_message == "地质数据") {
+      if (this.$store.state.title_message == "地质数据管理") {
         this.$router.push({ path: "/mongeostore/geologicalhome" });
+      }
+      if (this.$store.state.title_message == "水文数据管理") {
+        this.$router.push({ path: "/mongeostore/hydrologicalhome" });
       }
       // 点击不同集合，数据动态展示数据
       this.reload(); //重载页面

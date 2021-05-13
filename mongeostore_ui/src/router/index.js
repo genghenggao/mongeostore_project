@@ -4,7 +4,7 @@
  * @Author: henggao
  * @Date: 2020-08-26 17:15:17
  * @LastEditors: henggao
- * @LastEditTime: 2021-03-24 19:27:03
+ * @LastEditTime: 2021-03-29 21:24:03
  */
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -306,8 +306,8 @@ const routes = [
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/remote_sensing/RemoteUpload.vue")
       },
-       // 测井首页
-       {
+      // 测井首页
+      {
         path: "logginghome",
         name: "LoggingHome",
         component: () =>
@@ -327,8 +327,8 @@ const routes = [
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/logging/LoggingUpload.vue")
       },
-       // 地质首页
-       {
+      // 地质首页
+      {
         path: "geologicalhome",
         name: "GeologicalHome",
         component: () =>
@@ -347,6 +347,111 @@ const routes = [
         name: "GeologicalUpload",
         component: () =>
           import(/* webpackChunkName: "about" */ "@/components/geological/GeologicalUpload.vue")
+      },
+      // 水文首页
+      {
+        path: "hydrologicalhome",
+        name: "HydrologicalHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/hydrological/HydrologicalHome.vue")
+      },
+      // 水文元数据
+      {
+        path: "hydrologicalmetadata",
+        name: "HydrologicalMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/hydrological/HydrologicalMetaData.vue")
+      },
+      // 水文上传
+      {
+        path: "hydrologicalupload",
+        name: "HydrologicalUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/hydrological/HydrologicalUpload.vue")
+      },
+      // 地震采集首页
+      {
+        path: "seiAcquisitionhome",
+        name: "seiAcquisitionHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiAcquisitionHome.vue")
+      },
+      // 地震采集元数据
+      {
+        path: "seiAcquisitionmetadata",
+        name: "SeiAcquisitionMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiAcquisitionMetaData.vue")
+      },
+      // 地震采集上传
+      {
+        path: "seiAcquisitionupload",
+        name: "SeiAcquisitionUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiAcquisitionUpload.vue")
+      },
+      // 地震处理首页
+      {
+        path: "seiprocesshome",
+        name: "SeiprocessHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiprocessHome.vue")
+      },
+      // 地震处理元数据
+      {
+        path: "seiprocessmetadata",
+        name: "SeiprocessMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiprocessMetaData.vue")
+      },
+      // 地震处理上传
+      {
+        path: "seiprocessupload",
+        name: "SeiprocessUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiprocessUpload.vue")
+      },
+      // 地震解释首页
+      {
+        path: "seiInterpretationhome",
+        name: "SeiInterpretationHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiInterpretationHome.vue")
+      },
+      // 地震处理元数据
+      {
+        path: "seiInterpretationmetadata",
+        name: "SeiInterpretationMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiInterpretationMetaData.vue")
+      },
+      // 地震处理上传
+      {
+        path: "seiInterpretationupload",
+        name: "seiInterpretationUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeiInterpretationUpload.vue")
+      },
+      // 地震历史首页
+      {
+        path: "seihistoricalhome",
+        name: "SeihistoricalHome",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeihistoricalHome.vue")
+      },
+      // 地震历史元数据
+      {
+        path: "seihistoricalmetadata",
+        name: "SeihistoricalMetaData",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeihistoricalMetaData.vue")
+      },
+      // 地震历史上传
+      {
+        path: "seihistoricalupload",
+        name: "SeihistoricalUpload",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "@/components/seismic/SeihistoricalUpload.vue")
       },
     ]
   },
